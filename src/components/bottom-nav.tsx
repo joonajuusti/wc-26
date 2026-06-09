@@ -4,10 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function BottomNav({
-  userId,
   isAdmin,
 }: {
-  userId: number;
   isAdmin: boolean;
 }) {
   const pathname = usePathname();
@@ -15,7 +13,7 @@ export function BottomNav({
   const links = [
     { href: "/predictions", label: "Veikkaukset", emoji: "\u26BD" },
     { href: "/leaderboard", label: "Tulostaulu", emoji: "\u{1F3C6}" },
-    { href: `/users/${userId}`, label: "Omat", emoji: "\u{1F464}" },
+    { href: "/omat", label: "Omat", emoji: "\u{1F464}" },
   ];
 
   if (isAdmin) {

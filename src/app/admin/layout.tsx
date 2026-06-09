@@ -11,7 +11,7 @@ export default async function AdminLayout({
   return (
     <>
       {children}
-      {user && <BottomNav userId={user.id} isAdmin={user.isAdmin} />}
+      {user && <BottomNav isAdmin={user.isAdmin} />}
     </>
   );
 }

@@ -8,7 +8,6 @@ type User = {
   name: string;
   inviteCode: string;
   isAdmin: boolean;
-  sessionToken: string | null;
 };
 
 export function UserList({ users }: { users: User[] }) {
@@ -94,9 +93,6 @@ export function UserList({ users }: { users: User[] }) {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0 ml-2">
-              <span className="text-xs text-zinc-500">
-                {user.sessionToken ? "Aktiivinen" : "Ei kirjautunut"}
-              </span>
               <button
                 onClick={() => copyToClipboard(user.inviteCode)}
                 className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"

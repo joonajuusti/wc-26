@@ -58,7 +58,7 @@ export default async function LeaderboardPage() {
           {ranked.map((user, index) => (
             <Link
               key={user.id}
-              href={`/users/${user.id}`}
+              href={`/users/${encodeURIComponent(user.name)}`}
               className={`flex items-center justify-between px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
                 user.id === currentUser.id
                   ? "bg-blue-50 dark:bg-blue-950"
@@ -102,7 +102,7 @@ export default async function LeaderboardPage() {
         </div>
       </div>
 
-      <BottomNav userId={currentUser.id} isAdmin={currentUser.isAdmin} />
+      <BottomNav isAdmin={currentUser.isAdmin} />
     </div>
   );
 }

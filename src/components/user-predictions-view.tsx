@@ -1,10 +1,6 @@
-import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { users, matches, predictions, teams } from "@/lib/db/schema";
+import { matches, predictions, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { getSessionUser } from "@/lib/auth";
-import { BottomNav } from "@/components/bottom-nav";
-import { LogoutButton } from "@/components/logout-button";
 import { calculatePoints } from "@/lib/scoring";
 
 const STAGE_LABELS: Record<string, string> = {
@@ -17,17 +13,15 @@ const STAGE_LABELS: Record<string, string> = {
   final: "Finaali",
 };
 
-export default async function UserPage(props: {
-  params: Promise<{ id: string }>;
+export async function UserPredictionsView({
+  userId,
+  userName,
+  isOwnPage,
+}: {
+  userId: number;
+  userName: string;
+  isOwnPage: boolean;
 }) {
-  const { id } = await props.params;
-  const userId = parseInt(id);
-  const currentUser = await getSessionUser();
-  if (!currentUser) return null;
-
-  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-  if (!user) return notFound();
-
   const allTeams = await db.select().from(teams);
   const teamMap = new Map(allTeams.map((t) => [t.id, t]));
   function label(teamId: string | null): string {
@@ -44,25 +38,28 @@ export default async function UserPage(props: {
 
   const predictionMap = new Map(userPredictions.map((p) => [p.matchId, p]));
 
-  const correctCount = allMatches.filter(
+  const filteredMatches = isOwnPage
+    ? allMatches
+    : allMatches.filter((m) => m.locked);
+
+  const correctCount = filteredMatches.filter(
     (m) => m.result && predictionMap.get(m.id)?.pick === m.result
   ).length;
 
-  const totalPoints = allMatches.reduce(
+  const totalPoints = filteredMatches.reduce(
     (sum, m) =>
       sum + calculatePoints(m.stage, predictionMap.get(m.id)?.pick ?? null, m.result),
     0,
   );
 
-  const totalWithResult = allMatches.filter((m) => m.result !== null).length;
+  const totalWithResult = filteredMatches.filter((m) => m.result !== null).length;
 
   return (
     <div className="mx-auto max-w-lg px-4 pb-24 pt-4">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          {user.name}
+          {userName}
         </h1>
-        <LogoutButton />
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
@@ -82,8 +79,14 @@ export default async function UserPage(props: {
         </div>
       </div>
 
+      {!isOwnPage && (
+        <p className="mb-4 text-xs text-zinc-400">
+          Vain lukitut ottelut näkyvissä
+        </p>
+      )}
+
       <div className="space-y-3">
-        {allMatches.map((match) => {
+        {filteredMatches.map((match) => {
           const pred = predictionMap.get(match.id);
           const isCorrect = match.result && pred?.pick === match.result;
           const isWrong = match.result && pred?.pick && pred.pick !== match.result;
@@ -127,8 +130,6 @@ export default async function UserPage(props: {
           );
         })}
       </div>
-
-      <BottomNav userId={currentUser.id} isAdmin={currentUser.isAdmin} />
     </div>
   );
 }

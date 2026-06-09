@@ -10,7 +10,6 @@ export const users = sqliteTable("users", {
   name: text("name").notNull().unique(),
   inviteCode: text("invite_code").notNull().unique(),
   isAdmin: integer("is_admin", { mode: "boolean" }).notNull().default(false),
-  sessionToken: text("session_token"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),

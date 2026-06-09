@@ -86,7 +86,7 @@ export default async function PredictionsPage() {
         </div>
       ))}
 
-      <BottomNav userId={user.id} isAdmin={user.isAdmin} />
+      <BottomNav isAdmin={user.isAdmin} />
     </div>
   );
 }
