@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { users, matches, predictions } from "@/lib/db/schema";
-import { eq, sql, isNotNull } from "drizzle-orm";
+import { isNotNull } from "drizzle-orm";
 
 export default async function AdminPage() {
   const user = await getSessionUser();

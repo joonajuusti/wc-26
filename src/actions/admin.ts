@@ -1,12 +1,10 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { matches, teams, users } from "@/lib/db/schema";
+import { matches, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { refresh } from "next/cache";
-import crypto from "crypto";
-
 export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
@@ -19,27 +17,15 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
 
 export async function setMatchTeams(
   matchId: number,
-  homeTeamId: number | null,
-  awayTeamId: number | null
+  homeTeamId: string | null,
+  awayTeamId: string | null
 ) {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
-  const [homeTeam] = homeTeamId
-    ? await db.select().from(teams).where(eq(teams.id, homeTeamId)).limit(1)
-    : [null];
-  const [awayTeam] = awayTeamId
-    ? await db.select().from(teams).where(eq(teams.id, awayTeamId)).limit(1)
-    : [null];
-
   await db
     .update(matches)
-    .set({
-      homeTeamId,
-      awayTeamId,
-      homeLabel: homeTeam ? `${homeTeam.flagEmoji} ${homeTeam.name}` : "TBD",
-      awayLabel: awayTeam ? `${awayTeam.flagEmoji} ${awayTeam.name}` : "TBD",
-    })
+    .set({ homeTeamId, awayTeamId })
     .where(eq(matches.id, matchId));
 
   refresh();
@@ -86,11 +72,44 @@ export async function unlockStage(stage: string) {
   return { success: true };
 }
 
+function slugify(text: string): string {
+  const normal = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+  return normal.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pelaaja";
+}
+
+function inviteSuffix(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let s = "";
+  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
 export async function generateInviteCode(name: string) {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
-  const code = "WC26-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+  const slug = slugify(name);
+
+  let code = "";
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = `${slug}-${inviteSuffix()}`;
+    const [existing] = await db
+      .select()
+      .from(users)
+      .where(eq(users.inviteCode, candidate))
+      .limit(1);
+    if (!existing) {
+      code = candidate;
+      break;
+    }
+  }
+  if (!code) {
+    code = `${slug}-${inviteSuffix()}`;
+  }
 
   await db.insert(users).values({
     name,

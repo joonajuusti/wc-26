@@ -29,23 +29,6 @@ export function LoginForm() {
     <form action={handleSubmit} className="space-y-4">
       <div>
         <label
-          htmlFor="name"
-          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-        >
-          Nimi
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          required
-          className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-          placeholder="Etunimesi"
-        />
-      </div>
-
-      <div>
-        <label
           htmlFor="inviteCode"
           className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
@@ -57,7 +40,6 @@ export function LoginForm() {
           name="inviteCode"
           required
           className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-          placeholder="esim. WC26-A7K3"
         />
       </div>
 
@@ -70,7 +52,7 @@ export function LoginForm() {
         disabled={loading}
         className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
       >
-        {loading ? "Kirjaudutaan..." : "Kirjaudu sis\u00e4\u00e4n"}
+        {loading ? "Kirjaudutaan..." : "Kirjaudu sisään"}
       </button>
     </form>
   );

@@ -17,7 +17,7 @@ export const users = sqliteTable("users", {
 });
 
 export const teams = sqliteTable("teams", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+  id: text("id").primaryKey(),
   name: text("name").notNull(),
   flagEmoji: text("flag_emoji").notNull(),
   groupLetter: text("group_letter"),
@@ -33,12 +33,9 @@ export type Stage =
   | "final";
 
 export const matches = sqliteTable("matches", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  matchNumber: integer("match_number").notNull().unique(),
-  homeTeamId: integer("home_team_id").references(() => teams.id),
-  awayTeamId: integer("away_team_id").references(() => teams.id),
-  homeLabel: text("home_label").notNull(),
-  awayLabel: text("away_label").notNull(),
+  id: integer("id").primaryKey(),
+  homeTeamId: text("home_team_id").references(() => teams.id),
+  awayTeamId: text("away_team_id").references(() => teams.id),
   stage: text("stage", { enum: ["group", "r32", "r16", "qf", "sf", "third", "final"] }).notNull(),
   kickoffUtc: integer("kickoff_utc", { mode: "timestamp" }).notNull(),
   result: text("result", { enum: ["1", "X", "2"] }),

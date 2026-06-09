@@ -28,6 +28,14 @@ export default async function UserPage(props: {
   const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!user) return notFound();
 
+  const allTeams = await db.select().from(teams);
+  const teamMap = new Map(allTeams.map((t) => [t.id, t]));
+  function label(teamId: string | null): string {
+    if (!teamId) return "TBD";
+    const t = teamMap.get(teamId);
+    return t ? `${t.flagEmoji} ${t.name}` : "TBD";
+  }
+
   const allMatches = await db.select().from(matches).orderBy(matches.kickoffUtc);
   const userPredictions = await db
     .select()
@@ -97,7 +105,7 @@ export default async function UserPage(props: {
                     {STAGE_LABELS[match.stage]}
                   </div>
                   <div className="font-medium text-zinc-800 dark:text-zinc-200">
-                    {match.homeLabel} vs {match.awayLabel}
+                    {label(match.homeTeamId)} vs {label(match.awayTeamId)}
                   </div>
                 </div>
                 <div className="text-right">

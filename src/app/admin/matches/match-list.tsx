@@ -13,19 +13,28 @@ const STAGE_LABELS: Record<string, string> = {
   final: "Finaali",
 };
 
-type Team = { id: number; name: string; flagEmoji: string };
+type Team = { id: string; name: string; flagEmoji: string };
 type Match = {
   id: number;
-  matchNumber: number;
-  homeLabel: string;
-  awayLabel: string;
-  homeTeamId: number | null;
-  awayTeamId: number | null;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
   stage: string;
   kickoffUtc: Date;
   result: string | null;
   locked: boolean;
 };
+
+function label(teamId: string | null, teams: Team[]): string {
+  if (!teamId) return "TBD";
+  const t = teams.find((t) => t.id === teamId);
+  return t ? `${t.flagEmoji} ${t.name}` : "TBD";
+}
+
+function short(teamId: string | null, teams: Team[]): string {
+  if (!teamId) return "TBD";
+  const t = teams.find((t) => t.id === teamId);
+  return t ? t.name : "TBD";
+}
 
 export function AdminMatchList({
   matches,
@@ -47,7 +56,7 @@ export function AdminMatchList({
   async function handleTeam(
     matchId: number,
     side: "home" | "away",
-    teamId: number | null
+    teamId: string | null
   ) {
     const match = matches.find((m) => m.id === matchId);
     if (!match) return;
@@ -118,7 +127,7 @@ export function AdminMatchList({
             className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
           >
             <div className="mb-1 text-xs text-zinc-500">
-              P{match.matchNumber} &middot; {STAGE_LABELS[match.stage]}
+              P{match.id} &middot; {STAGE_LABELS[match.stage]}
               {match.locked && (
                 <span className="ml-2 text-red-500 font-medium">LUKITTU</span>
               )}
@@ -131,12 +140,12 @@ export function AdminMatchList({
                   handleTeam(
                     match.id,
                     "home",
-                    e.target.value ? parseInt(e.target.value) : null
+                    e.target.value || null
                   )
                 }
                 className="flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
               >
-                <option value="">-- {match.homeLabel} --</option>
+                <option value="">-- {label(match.homeTeamId, teams)} --</option>
                 {teams.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.flagEmoji} {t.name}
@@ -152,12 +161,12 @@ export function AdminMatchList({
                   handleTeam(
                     match.id,
                     "away",
-                    e.target.value ? parseInt(e.target.value) : null
+                    e.target.value || null
                   )
                 }
                 className="flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
               >
-                <option value="">-- {match.awayLabel} --</option>
+                <option value="">-- {label(match.awayTeamId, teams)} --</option>
                 {teams.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.flagEmoji} {t.name}
@@ -178,9 +187,9 @@ export function AdminMatchList({
                   }`}
                 >
                   {option === "1"
-                    ? match.homeLabel.split(" ").slice(-1)
+                    ? short(match.homeTeamId, teams)
                     : option === "2"
-                      ? match.awayLabel.split(" ").slice(-1)
+                      ? short(match.awayTeamId, teams)
                       : "Tasuri"}
                 </button>
               ))}

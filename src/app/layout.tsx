@@ -8,8 +8,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "MM 2026 Veikkauspeli",
-  description: "Jalkapallon MM-kisat 2026 veikkauspeli",
+  title: "Futistietäjä",
+  description: "Jalkapallon MM-kisojen 2026 veikkauspeli",
 };
 
 export default function RootLayout({

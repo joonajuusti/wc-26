@@ -34,59 +34,60 @@ const SCOTLAND_FLAG =
 const ENGLAND_FLAG =
   "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}";
 
-const WC2026_TEAMS: { name: string; flag: string; group: string }[] = [
-  { name: "Meksiko", flag: flagEmoji("MX"), group: "A" },
-  { name: "Etelä-Afrikka", flag: flagEmoji("ZA"), group: "A" },
-  { name: "Etelä-Korea", flag: flagEmoji("KR"), group: "A" },
-  { name: "Tshekki", flag: flagEmoji("CZ"), group: "A" },
-  { name: "Kanada", flag: flagEmoji("CA"), group: "B" },
-  { name: "Bosnia-Hertsegovina", flag: flagEmoji("BA"), group: "B" },
-  { name: "Qatar", flag: flagEmoji("QA"), group: "B" },
-  { name: "Sveitsi", flag: flagEmoji("CH"), group: "B" },
-  { name: "Brasilia", flag: flagEmoji("BR"), group: "C" },
-  { name: "Marokko", flag: flagEmoji("MA"), group: "C" },
-  { name: "Haiti", flag: flagEmoji("HT"), group: "C" },
-  { name: "Skotlanti", flag: SCOTLAND_FLAG, group: "C" },
-  { name: "Yhdysvallat", flag: flagEmoji("US"), group: "D" },
-  { name: "Paraguay", flag: flagEmoji("PY"), group: "D" },
-  { name: "Australia", flag: flagEmoji("AU"), group: "D" },
-  { name: "Turkki", flag: flagEmoji("TR"), group: "D" },
-  { name: "Saksa", flag: flagEmoji("DE"), group: "E" },
-  { name: "Curaçao", flag: flagEmoji("CW"), group: "E" },
-  { name: "Norsunluurannikko", flag: flagEmoji("CI"), group: "E" },
-  { name: "Ecuador", flag: flagEmoji("EC"), group: "E" },
-  { name: "Hollanti", flag: flagEmoji("NL"), group: "F" },
-  { name: "Japani", flag: flagEmoji("JP"), group: "F" },
-  { name: "Ruotsi", flag: flagEmoji("SE"), group: "F" },
-  { name: "Tunisia", flag: flagEmoji("TN"), group: "F" },
-  { name: "Belgia", flag: flagEmoji("BE"), group: "G" },
-  { name: "Egypti", flag: flagEmoji("EG"), group: "G" },
-  { name: "Iran", flag: flagEmoji("IR"), group: "G" },
-  { name: "Uusi-Seelanti", flag: flagEmoji("NZ"), group: "G" },
-  { name: "Espanja", flag: flagEmoji("ES"), group: "H" },
-  { name: "Kap Verde", flag: flagEmoji("CV"), group: "H" },
-  { name: "Saudi-Arabia", flag: flagEmoji("SA"), group: "H" },
-  { name: "Uruguay", flag: flagEmoji("UY"), group: "H" },
-  { name: "Ranska", flag: flagEmoji("FR"), group: "I" },
-  { name: "Senegal", flag: flagEmoji("SN"), group: "I" },
-  { name: "Irak", flag: flagEmoji("IQ"), group: "I" },
-  { name: "Norja", flag: flagEmoji("NO"), group: "I" },
-  { name: "Argentiina", flag: flagEmoji("AR"), group: "J" },
-  { name: "Algeria", flag: flagEmoji("DZ"), group: "J" },
-  { name: "Itävalta", flag: flagEmoji("AT"), group: "J" },
-  { name: "Jordania", flag: flagEmoji("JO"), group: "J" },
-  { name: "Portugali", flag: flagEmoji("PT"), group: "K" },
+const WC2026_TEAMS: { id: string; name: string; flag: string; group: string }[] = [
+  { id: "MEX", name: "Meksiko", flag: flagEmoji("MX"), group: "A" },
+  { id: "RSA", name: "Etelä-Afrikka", flag: flagEmoji("ZA"), group: "A" },
+  { id: "KOR", name: "Etelä-Korea", flag: flagEmoji("KR"), group: "A" },
+  { id: "CZE", name: "Tshekki", flag: flagEmoji("CZ"), group: "A" },
+  { id: "CAN", name: "Kanada", flag: flagEmoji("CA"), group: "B" },
+  { id: "BIH", name: "Bosnia-Hertsegovina", flag: flagEmoji("BA"), group: "B" },
+  { id: "QAT", name: "Qatar", flag: flagEmoji("QA"), group: "B" },
+  { id: "SUI", name: "Sveitsi", flag: flagEmoji("CH"), group: "B" },
+  { id: "BRA", name: "Brasilia", flag: flagEmoji("BR"), group: "C" },
+  { id: "MAR", name: "Marokko", flag: flagEmoji("MA"), group: "C" },
+  { id: "HAI", name: "Haiti", flag: flagEmoji("HT"), group: "C" },
+  { id: "SCO", name: "Skotlanti", flag: SCOTLAND_FLAG, group: "C" },
+  { id: "USA", name: "Yhdysvallat", flag: flagEmoji("US"), group: "D" },
+  { id: "PAR", name: "Paraguay", flag: flagEmoji("PY"), group: "D" },
+  { id: "AUS", name: "Australia", flag: flagEmoji("AU"), group: "D" },
+  { id: "TUR", name: "Turkki", flag: flagEmoji("TR"), group: "D" },
+  { id: "GER", name: "Saksa", flag: flagEmoji("DE"), group: "E" },
+  { id: "CUW", name: "Curaçao", flag: flagEmoji("CW"), group: "E" },
+  { id: "CIV", name: "Norsunluurannikko", flag: flagEmoji("CI"), group: "E" },
+  { id: "ECU", name: "Ecuador", flag: flagEmoji("EC"), group: "E" },
+  { id: "NED", name: "Hollanti", flag: flagEmoji("NL"), group: "F" },
+  { id: "JPN", name: "Japani", flag: flagEmoji("JP"), group: "F" },
+  { id: "SWE", name: "Ruotsi", flag: flagEmoji("SE"), group: "F" },
+  { id: "TUN", name: "Tunisia", flag: flagEmoji("TN"), group: "F" },
+  { id: "BEL", name: "Belgia", flag: flagEmoji("BE"), group: "G" },
+  { id: "EGY", name: "Egypti", flag: flagEmoji("EG"), group: "G" },
+  { id: "IRN", name: "Iran", flag: flagEmoji("IR"), group: "G" },
+  { id: "NZL", name: "Uusi-Seelanti", flag: flagEmoji("NZ"), group: "G" },
+  { id: "ESP", name: "Espanja", flag: flagEmoji("ES"), group: "H" },
+  { id: "CPV", name: "Kap Verde", flag: flagEmoji("CV"), group: "H" },
+  { id: "KSA", name: "Saudi-Arabia", flag: flagEmoji("SA"), group: "H" },
+  { id: "URU", name: "Uruguay", flag: flagEmoji("UY"), group: "H" },
+  { id: "FRA", name: "Ranska", flag: flagEmoji("FR"), group: "I" },
+  { id: "SEN", name: "Senegal", flag: flagEmoji("SN"), group: "I" },
+  { id: "IRQ", name: "Irak", flag: flagEmoji("IQ"), group: "I" },
+  { id: "NOR", name: "Norja", flag: flagEmoji("NO"), group: "I" },
+  { id: "ARG", name: "Argentiina", flag: flagEmoji("AR"), group: "J" },
+  { id: "ALG", name: "Algeria", flag: flagEmoji("DZ"), group: "J" },
+  { id: "AUT", name: "Itävalta", flag: flagEmoji("AT"), group: "J" },
+  { id: "JOR", name: "Jordania", flag: flagEmoji("JO"), group: "J" },
+  { id: "POR", name: "Portugali", flag: flagEmoji("PT"), group: "K" },
   {
+    id: "COD",
     name: "Kongon demokraattinen tasavalta",
     flag: flagEmoji("CD"),
     group: "K",
   },
-  { name: "Uzbekistan", flag: flagEmoji("UZ"), group: "K" },
-  { name: "Kolumbia", flag: flagEmoji("CO"), group: "K" },
-  { name: "Englanti", flag: ENGLAND_FLAG, group: "L" },
-  { name: "Kroatia", flag: flagEmoji("HR"), group: "L" },
-  { name: "Ghana", flag: flagEmoji("GH"), group: "L" },
-  { name: "Panama", flag: flagEmoji("PA"), group: "L" },
+  { id: "UZB", name: "Uzbekistan", flag: flagEmoji("UZ"), group: "K" },
+  { id: "COL", name: "Kolumbia", flag: flagEmoji("CO"), group: "K" },
+  { id: "ENG", name: "Englanti", flag: ENGLAND_FLAG, group: "L" },
+  { id: "CRO", name: "Kroatia", flag: flagEmoji("HR"), group: "L" },
+  { id: "GHA", name: "Ghana", flag: flagEmoji("GH"), group: "L" },
+  { id: "PAN", name: "Panama", flag: flagEmoji("PA"), group: "L" },
 ];
 
 const GROUP_MATCHES: { home: string; away: string; kickoffUtc: string }[] = [
@@ -206,118 +207,31 @@ const SF_KICKOFFS = [
   "2026-07-15T19:00:00Z",
 ];
 
-function generateKoMatches(startNumber: number) {
+function generateKoMatches(startId: number) {
   const koMatches: (typeof matches.$inferInsert)[] = [];
-  let matchNumber = startNumber;
+  let id = startId;
 
-  const r32Pairings: [string, string][] = [
-    ["1A", "2B"],
-    ["1C", "2D"],
-    ["1E", "2F"],
-    ["1G", "2H"],
-    ["1I", "2J"],
-    ["1K", "2L"],
-    ["1B", "2A"],
-    ["1D", "2C"],
-    ["1F", "2E"],
-    ["1H", "2G"],
-    ["1J", "2I"],
-    ["1L", "2K"],
-    ["3A", "3B"],
-    ["3C", "3D"],
-    ["3E", "3F"],
-    ["3G", "3H"],
-  ];
-
-  const groups = "ABCDEFGHIJKL".split("");
-  const groupPositions: Record<string, string> = {};
-  for (const g of groups) {
-    groupPositions["1" + g] = "Lohko " + g + " voittaja";
-    groupPositions["2" + g] = "Lohko " + g + " toinen";
-    groupPositions["3" + g] = "Lohko " + g + " kolmas";
+  for (const k of R32_KICKOFFS) {
+    koMatches.push({ id: id++, stage: "r32", kickoffUtc: new Date(k) });
   }
-
-  for (let i = 0; i < r32Pairings.length; i++) {
-    const [home, away] = r32Pairings[i];
-    koMatches.push({
-      homeLabel: groupPositions[home] || home,
-      awayLabel: groupPositions[away] || away,
-      stage: "r32",
-      kickoffUtc: new Date(R32_KICKOFFS[i]),
-      matchNumber: matchNumber++,
-    });
+  for (const k of R16_KICKOFFS) {
+    koMatches.push({ id: id++, stage: "r16", kickoffUtc: new Date(k) });
   }
-
-  const r16Pairings: [string, string][] = [
-    ["J1 voittaja", "J2 voittaja"],
-    ["J3 voittaja", "J4 voittaja"],
-    ["J5 voittaja", "J6 voittaja"],
-    ["J7 voittaja", "J8 voittaja"],
-    ["J9 voittaja", "J10 voittaja"],
-    ["J11 voittaja", "J12 voittaja"],
-    ["J13 voittaja", "J14 voittaja"],
-    ["J15 voittaja", "J16 voittaja"],
-  ];
-
-  for (let i = 0; i < r16Pairings.length; i++) {
-    const [home, away] = r16Pairings[i];
-    koMatches.push({
-      homeLabel: home,
-      awayLabel: away,
-      stage: "r16",
-      kickoffUtc: new Date(R16_KICKOFFS[i]),
-      matchNumber: matchNumber++,
-    });
+  for (const k of QF_KICKOFFS) {
+    koMatches.push({ id: id++, stage: "qf", kickoffUtc: new Date(k) });
   }
-
-  const qfPairings: [string, string][] = [
-    ["NV1 voittaja", "NV2 voittaja"],
-    ["NV3 voittaja", "NV4 voittaja"],
-    ["NV5 voittaja", "NV6 voittaja"],
-    ["NV7 voittaja", "NV8 voittaja"],
-  ];
-
-  for (let i = 0; i < qfPairings.length; i++) {
-    const [home, away] = qfPairings[i];
-    koMatches.push({
-      homeLabel: home,
-      awayLabel: away,
-      stage: "qf",
-      kickoffUtc: new Date(QF_KICKOFFS[i]),
-      matchNumber: matchNumber++,
-    });
+  for (const k of SF_KICKOFFS) {
+    koMatches.push({ id: id++, stage: "sf", kickoffUtc: new Date(k) });
   }
-
-  const sfPairings: [string, string][] = [
-    ["PV1 voittaja", "PV2 voittaja"],
-    ["PV3 voittaja", "PV4 voittaja"],
-  ];
-
-  for (let i = 0; i < sfPairings.length; i++) {
-    const [home, away] = sfPairings[i];
-    koMatches.push({
-      homeLabel: home,
-      awayLabel: away,
-      stage: "sf",
-      kickoffUtc: new Date(SF_KICKOFFS[i]),
-      matchNumber: matchNumber++,
-    });
-  }
-
   koMatches.push({
-    homeLabel: "Pronssiottelu: V1 häviäjä",
-    awayLabel: "Pronssiottelu: V2 häviäjä",
+    id: id++,
     stage: "third",
     kickoffUtc: new Date("2026-07-18T21:00:00Z"),
-    matchNumber: matchNumber++,
   });
-
   koMatches.push({
-    homeLabel: "V1 voittaja",
-    awayLabel: "V2 voittaja",
+    id: id++,
     stage: "final",
     kickoffUtc: new Date("2026-07-19T19:00:00Z"),
-    matchNumber: matchNumber++,
   });
 
   return koMatches;
@@ -335,38 +249,27 @@ async function seed() {
 
   console.log("Inserting teams...");
   const teamValues = WC2026_TEAMS.map((t) => ({
+    id: t.id,
     name: t.name,
     flagEmoji: t.flag,
     groupLetter: t.group,
   }));
 
-  const insertedTeams: { id: number; name: string }[] = [];
-  for (let i = 0; i < teamValues.length; i += 10) {
-    const batch = await db
-      .insert(teams)
-      .values(teamValues.slice(i, i + 10))
-      .returning();
-    insertedTeams.push(...batch);
-  }
-
-  const teamIds: Record<string, number> = {};
-  for (const t of insertedTeams) {
-    teamIds[t.name] = t.id;
-  }
-  console.log(`Inserted ${insertedTeams.length} teams`);
-
-  const teamFlagByName: Record<string, string> = {};
+  const teamIdByName: Record<string, string> = {};
   for (const t of WC2026_TEAMS) {
-    teamFlagByName[t.name] = t.flag;
+    teamIdByName[t.name] = t.id;
   }
+
+  for (let i = 0; i < teamValues.length; i += 10) {
+    await db.insert(teams).values(teamValues.slice(i, i + 10));
+  }
+  console.log(`Inserted ${teamValues.length} teams`);
 
   console.log("Inserting group stage matches...");
   const groupMatchValues = GROUP_MATCHES.map((m, i) => ({
-    matchNumber: i + 1,
-    homeTeamId: teamIds[m.home],
-    awayTeamId: teamIds[m.away],
-    homeLabel: teamFlagByName[m.home] + " " + m.home,
-    awayLabel: teamFlagByName[m.away] + " " + m.away,
+    id: i + 1,
+    homeTeamId: teamIdByName[m.home],
+    awayTeamId: teamIdByName[m.away],
     stage: "group" as const,
     kickoffUtc: new Date(m.kickoffUtc),
   }));
@@ -385,7 +288,7 @@ async function seed() {
 
   console.log("Creating admin user...");
   await db.insert(users).values({
-    name: "Admin",
+    name: "Joona",
     inviteCode: process.env.ADMIN_INVITE_CODE || "WC26-ADMIN",
     isAdmin: true,
   });

@@ -5,7 +5,6 @@ import { savePrediction } from "@/actions/predictions";
 
 type MatchWithPrediction = {
   id: number;
-  matchNumber: number;
   homeLabel: string;
   awayLabel: string;
   stage: string;

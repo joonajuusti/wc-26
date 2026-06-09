@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { matches, predictions } from "@/lib/db/schema";
+import { matches, predictions, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { MatchCard } from "@/components/match-card";
@@ -23,6 +23,14 @@ export default async function PredictionsPage() {
   if (!user) return null;
 
   const allMatches = await db.select().from(matches).orderBy(matches.kickoffUtc);
+
+  const allTeams = await db.select().from(teams);
+  const teamMap = new Map(allTeams.map((t) => [t.id, t]));
+  function label(teamId: string | null): string {
+    if (!teamId) return "TBD";
+    const t = teamMap.get(teamId);
+    return t ? `${t.flagEmoji} ${t.name}` : "TBD";
+  }
 
   const userPredictions = user
     ? await db
@@ -62,7 +70,13 @@ export default async function PredictionsPage() {
               <MatchCard
                 key={match.id}
                 match={{
-                  ...match,
+                  id: match.id,
+                  homeLabel: label(match.homeTeamId),
+                  awayLabel: label(match.awayTeamId),
+                  stage: match.stage,
+                  kickoffUtc: match.kickoffUtc,
+                  locked: match.locked,
+                  result: match.result,
                   prediction: predictionMap.get(match.id) ?? null,
                 }}
                 stageLabel={STAGE_LABELS[match.stage] || match.stage}
