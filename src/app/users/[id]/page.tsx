@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { BottomNav } from "@/components/bottom-nav";
 import { LogoutButton } from "@/components/logout-button";
+import { calculatePoints } from "@/lib/scoring";
 
 const STAGE_LABELS: Record<string, string> = {
   group: "Lohkovaihe",
@@ -39,6 +40,12 @@ export default async function UserPage(props: {
     (m) => m.result && predictionMap.get(m.id)?.pick === m.result
   ).length;
 
+  const totalPoints = allMatches.reduce(
+    (sum, m) =>
+      sum + calculatePoints(m.stage, predictionMap.get(m.id)?.pick ?? null, m.result),
+    0,
+  );
+
   const totalWithResult = allMatches.filter((m) => m.result !== null).length;
 
   return (
@@ -50,13 +57,21 @@ export default async function UserPage(props: {
         <LogoutButton />
       </div>
 
-      <div className="mb-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          Oikeita veikkauksia:{" "}
-          <span className="font-bold">
-            {correctCount}/{totalWithResult}
-          </span>
-        </p>
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            Pisteet:{" "}
+            <span className="font-bold">{totalPoints}</span>
+          </p>
+        </div>
+        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            Oikein:{" "}
+            <span className="font-bold">
+              {correctCount}/{totalWithResult}
+            </span>
+          </p>
+        </div>
       </div>
 
       <div className="space-y-3">

@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { matches, teams, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { recalculateMatchPoints } from "@/lib/scoring";
 import { refresh } from "next/cache";
 import crypto from "crypto";
 
@@ -13,7 +12,6 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
   await db.update(matches).set({ result }).where(eq(matches.id, matchId));
-  await recalculateMatchPoints(matchId);
 
   refresh();
   return { success: true };

@@ -56,13 +56,6 @@ export const predictions = sqliteTable(
       .notNull()
       .references(() => matches.id),
     pick: text("pick", { enum: ["1", "X", "2"] }).notNull(),
-    pointsEarned: integer("points_earned"),
   },
   (table) => [uniqueIndex("user_match_idx").on(table.userId, table.matchId)]
 );
-
-export const scoringRules = sqliteTable("scoring_rules", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  stage: text("stage").notNull().unique(),
-  points: integer("points").notNull(),
-});

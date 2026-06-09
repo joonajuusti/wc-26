@@ -67,16 +67,6 @@ export default async function AdminPage() {
             Hallitse kutsukoodeja
           </div>
         </Link>
-
-        <Link
-          href="/admin/scoring"
-          className="block rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-        >
-          <div className="font-medium text-zinc-900 dark:text-zinc-50">
-            Pisteet
-          </div>
-          <div className="text-sm text-zinc-500">Muokkaa pisteytystä</div>
-        </Link>
       </div>
     </div>
   );

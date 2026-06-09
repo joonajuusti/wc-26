@@ -1,58 +1,33 @@
-import { db } from "@/lib/db";
-import { predictions, scoringRules, matches } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import type { Stage } from "@/lib/db/schema";
 
-export async function recalculateMatchPoints(matchId: number) {
-  const [match] = await db
-    .select()
-    .from(matches)
-    .where(eq(matches.id, matchId))
-    .limit(1);
+export const STAGE_POINTS: Record<Stage, number> = {
+  group: 1,
+  r32: 2,
+  r16: 3,
+  qf: 4,
+  sf: 5,
+  third: 4,
+  final: 6,
+};
 
-  if (!match || !match.result) return;
-
-  const [rule] = await db
-    .select()
-    .from(scoringRules)
-    .where(eq(scoringRules.stage, match.stage))
-    .limit(1);
-
-  const points = rule?.points ?? 1;
-
-  const matchPredictions = await db
-    .select()
-    .from(predictions)
-    .where(eq(predictions.matchId, matchId));
-
-  for (const pred of matchPredictions) {
-    const earned = pred.pick === match.result ? points : 0;
-    await db
-      .update(predictions)
-      .set({ pointsEarned: earned })
-      .where(eq(predictions.id, pred.id));
-  }
+export function calculatePoints(
+  stage: Stage,
+  pick: string | null,
+  result: string | null,
+): number {
+  if (!pick || !result) return 0;
+  return pick === result ? (STAGE_POINTS[stage] ?? 1) : 0;
 }
 
-export async function getUserTotalPoints(userId: number): Promise<number> {
-  const userPredictions = await db
-    .select()
-    .from(predictions)
-    .where(eq(predictions.userId, userId));
+export type ScoredPrediction = {
+  stage: Stage;
+  pick: string;
+  result: string | null;
+};
 
-  return userPredictions.reduce((sum, p) => sum + (p.pointsEarned ?? 0), 0);
-}
-
-export async function getUserCorrectCount(userId: number): Promise<number> {
-  const userPredictions = await db
-    .select()
-    .from(predictions)
-    .innerJoin(matches, eq(predictions.matchId, matches.id))
-    .where(
-      and(
-        eq(predictions.userId, userId),
-        eq(matches.result, predictions.pick)
-      )
-    );
-
-  return userPredictions.length;
+export function sumPoints(preds: ScoredPrediction[]): number {
+  return preds.reduce(
+    (sum, p) => sum + calculatePoints(p.stage, p.pick, p.result),
+    0,
+  );
 }

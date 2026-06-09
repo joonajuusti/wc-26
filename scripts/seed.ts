@@ -7,11 +7,9 @@ import { drizzle } from "drizzle-orm/libsql";
 import {
   teams,
   matches,
-  scoringRules,
   users,
   predictions,
 } from "../src/lib/db/schema";
-import type { Stage } from "../src/lib/db/schema";
 
 const url = process.env.DB_URL || "file:local.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
@@ -22,128 +20,194 @@ const client = createClient(
 
 const db = drizzle(client);
 
+function flagEmoji(cc: string): string {
+  return String.fromCodePoint(
+    ...cc
+      .toUpperCase()
+      .split("")
+      .map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+  );
+}
+
+const SCOTLAND_FLAG =
+  "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}";
+const ENGLAND_FLAG =
+  "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}";
+
 const WC2026_TEAMS: { name: string; flag: string; group: string }[] = [
-  { name: "Yhdysvallat", flag: "\u{1F1FA}\u{1F1F8}", group: "A" },
-  { name: "Kanada", flag: "\u{1F1E8}\u{1F1E6}", group: "A" },
-  { name: "Meksiko", flag: "\u{1F1F2}\u{1F1FD}", group: "A" },
-  {
-    name: "Costa Rica / Play-off voittaja",
-    flag: "\u{1F1E8}\u{1F1F7}",
-    group: "A",
-  },
-  { name: "Brasilia", flag: "\u{1F1E7}\u{1F1F7}", group: "B" },
-  { name: "Ecuador", flag: "\u{1F1EA}\u{1F1E8}", group: "B" },
-  { name: "Kolumbia", flag: "\u{1F1E8}\u{1F1F4}", group: "B" },
-  {
-    name: "Peru / Chile / Play-off voittaja",
-    flag: "\u{1F1F5}\u{1F1EA}",
-    group: "B",
-  },
-  { name: "Argentiina", flag: "\u{1F1E6}\u{1F1F7}", group: "C" },
-  { name: "Chile", flag: "\u{1F1E8}\u{1F1F1}", group: "C" },
-  { name: "Paraguay", flag: "\u{1F1F5}\u{1F1FE}", group: "C" },
-  { name: "Uruguay", flag: "\u{1F1FA}\u{1F1FE}", group: "C" },
-  { name: "Ranska", flag: "\u{1F1EB}\u{1F1F7}", group: "D" },
-  {
-    name: "Englanti",
-    flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}",
-    group: "D",
-  },
-  { name: "Alankomaat", flag: "\u{1F1F3}\u{1F1F1}", group: "D" },
-  { name: "Wales / Play-off voittaja", flag: "\u{1F1EC}\u{1F1E7}", group: "D" },
-  { name: "Saksa", flag: "\u{1F1E9}\u{1F1EA}", group: "E" },
-  { name: "Espanja", flag: "\u{1F1EA}\u{1F1F8}", group: "E" },
-  { name: "Italia", flag: "\u{1F1EE}\u{1F1F9}", group: "E" },
-  { name: "Sveitsi", flag: "\u{1F1E8}\u{1F1ED}", group: "E" },
-  { name: "Portugali", flag: "\u{1F1F5}\u{1F1F9}", group: "F" },
-  { name: "Kroatia", flag: "\u{1F1ED}\u{1F1F7}", group: "F" },
-  { name: "Tanska", flag: "\u{1F1E9}\u{1F1F0}", group: "F" },
-  { name: "Turkki", flag: "\u{1F1F9}\u{1F1F7}", group: "F" },
-  { name: "Japani", flag: "\u{1F1EF}\u{1F1F5}", group: "G" },
-  { name: "Etel\u00e4-Korea", flag: "\u{1F1F0}\u{1F1F7}", group: "G" },
-  { name: "Australia", flag: "\u{1F1E6}\u{1F1FA}", group: "G" },
-  { name: "Saudi-Arabia", flag: "\u{1F1F8}\u{1F1E6}", group: "G" },
-  { name: "Marokko", flag: "\u{1F1F2}\u{1F1E6}", group: "H" },
-  { name: "Tunisia", flag: "\u{1F1F9}\u{1F1F3}", group: "H" },
-  { name: "Egypti", flag: "\u{1F1EA}\u{1F1EC}", group: "H" },
-  { name: "Nigeria", flag: "\u{1F1F3}\u{1F1EC}", group: "H" },
-  { name: "Iran", flag: "\u{1F1EE}\u{1F1F7}", group: "I" },
-  { name: "Uzbekistan", flag: "\u{1F1FA}\u{1F1FF}", group: "I" },
-  { name: "Jordania", flag: "\u{1F1EF}\u{1F1F4}", group: "I" },
-  { name: "Iraq", flag: "\u{1F1EE}\u{1F1F6}", group: "I" },
-  { name: "Uusi-Seelanti", flag: "\u{1F1F3}\u{1F1FF}", group: "J" },
-  { name: "Indonesia", flag: "\u{1F1EE}\u{1F1E9}", group: "J" },
-  { name: "Japani 2 / Play-off", flag: "\u{1F1EF}\u{1F1F5}", group: "J" },
-  { name: "Australia 2 / Play-off", flag: "\u{1F1E6}\u{1F1FA}", group: "J" },
-  { name: "Mali", flag: "\u{1F1F2}\u{1F1F1}", group: "K" },
-  { name: "Senegal", flag: "\u{1F1F8}\u{1F1F3}", group: "K" },
-  { name: "Kamerun", flag: "\u{1F1E8}\u{1F1F2}", group: "K" },
+  { name: "Meksiko", flag: flagEmoji("MX"), group: "A" },
+  { name: "Etelä-Afrikka", flag: flagEmoji("ZA"), group: "A" },
+  { name: "Etelä-Korea", flag: flagEmoji("KR"), group: "A" },
+  { name: "Tshekki", flag: flagEmoji("CZ"), group: "A" },
+  { name: "Kanada", flag: flagEmoji("CA"), group: "B" },
+  { name: "Bosnia-Hertsegovina", flag: flagEmoji("BA"), group: "B" },
+  { name: "Qatar", flag: flagEmoji("QA"), group: "B" },
+  { name: "Sveitsi", flag: flagEmoji("CH"), group: "B" },
+  { name: "Brasilia", flag: flagEmoji("BR"), group: "C" },
+  { name: "Marokko", flag: flagEmoji("MA"), group: "C" },
+  { name: "Haiti", flag: flagEmoji("HT"), group: "C" },
+  { name: "Skotlanti", flag: SCOTLAND_FLAG, group: "C" },
+  { name: "Yhdysvallat", flag: flagEmoji("US"), group: "D" },
+  { name: "Paraguay", flag: flagEmoji("PY"), group: "D" },
+  { name: "Australia", flag: flagEmoji("AU"), group: "D" },
+  { name: "Turkki", flag: flagEmoji("TR"), group: "D" },
+  { name: "Saksa", flag: flagEmoji("DE"), group: "E" },
+  { name: "Curaçao", flag: flagEmoji("CW"), group: "E" },
+  { name: "Norsunluurannikko", flag: flagEmoji("CI"), group: "E" },
+  { name: "Ecuador", flag: flagEmoji("EC"), group: "E" },
+  { name: "Hollanti", flag: flagEmoji("NL"), group: "F" },
+  { name: "Japani", flag: flagEmoji("JP"), group: "F" },
+  { name: "Ruotsi", flag: flagEmoji("SE"), group: "F" },
+  { name: "Tunisia", flag: flagEmoji("TN"), group: "F" },
+  { name: "Belgia", flag: flagEmoji("BE"), group: "G" },
+  { name: "Egypti", flag: flagEmoji("EG"), group: "G" },
+  { name: "Iran", flag: flagEmoji("IR"), group: "G" },
+  { name: "Uusi-Seelanti", flag: flagEmoji("NZ"), group: "G" },
+  { name: "Espanja", flag: flagEmoji("ES"), group: "H" },
+  { name: "Kap Verde", flag: flagEmoji("CV"), group: "H" },
+  { name: "Saudi-Arabia", flag: flagEmoji("SA"), group: "H" },
+  { name: "Uruguay", flag: flagEmoji("UY"), group: "H" },
+  { name: "Ranska", flag: flagEmoji("FR"), group: "I" },
+  { name: "Senegal", flag: flagEmoji("SN"), group: "I" },
+  { name: "Irak", flag: flagEmoji("IQ"), group: "I" },
+  { name: "Norja", flag: flagEmoji("NO"), group: "I" },
+  { name: "Argentiina", flag: flagEmoji("AR"), group: "J" },
+  { name: "Algeria", flag: flagEmoji("DZ"), group: "J" },
+  { name: "Itävalta", flag: flagEmoji("AT"), group: "J" },
+  { name: "Jordania", flag: flagEmoji("JO"), group: "J" },
+  { name: "Portugali", flag: flagEmoji("PT"), group: "K" },
   {
     name: "Kongon demokraattinen tasavalta",
-    flag: "\u{1F1E8}\u{1F1E9}",
+    flag: flagEmoji("CD"),
     group: "K",
   },
-  { name: "Algeria", flag: "\u{1F1E9}\u{1F1FF}", group: "L" },
-  { name: "Ghana", flag: "\u{1F1EC}\u{1F1ED}", group: "L" },
-  { name: "Etel\u00e4-Afrikka", flag: "\u{1F1FF}\u{1F1E6}", group: "L" },
-  { name: "Kongon tasavalta", flag: "\u{1F1E8}\u{1F1EC}", group: "L" },
+  { name: "Uzbekistan", flag: flagEmoji("UZ"), group: "K" },
+  { name: "Kolumbia", flag: flagEmoji("CO"), group: "K" },
+  { name: "Englanti", flag: ENGLAND_FLAG, group: "L" },
+  { name: "Kroatia", flag: flagEmoji("HR"), group: "L" },
+  { name: "Ghana", flag: flagEmoji("GH"), group: "L" },
+  { name: "Panama", flag: flagEmoji("PA"), group: "L" },
 ];
 
-const DEFAULT_SCORING: { stage: Stage; points: number }[] = [
-  { stage: "group", points: 1 },
-  { stage: "r32", points: 2 },
-  { stage: "r16", points: 3 },
-  { stage: "qf", points: 4 },
-  { stage: "sf", points: 5 },
-  { stage: "third", points: 4 },
-  { stage: "final", points: 6 },
+const GROUP_MATCHES: { home: string; away: string; kickoffUtc: string }[] = [
+  { home: "Meksiko", away: "Etelä-Afrikka", kickoffUtc: "2026-06-11T19:00:00Z" },
+  { home: "Etelä-Korea", away: "Tshekki", kickoffUtc: "2026-06-12T02:00:00Z" },
+  { home: "Kanada", away: "Bosnia-Hertsegovina", kickoffUtc: "2026-06-12T19:00:00Z" },
+  { home: "Yhdysvallat", away: "Paraguay", kickoffUtc: "2026-06-13T01:00:00Z" },
+  { home: "Qatar", away: "Sveitsi", kickoffUtc: "2026-06-13T19:00:00Z" },
+  { home: "Brasilia", away: "Marokko", kickoffUtc: "2026-06-13T22:00:00Z" },
+  { home: "Haiti", away: "Skotlanti", kickoffUtc: "2026-06-14T01:00:00Z" },
+  { home: "Australia", away: "Turkki", kickoffUtc: "2026-06-14T04:00:00Z" },
+  { home: "Saksa", away: "Curaçao", kickoffUtc: "2026-06-14T17:00:00Z" },
+  { home: "Hollanti", away: "Japani", kickoffUtc: "2026-06-14T20:00:00Z" },
+  { home: "Norsunluurannikko", away: "Ecuador", kickoffUtc: "2026-06-14T23:00:00Z" },
+  { home: "Ruotsi", away: "Tunisia", kickoffUtc: "2026-06-15T02:00:00Z" },
+  { home: "Espanja", away: "Kap Verde", kickoffUtc: "2026-06-15T16:00:00Z" },
+  { home: "Belgia", away: "Egypti", kickoffUtc: "2026-06-15T19:00:00Z" },
+  { home: "Saudi-Arabia", away: "Uruguay", kickoffUtc: "2026-06-15T22:00:00Z" },
+  { home: "Iran", away: "Uusi-Seelanti", kickoffUtc: "2026-06-16T01:00:00Z" },
+  { home: "Ranska", away: "Senegal", kickoffUtc: "2026-06-16T19:00:00Z" },
+  { home: "Irak", away: "Norja", kickoffUtc: "2026-06-16T22:00:00Z" },
+  { home: "Argentiina", away: "Algeria", kickoffUtc: "2026-06-17T01:00:00Z" },
+  { home: "Itävalta", away: "Jordania", kickoffUtc: "2026-06-17T04:00:00Z" },
+  { home: "Portugali", away: "Kongon demokraattinen tasavalta", kickoffUtc: "2026-06-17T17:00:00Z" },
+  { home: "Englanti", away: "Kroatia", kickoffUtc: "2026-06-17T20:00:00Z" },
+  { home: "Ghana", away: "Panama", kickoffUtc: "2026-06-17T23:00:00Z" },
+  { home: "Uzbekistan", away: "Kolumbia", kickoffUtc: "2026-06-18T02:00:00Z" },
+  { home: "Tshekki", away: "Etelä-Afrikka", kickoffUtc: "2026-06-18T16:00:00Z" },
+  { home: "Sveitsi", away: "Bosnia-Hertsegovina", kickoffUtc: "2026-06-18T17:00:00Z" },
+  { home: "Kanada", away: "Qatar", kickoffUtc: "2026-06-18T22:00:00Z" },
+  { home: "Meksiko", away: "Etelä-Korea", kickoffUtc: "2026-06-19T01:00:00Z" },
+  { home: "Yhdysvallat", away: "Australia", kickoffUtc: "2026-06-19T19:00:00Z" },
+  { home: "Skotlanti", away: "Marokko", kickoffUtc: "2026-06-19T22:00:00Z" },
+  { home: "Brasilia", away: "Haiti", kickoffUtc: "2026-06-20T00:30:00Z" },
+  { home: "Turkki", away: "Paraguay", kickoffUtc: "2026-06-20T03:00:00Z" },
+  { home: "Hollanti", away: "Ruotsi", kickoffUtc: "2026-06-20T17:00:00Z" },
+  { home: "Saksa", away: "Norsunluurannikko", kickoffUtc: "2026-06-20T20:00:00Z" },
+  { home: "Ecuador", away: "Curaçao", kickoffUtc: "2026-06-21T00:00:00Z" },
+  { home: "Tunisia", away: "Japani", kickoffUtc: "2026-06-21T04:00:00Z" },
+  { home: "Espanja", away: "Saudi-Arabia", kickoffUtc: "2026-06-21T16:00:00Z" },
+  { home: "Belgia", away: "Iran", kickoffUtc: "2026-06-21T19:00:00Z" },
+  { home: "Uruguay", away: "Kap Verde", kickoffUtc: "2026-06-21T22:00:00Z" },
+  { home: "Uusi-Seelanti", away: "Egypti", kickoffUtc: "2026-06-22T01:00:00Z" },
+  { home: "Argentiina", away: "Itävalta", kickoffUtc: "2026-06-22T17:00:00Z" },
+  { home: "Ranska", away: "Irak", kickoffUtc: "2026-06-22T21:00:00Z" },
+  { home: "Norja", away: "Senegal", kickoffUtc: "2026-06-23T00:00:00Z" },
+  { home: "Jordania", away: "Algeria", kickoffUtc: "2026-06-23T03:00:00Z" },
+  { home: "Portugali", away: "Uzbekistan", kickoffUtc: "2026-06-23T17:00:00Z" },
+  { home: "Englanti", away: "Ghana", kickoffUtc: "2026-06-23T20:00:00Z" },
+  { home: "Panama", away: "Kroatia", kickoffUtc: "2026-06-23T23:00:00Z" },
+  { home: "Kolumbia", away: "Kongon demokraattinen tasavalta", kickoffUtc: "2026-06-24T02:00:00Z" },
+  { home: "Sveitsi", away: "Kanada", kickoffUtc: "2026-06-24T19:00:00Z" },
+  { home: "Bosnia-Hertsegovina", away: "Qatar", kickoffUtc: "2026-06-24T19:00:00Z" },
+  { home: "Skotlanti", away: "Brasilia", kickoffUtc: "2026-06-24T22:00:00Z" },
+  { home: "Marokko", away: "Haiti", kickoffUtc: "2026-06-24T22:00:00Z" },
+  { home: "Tshekki", away: "Meksiko", kickoffUtc: "2026-06-25T01:00:00Z" },
+  { home: "Etelä-Afrikka", away: "Etelä-Korea", kickoffUtc: "2026-06-25T01:00:00Z" },
+  { home: "Ecuador", away: "Saksa", kickoffUtc: "2026-06-25T20:00:00Z" },
+  { home: "Curaçao", away: "Norsunluurannikko", kickoffUtc: "2026-06-25T20:00:00Z" },
+  { home: "Japani", away: "Ruotsi", kickoffUtc: "2026-06-25T23:00:00Z" },
+  { home: "Tunisia", away: "Hollanti", kickoffUtc: "2026-06-25T23:00:00Z" },
+  { home: "Turkki", away: "Yhdysvallat", kickoffUtc: "2026-06-26T02:00:00Z" },
+  { home: "Paraguay", away: "Australia", kickoffUtc: "2026-06-26T02:00:00Z" },
+  { home: "Norja", away: "Ranska", kickoffUtc: "2026-06-26T19:00:00Z" },
+  { home: "Senegal", away: "Irak", kickoffUtc: "2026-06-26T19:00:00Z" },
+  { home: "Kap Verde", away: "Saudi-Arabia", kickoffUtc: "2026-06-27T00:00:00Z" },
+  { home: "Uruguay", away: "Espanja", kickoffUtc: "2026-06-27T00:00:00Z" },
+  { home: "Egypti", away: "Iran", kickoffUtc: "2026-06-27T03:00:00Z" },
+  { home: "Uusi-Seelanti", away: "Belgia", kickoffUtc: "2026-06-27T03:00:00Z" },
+  { home: "Kroatia", away: "Ghana", kickoffUtc: "2026-06-27T21:00:00Z" },
+  { home: "Panama", away: "Englanti", kickoffUtc: "2026-06-27T21:00:00Z" },
+  { home: "Kolumbia", away: "Portugali", kickoffUtc: "2026-06-27T23:30:00Z" },
+  { home: "Kongon demokraattinen tasavalta", away: "Uzbekistan", kickoffUtc: "2026-06-27T23:30:00Z" },
+  { home: "Algeria", away: "Itävalta", kickoffUtc: "2026-06-28T02:00:00Z" },
+  { home: "Jordania", away: "Argentiina", kickoffUtc: "2026-06-28T02:00:00Z" },
 ];
 
-function generateGroupMatches(teamIds: Record<string, number>) {
-  const groups = "ABCDEFGHIJKL".split("");
-  const groupMatches: (typeof matches.$inferInsert)[] = [];
-  let matchNumber = 1;
+const R32_KICKOFFS = [
+  "2026-06-28T19:00:00Z",
+  "2026-06-29T17:00:00Z",
+  "2026-06-29T20:30:00Z",
+  "2026-06-30T01:00:00Z",
+  "2026-06-30T17:00:00Z",
+  "2026-06-30T21:00:00Z",
+  "2026-07-01T01:00:00Z",
+  "2026-07-01T16:00:00Z",
+  "2026-07-01T20:00:00Z",
+  "2026-07-02T00:00:00Z",
+  "2026-07-02T19:00:00Z",
+  "2026-07-02T23:00:00Z",
+  "2026-07-03T03:00:00Z",
+  "2026-07-03T18:00:00Z",
+  "2026-07-03T22:00:00Z",
+  "2026-07-04T01:30:00Z",
+];
 
-  for (const group of groups) {
-    const groupTeams = WC2026_TEAMS.filter((t) => t.group === group);
-    if (groupTeams.length < 4) continue;
+const R16_KICKOFFS = [
+  "2026-07-04T17:00:00Z",
+  "2026-07-04T21:00:00Z",
+  "2026-07-05T20:00:00Z",
+  "2026-07-06T00:00:00Z",
+  "2026-07-06T19:00:00Z",
+  "2026-07-07T00:00:00Z",
+  "2026-07-07T16:00:00Z",
+  "2026-07-07T20:00:00Z",
+];
 
-    const ids = groupTeams.map((t) => teamIds[t.name]);
-    const kickoff = new Date("2026-06-11T18:00:00Z");
+const QF_KICKOFFS = [
+  "2026-07-09T20:00:00Z",
+  "2026-07-10T19:00:00Z",
+  "2026-07-11T21:00:00Z",
+  "2026-07-12T01:00:00Z",
+];
 
-    const pairings = [
-      [0, 1],
-      [2, 3],
-      [0, 2],
-      [1, 3],
-      [0, 3],
-      [1, 2],
-    ];
-
-    for (let i = 0; i < pairings.length; i++) {
-      const [a, b] = pairings[i];
-      const matchKickoff = new Date(
-        kickoff.getTime() + (matchNumber - 1) * 24 * 60 * 60 * 1000,
-      );
-      groupMatches.push({
-        homeTeamId: ids[a],
-        awayTeamId: ids[b],
-        homeLabel: groupTeams[a].flag + " " + groupTeams[a].name,
-        awayLabel: groupTeams[b].flag + " " + groupTeams[b].name,
-        stage: "group",
-        kickoffUtc: matchKickoff,
-        matchNumber,
-      });
-      matchNumber++;
-    }
-  }
-
-  return { groupMatches, nextMatchNumber: matchNumber };
-}
+const SF_KICKOFFS = [
+  "2026-07-14T19:00:00Z",
+  "2026-07-15T19:00:00Z",
+];
 
 function generateKoMatches(startNumber: number) {
   const koMatches: (typeof matches.$inferInsert)[] = [];
-  const groups = "ABCDEFGHIJKL".split("");
   let matchNumber = startNumber;
 
   const r32Pairings: [string, string][] = [
@@ -165,6 +229,7 @@ function generateKoMatches(startNumber: number) {
     ["3G", "3H"],
   ];
 
+  const groups = "ABCDEFGHIJKL".split("");
   const groupPositions: Record<string, string> = {};
   for (const g of groups) {
     groupPositions["1" + g] = "Lohko " + g + " voittaja";
@@ -172,15 +237,13 @@ function generateKoMatches(startNumber: number) {
     groupPositions["3" + g] = "Lohko " + g + " kolmas";
   }
 
-  const r32Kickoff = new Date("2026-06-27T18:00:00Z");
   for (let i = 0; i < r32Pairings.length; i++) {
     const [home, away] = r32Pairings[i];
-    const kickoff = new Date(r32Kickoff.getTime() + i * 12 * 60 * 60 * 1000);
     koMatches.push({
       homeLabel: groupPositions[home] || home,
       awayLabel: groupPositions[away] || away,
       stage: "r32",
-      kickoffUtc: kickoff,
+      kickoffUtc: new Date(R32_KICKOFFS[i]),
       matchNumber: matchNumber++,
     });
   }
@@ -196,70 +259,64 @@ function generateKoMatches(startNumber: number) {
     ["J15 voittaja", "J16 voittaja"],
   ];
 
-  const r16Kickoff = new Date("2026-07-04T18:00:00Z");
   for (let i = 0; i < r16Pairings.length; i++) {
     const [home, away] = r16Pairings[i];
-    const kickoff = new Date(r16Kickoff.getTime() + i * 12 * 60 * 60 * 1000);
     koMatches.push({
       homeLabel: home,
       awayLabel: away,
       stage: "r16",
-      kickoffUtc: kickoff,
+      kickoffUtc: new Date(R16_KICKOFFS[i]),
       matchNumber: matchNumber++,
     });
   }
 
   const qfPairings: [string, string][] = [
-    ["P16 voittaja", "P17 voittaja"],
-    ["P18 voittaja", "P19 voittaja"],
-    ["P20 voittaja", "P21 voittaja"],
-    ["P22 voittaja", "P23 voittaja"],
+    ["NV1 voittaja", "NV2 voittaja"],
+    ["NV3 voittaja", "NV4 voittaja"],
+    ["NV5 voittaja", "NV6 voittaja"],
+    ["NV7 voittaja", "NV8 voittaja"],
   ];
 
-  const qfKickoff = new Date("2026-07-09T18:00:00Z");
   for (let i = 0; i < qfPairings.length; i++) {
     const [home, away] = qfPairings[i];
-    const kickoff = new Date(qfKickoff.getTime() + i * 24 * 60 * 60 * 1000);
     koMatches.push({
       homeLabel: home,
       awayLabel: away,
       stage: "qf",
-      kickoffUtc: kickoff,
+      kickoffUtc: new Date(QF_KICKOFFS[i]),
       matchNumber: matchNumber++,
     });
   }
 
   const sfPairings: [string, string][] = [
-    ["P24 voittaja", "P25 voittaja"],
-    ["P26 voittaja", "P27 voittaja"],
+    ["PV1 voittaja", "PV2 voittaja"],
+    ["PV3 voittaja", "PV4 voittaja"],
   ];
 
-  const sfKickoff = new Date("2026-07-14T18:00:00Z");
   for (let i = 0; i < sfPairings.length; i++) {
     const [home, away] = sfPairings[i];
-    const kickoff = new Date(sfKickoff.getTime() + i * 24 * 60 * 60 * 1000);
     koMatches.push({
       homeLabel: home,
       awayLabel: away,
       stage: "sf",
-      kickoffUtc: kickoff,
+      kickoffUtc: new Date(SF_KICKOFFS[i]),
       matchNumber: matchNumber++,
     });
   }
 
   koMatches.push({
-    homeLabel: "Pronssiottelu: P28 h\u00e4vi\u00e4j\u00e4",
-    awayLabel: "Pronssiottelu: P29 h\u00e4vi\u00e4j\u00e4",
+    homeLabel: "Pronssiottelu: V1 häviäjä",
+    awayLabel: "Pronssiottelu: V2 häviäjä",
     stage: "third",
-    kickoffUtc: new Date("2026-07-17T18:00:00Z"),
+    kickoffUtc: new Date("2026-07-18T21:00:00Z"),
     matchNumber: matchNumber++,
   });
 
   koMatches.push({
-    homeLabel: "P28 voittaja",
-    awayLabel: "P29 voittaja",
+    homeLabel: "V1 voittaja",
+    awayLabel: "V2 voittaja",
     stage: "final",
-    kickoffUtc: new Date("2026-07-19T18:00:00Z"),
+    kickoffUtc: new Date("2026-07-19T19:00:00Z"),
     matchNumber: matchNumber++,
   });
 
@@ -271,7 +328,6 @@ async function seed() {
 
   console.log("Truncating data...");
   await db.delete(predictions);
-  await db.delete(scoringRules);
   await db.delete(matches);
   await db.delete(users);
   await db.delete(teams);
@@ -299,23 +355,33 @@ async function seed() {
   }
   console.log(`Inserted ${insertedTeams.length} teams`);
 
-  console.log("Generating group stage matches...");
-  const { groupMatches, nextMatchNumber } = generateGroupMatches(teamIds);
-  for (let i = 0; i < groupMatches.length; i += 10) {
-    await db.insert(matches).values(groupMatches.slice(i, i + 10));
+  const teamFlagByName: Record<string, string> = {};
+  for (const t of WC2026_TEAMS) {
+    teamFlagByName[t.name] = t.flag;
   }
-  console.log(`Inserted ${groupMatches.length} group stage matches`);
+
+  console.log("Inserting group stage matches...");
+  const groupMatchValues = GROUP_MATCHES.map((m, i) => ({
+    matchNumber: i + 1,
+    homeTeamId: teamIds[m.home],
+    awayTeamId: teamIds[m.away],
+    homeLabel: teamFlagByName[m.home] + " " + m.home,
+    awayLabel: teamFlagByName[m.away] + " " + m.away,
+    stage: "group" as const,
+    kickoffUtc: new Date(m.kickoffUtc),
+  }));
+
+  for (let i = 0; i < groupMatchValues.length; i += 10) {
+    await db.insert(matches).values(groupMatchValues.slice(i, i + 10));
+  }
+  console.log(`Inserted ${groupMatchValues.length} group stage matches`);
 
   console.log("Generating knockout stage matches...");
-  const koMatches = generateKoMatches(nextMatchNumber);
+  const koMatches = generateKoMatches(groupMatchValues.length + 1);
   for (let i = 0; i < koMatches.length; i += 10) {
     await db.insert(matches).values(koMatches.slice(i, i + 10));
   }
   console.log(`Inserted ${koMatches.length} knockout stage matches`);
-
-  console.log("Inserting scoring rules...");
-  await db.insert(scoringRules).values(DEFAULT_SCORING);
-  console.log(`Inserted ${DEFAULT_SCORING.length} scoring rules`);
 
   console.log("Creating admin user...");
   await db.insert(users).values({

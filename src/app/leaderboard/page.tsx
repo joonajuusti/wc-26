@@ -1,9 +1,10 @@
 import { db } from "@/lib/db";
-import { users, predictions, matches, scoringRules } from "@/lib/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { users, predictions, matches } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { BottomNav } from "@/components/bottom-nav";
 import { LogoutButton } from "@/components/logout-button";
+import { calculatePoints } from "@/lib/scoring";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -14,23 +15,29 @@ export default async function LeaderboardPage() {
 
   const allUsers = await db.select().from(users).orderBy(users.name);
 
-  const leaderboard = await db
+  const allPredictions = await db
     .select({
       userId: predictions.userId,
-      totalPoints: sql<number>`COALESCE(SUM(${predictions.pointsEarned}), 0)`,
-      correctCount: sql<number>`COUNT(CASE WHEN ${predictions.pick} = ${matches.result} THEN 1 END)`,
+      stage: matches.stage,
+      pick: predictions.pick,
+      result: matches.result,
     })
     .from(predictions)
-    .innerJoin(matches, eq(predictions.matchId, matches.id))
-    .groupBy(predictions.userId);
+    .innerJoin(matches, eq(predictions.matchId, matches.id));
 
-  const userPoints = new Map(leaderboard.map((l) => [l.userId, l]));
+  const pointsByUser = new Map<number, { totalPoints: number; correctCount: number }>();
+  for (const p of allPredictions) {
+    const entry = pointsByUser.get(p.userId) ?? { totalPoints: 0, correctCount: 0 };
+    entry.totalPoints += calculatePoints(p.stage, p.pick, p.result);
+    if (p.result && p.pick === p.result) entry.correctCount += 1;
+    pointsByUser.set(p.userId, entry);
+  }
 
   const ranked = allUsers
     .map((u) => ({
       ...u,
-      totalPoints: userPoints.get(u.id)?.totalPoints ?? 0,
-      correctCount: userPoints.get(u.id)?.correctCount ?? 0,
+      totalPoints: pointsByUser.get(u.id)?.totalPoints ?? 0,
+      correctCount: pointsByUser.get(u.id)?.correctCount ?? 0,
     }))
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
