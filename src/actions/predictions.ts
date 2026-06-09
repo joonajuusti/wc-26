@@ -18,6 +18,11 @@ export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
 
   if (match?.locked) return { error: "Veikkaus lukittu" };
 
+  if (match && match.kickoffUtc < new Date()) {
+    await db.update(matches).set({ locked: true }).where(eq(matches.id, matchId));
+    return { error: "Veikkaus lukittu" };
+  }
+
   const [existing] = await db
     .select()
     .from(predictions)
