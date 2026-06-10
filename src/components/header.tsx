@@ -6,7 +6,7 @@ import { LogoutButton } from "@/components/logout-button";
 function getTitle(pathname: string): string {
   if (pathname === "/predictions") return "Veikkaukset";
   if (pathname === "/leaderboard") return "Tulokset";
-  if (pathname === "/omat") return "Omat veikkaukset";
+  if (pathname === "/omat") return "Omat tulokset";
   if (pathname === "/admin") return "Admin";
   if (pathname === "/admin/matches") return "Ottelut";
   if (pathname === "/admin/users") return "Pelaajat";
