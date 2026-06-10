@@ -53,13 +53,13 @@ export default async function LeaderboardPage() {
           <Link
             key={user.id}
             href={`/users/${encodeURIComponent(user.name)}`}
-            className={`flex items-center justify-between px-1 py-3 transition-colors hover:bg-zinc-50 ${
+            className={`flex items-center justify-between px-1 py-4 transition-colors hover:bg-zinc-50 ${
               user.id === currentUser.id ? "bg-blue-50" : ""
             }`}
           >
             <div className="flex items-center gap-3">
               <span
-                className={`w-6 text-center text-sm font-bold ${
+                className={`w-6 text-center text-base font-bold ${
                   index === 0
                     ? "text-yellow-500"
                     : index === 1
@@ -72,7 +72,7 @@ export default async function LeaderboardPage() {
                 {index + 1}
               </span>
               <span
-                className={`text-sm ${
+                className={`text-base ${
                   user.id === currentUser.id
                     ? "font-semibold text-blue-600"
                     : "text-zinc-700"
@@ -81,7 +81,7 @@ export default async function LeaderboardPage() {
                 {user.name}
               </span>
             </div>
-            <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-3 text-base">
               <span className="text-zinc-500">{user.correctCount} oikein</span>
               <span className="font-bold text-zinc-900">
                 {user.totalPoints} p

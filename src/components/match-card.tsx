@@ -28,7 +28,7 @@ const renderLabel = (option: Pick, match: MatchWithPrediction) => {
 
   return (
     <>
-      <span className="text-lg">{flag}</span>
+      <span className="text-xl">{flag}</span>
       <span className="ml-1">{code}</span>
     </>
   );
@@ -73,7 +73,7 @@ export function MatchCard({
 
   return (
     <div>
-      <div className={`mb-1.5 text-xs inline-flex items-center gap-1 rounded px-2 py-1 -ml-2 ${
+      <div className={`mb-1.5 text-sm inline-flex items-center gap-1 rounded px-3 py-1.5 -ml-2 ${
         needsPrediction
           ? "bg-amber-100 text-amber-700"
           : "text-zinc-500"
@@ -88,7 +88,7 @@ export function MatchCard({
           const isCorrect = hasResult && option === match.result;
 
           let buttonClass =
-            "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium ";
+            "min-w-0 flex-1 flex items-center justify-center rounded-md py-4 font-medium ";
 
           if (!match.locked && !readOnly) {
             buttonClass += "cursor-pointer transition-all active:scale-[0.97] ";

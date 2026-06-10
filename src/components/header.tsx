@@ -24,11 +24,11 @@ export function Header({ name }: { name: string }) {
   return (
     <div className="mx-auto w-full max-w-lg shrink-0 px-4 pt-4 pb-2">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-zinc-900">
+        <h1 className="text-xl font-bold text-zinc-900">
           {title}
         </h1>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500">{name}</span>
+          <span className="text-sm text-zinc-500">{name}</span>
           <LogoutButton />
         </div>
       </div>

@@ -47,13 +47,13 @@ export function PredictionsView({
       {showSummary && totalWithResult > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-blue-50 p-4">
-            <p className="text-sm text-blue-700">
+            <p className="text-base text-blue-700">
               Pisteet:{" "}
               <span className="font-bold">{totalPoints}</span>
             </p>
           </div>
           <div className="rounded-lg bg-blue-50 p-4">
-            <p className="text-sm text-blue-700">
+            <p className="text-base text-blue-700">
               Oikein:{" "}
               <span className="font-bold">
                 {correctCount}/{totalWithResult}
@@ -64,24 +64,24 @@ export function PredictionsView({
       )}
 
       {readOnly && (
-        <p className="mb-4 text-xs text-zinc-400">
+        <p className="mb-4 text-sm text-zinc-400">
           Vain lukitut ottelut näkyvissä
         </p>
       )}
 
       {!readOnly && (
         <div className="mb-4 flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-zinc-600 cursor-pointer select-none">
+          <label className="flex items-center gap-2 text-base text-zinc-600 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={onlyOpen}
               onChange={(e) => setOnlyOpen(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-300"
+              className="h-5 w-5 rounded border-zinc-300"
             />
             Vain veikattavissa olevat
           </label>
           {unpredicted > 0 && (
-            <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+             <span className="ml-auto rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
               {unpredicted} veikkaamatta
             </span>
           )}
@@ -89,14 +89,14 @@ export function PredictionsView({
       )}
 
       {filtered.length === 0 && (
-        <p className="py-8 text-center text-sm text-zinc-400">
+        <p className="py-8 text-center text-base text-zinc-400">
           Ei otteluita
         </p>
       )}
 
       {Array.from(groupedByStage.entries()).map(([stage, stageMatches]) => (
         <div key={stage} className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">
+          <h2 className="mb-3 text-base font-semibold uppercase tracking-wide text-zinc-600">
             {STAGE_LABELS[stage] || stage}
           </h2>
           <div className="space-y-8">

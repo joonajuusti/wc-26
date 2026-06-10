@@ -28,13 +28,13 @@ export function BottomNav({
             <Link
               key={link.href}
               href={link.href}
-              className={`flex flex-1 flex-col items-center py-2 text-xs transition-all active:scale-[0.95] ${
+              className={`flex flex-1 flex-col items-center py-3 text-sm transition-all active:scale-[0.95] ${
                 isActive
                   ? "text-blue-600"
                   : "text-zinc-500 hover:text-zinc-700"
               }`}
             >
-              <span className="text-lg">{link.emoji}</span>
+              <span className="text-xl">{link.emoji}</span>
               <span className="mt-0.5">{link.label}</span>
             </Link>
           );
