@@ -24,9 +24,15 @@ export default async function LeaderboardPage() {
       .innerJoin(matches, eq(predictions.matchId, matches.id)),
   ]);
 
-  const pointsByUser = new Map<number, { totalPoints: number; correctCount: number }>();
+  const pointsByUser = new Map<
+    number,
+    { totalPoints: number; correctCount: number }
+  >();
   for (const p of allPredictions) {
-    const entry = pointsByUser.get(p.userId) ?? { totalPoints: 0, correctCount: 0 };
+    const entry = pointsByUser.get(p.userId) ?? {
+      totalPoints: 0,
+      correctCount: 0,
+    };
     entry.totalPoints += calculatePoints(p.stage, p.pick, p.result);
     if (p.result && p.pick === p.result) entry.correctCount += 1;
     pointsByUser.set(p.userId, entry);
@@ -42,53 +48,47 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
-      <div className="rounded-lg border border-zinc-200 bg-white shadow-sm">
-        <div className="divide-y divide-zinc-200">
-          {ranked.map((user, index) => (
-            <Link
-              key={user.id}
-              href={`/users/${encodeURIComponent(user.name)}`}
-              className={`flex items-center justify-between px-4 py-3 transition-colors hover:bg-zinc-50 ${
-                user.id === currentUser.id
-                  ? "bg-blue-50"
-                  : ""
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={`w-6 text-center text-sm font-bold ${
-                    index === 0
-                      ? "text-yellow-500"
-                      : index === 1
-                        ? "text-zinc-400"
-                        : index === 2
-                          ? "text-amber-600"
-                          : "text-zinc-400"
-                  }`}
-                >
-                  {index + 1}
-                </span>
-                <span
-                  className={`text-sm ${
-                    user.id === currentUser.id
-                      ? "font-semibold text-blue-600"
-                      : "text-zinc-700"
-                  }`}
-                >
-                  {user.name}
-                </span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <span className="text-zinc-500">
-                  {user.correctCount} oikein
-                </span>
-                <span className="font-bold text-zinc-900">
-                  {user.totalPoints} p
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+      <div className="divide-y divide-zinc-200">
+        {ranked.map((user, index) => (
+          <Link
+            key={user.id}
+            href={`/users/${encodeURIComponent(user.name)}`}
+            className={`flex items-center justify-between px-1 py-3 transition-colors hover:bg-zinc-50 ${
+              user.id === currentUser.id ? "bg-blue-50" : ""
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className={`w-6 text-center text-sm font-bold ${
+                  index === 0
+                    ? "text-yellow-500"
+                    : index === 1
+                      ? "text-zinc-500"
+                      : index === 2
+                        ? "text-amber-600"
+                        : "text-zinc-400"
+                }`}
+              >
+                {index + 1}
+              </span>
+              <span
+                className={`text-sm ${
+                  user.id === currentUser.id
+                    ? "font-semibold text-blue-600"
+                    : "text-zinc-700"
+                }`}
+              >
+                {user.name}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-zinc-500">{user.correctCount} oikein</span>
+              <span className="font-bold text-zinc-900">
+                {user.totalPoints} p
+              </span>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );
