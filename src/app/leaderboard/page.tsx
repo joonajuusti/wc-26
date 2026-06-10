@@ -16,7 +16,6 @@ export default async function LeaderboardPage() {
     db
       .select({
         userId: predictions.userId,
-        stage: matches.stage,
         pick: predictions.pick,
         result: matches.result,
       })
@@ -24,25 +23,18 @@ export default async function LeaderboardPage() {
       .innerJoin(matches, eq(predictions.matchId, matches.id)),
   ]);
 
-  const pointsByUser = new Map<
-    number,
-    { totalPoints: number; correctCount: number }
-  >();
+  const pointsByUser = new Map<number, number>();
   for (const p of allPredictions) {
-    const entry = pointsByUser.get(p.userId) ?? {
-      totalPoints: 0,
-      correctCount: 0,
-    };
-    entry.totalPoints += calculatePoints(p.stage, p.pick, p.result);
-    if (p.result && p.pick === p.result) entry.correctCount += 1;
-    pointsByUser.set(p.userId, entry);
+    pointsByUser.set(
+      p.userId,
+      (pointsByUser.get(p.userId) ?? 0) + calculatePoints(p.pick, p.result),
+    );
   }
 
   const ranked = allUsers
     .map((u) => ({
       ...u,
-      totalPoints: pointsByUser.get(u.id)?.totalPoints ?? 0,
-      correctCount: pointsByUser.get(u.id)?.correctCount ?? 0,
+      totalPoints: pointsByUser.get(u.id) ?? 0,
     }))
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
@@ -82,7 +74,6 @@ export default async function LeaderboardPage() {
               </span>
             </div>
             <div className="flex items-center gap-3 text-base">
-              <span className="text-zinc-500">{user.correctCount} oikein</span>
               <span className="font-bold text-zinc-900">
                 {user.totalPoints} p
               </span>

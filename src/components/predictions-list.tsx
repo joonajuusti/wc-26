@@ -1,4 +1,7 @@
-import { getCachedTeamsAndMatches, getUserPredictions } from "@/lib/cached-queries";
+import {
+  getCachedTeamsAndMatches,
+  getUserPredictions,
+} from "@/lib/cached-queries";
 import { calculatePoints } from "@/lib/scoring";
 import type { MatchWithPrediction } from "@/components/match-card";
 import { PredictionsView } from "@/components/predictions-view";
@@ -28,19 +31,11 @@ export async function PredictionsList({
     userPredictions.map((p) => [p.matchId, p.pick]),
   );
 
-  const matches = readOnly
-    ? allMatches.filter((m) => m.locked)
-    : allMatches;
+  const matches = readOnly ? allMatches.filter((m) => m.locked) : allMatches;
 
   const correctCount = matches.filter(
     (m) => m.result && predictionMap.get(m.id) === m.result,
   ).length;
-
-  const totalPoints = matches.reduce(
-    (sum, m) =>
-      sum + calculatePoints(m.stage, predictionMap.get(m.id) ?? null, m.result),
-    0,
-  );
 
   const totalWithResult = matches.filter((m) => m.result !== null).length;
 
@@ -62,7 +57,6 @@ export async function PredictionsList({
       matchCards={matchCards}
       readOnly={readOnly}
       showSummary={showSummary}
-      totalPoints={totalPoints}
       correctCount={correctCount}
       totalWithResult={totalWithResult}
     />

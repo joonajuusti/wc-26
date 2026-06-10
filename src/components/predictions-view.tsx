@@ -17,24 +17,22 @@ export function PredictionsView({
   matchCards,
   readOnly = false,
   showSummary = false,
-  totalPoints,
   correctCount,
   totalWithResult,
 }: {
   matchCards: MatchWithPrediction[];
   readOnly?: boolean;
   showSummary?: boolean;
-  totalPoints: number;
   correctCount: number;
   totalWithResult: number;
 }) {
   const [onlyOpen, setOnlyOpen] = useState(false);
 
-  const filtered = onlyOpen
-    ? matchCards.filter((m) => !m.locked)
-    : matchCards;
+  const filtered = onlyOpen ? matchCards.filter((m) => !m.locked) : matchCards;
 
-  const unpredicted = matchCards.filter((m) => !m.locked && !m.prediction).length;
+  const unpredicted = matchCards.filter(
+    (m) => !m.locked && !m.prediction,
+  ).length;
 
   const groupedByStage = new Map<string, MatchWithPrediction[]>();
   for (const m of filtered) {
@@ -46,12 +44,6 @@ export function PredictionsView({
     <>
       {showSummary && totalWithResult > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-blue-50 p-4">
-            <p className="text-base text-blue-700">
-              Pisteet:{" "}
-              <span className="font-bold">{totalPoints}</span>
-            </p>
-          </div>
           <div className="rounded-lg bg-blue-50 p-4">
             <p className="text-base text-blue-700">
               Oikein:{" "}
@@ -81,7 +73,7 @@ export function PredictionsView({
             Vain veikattavissa olevat
           </label>
           {unpredicted > 0 && (
-             <span className="ml-auto rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
+            <span className="ml-auto rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
               {unpredicted} veikkaamatta
             </span>
           )}
@@ -89,9 +81,7 @@ export function PredictionsView({
       )}
 
       {filtered.length === 0 && (
-        <p className="py-8 text-center text-base text-zinc-400">
-          Ei otteluita
-        </p>
+        <p className="py-8 text-center text-base text-zinc-400">Ei otteluita</p>
       )}
 
       {Array.from(groupedByStage.entries()).map(([stage, stageMatches]) => (
