@@ -11,17 +11,18 @@ export default async function LeaderboardPage() {
   const currentUser = await getSessionUser();
   if (!currentUser) return null;
 
-  const allUsers = await db.select().from(users).orderBy(users.name);
-
-  const allPredictions = await db
-    .select({
-      userId: predictions.userId,
-      stage: matches.stage,
-      pick: predictions.pick,
-      result: matches.result,
-    })
-    .from(predictions)
-    .innerJoin(matches, eq(predictions.matchId, matches.id));
+  const [allUsers, allPredictions] = await Promise.all([
+    db.select().from(users).orderBy(users.name),
+    db
+      .select({
+        userId: predictions.userId,
+        stage: matches.stage,
+        pick: predictions.pick,
+        result: matches.result,
+      })
+      .from(predictions)
+      .innerJoin(matches, eq(predictions.matchId, matches.id)),
+  ]);
 
   const pointsByUser = new Map<number, { totalPoints: number; correctCount: number }>();
   for (const p of allPredictions) {

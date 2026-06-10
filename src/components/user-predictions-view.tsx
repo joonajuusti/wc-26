@@ -20,19 +20,18 @@ export async function UserPredictionsView({
   userId: number;
   isOwnPage: boolean;
 }) {
-  const allTeams = await db.select().from(teams);
+  const [allTeams, allMatches, userPredictions] = await Promise.all([
+    db.select().from(teams),
+    db.select().from(matches).orderBy(matches.kickoffUtc),
+    db.select().from(predictions).where(eq(predictions.userId, userId)),
+  ]);
+
   const teamMap = new Map(allTeams.map((t) => [t.id, t]));
   function label(teamId: string | null): string {
     if (!teamId) return "TBD";
     const t = teamMap.get(teamId);
     return t ? `${t.flagEmoji} ${t.name}` : "TBD";
   }
-
-  const allMatches = await db.select().from(matches).orderBy(matches.kickoffUtc);
-  const userPredictions = await db
-    .select()
-    .from(predictions)
-    .where(eq(predictions.userId, userId));
 
   const predictionMap = new Map(userPredictions.map((p) => [p.matchId, p]));
 

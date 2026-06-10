@@ -9,12 +9,18 @@ export default async function AdminPage() {
   const user = await getSessionUser();
   if (!user?.isAdmin) redirect("/predictions");
 
-  const userCount = (await db.select().from(users)).length;
-  const matchCount = (await db.select().from(matches)).length;
-  const predictionCount = (await db.select().from(predictions)).length;
-  const resultsCount = (
-    await db.select().from(matches).where(isNotNull(matches.result))
-  ).length;
+  const [allUsers, allMatches, allPredictions, matchesWithResults] =
+    await Promise.all([
+      db.select().from(users),
+      db.select().from(matches),
+      db.select().from(predictions),
+      db.select().from(matches).where(isNotNull(matches.result)),
+    ]);
+
+  const userCount = allUsers.length;
+  const matchCount = allMatches.length;
+  const predictionCount = allPredictions.length;
+  const resultsCount = matchesWithResults.length;
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
