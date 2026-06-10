@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { savePrediction } from "@/actions/predictions";
 
 type MatchWithPrediction = {
@@ -44,10 +44,14 @@ export function MatchCard({
   match: MatchWithPrediction;
   stageLabel: string;
 }) {
+  const [optimisticPrediction, setOptimisticPrediction] = useOptimistic(
+    match.prediction,
+  );
   const [isPending, startTransition] = useTransition();
 
   function handlePick(pick: Pick) {
     startTransition(async () => {
+      setOptimisticPrediction(pick);
       await savePrediction(match.id, pick);
     });
   }
@@ -71,12 +75,12 @@ export function MatchCard({
 
       <div className="mt-3 flex gap-3">
         {(["1", "X", "2"] as const).map((option) => {
-          const isSelected = match.prediction === option;
+          const isSelected = optimisticPrediction === option;
           const isCorrect = match.result && option === match.result;
           const isWrong = match.result && option !== match.result;
 
           let buttonClass =
-            "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium transition-colors ";
+            "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium transition-all active:scale-[0.97] ";
 
           if (!match.locked) {
             buttonClass += "cursor-pointer ";
@@ -100,6 +104,10 @@ export function MatchCard({
 
           if (match.locked) {
             buttonClass += " opacity-70";
+          }
+
+          if (isPending && isSelected) {
+            buttonClass += " opacity-60 animate-pulse";
           }
 
           return (

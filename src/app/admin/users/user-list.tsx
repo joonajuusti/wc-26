@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { generateInviteCode } from "@/actions/admin";
 
 type User = {
@@ -12,19 +12,19 @@ type User = {
 
 export function UserList({ users }: { users: User[] }) {
   const [newName, setNewName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
-  async function handleGenerate() {
+  function handleGenerate() {
     if (!newName.trim()) return;
-    setLoading(true);
-    const result = await generateInviteCode(newName.trim());
-    setLoading(false);
-    if (result.success && result.code) {
-      setGeneratedCode(result.code);
-      setNewName("");
-    }
+    startTransition(async () => {
+      const result = await generateInviteCode(newName.trim());
+      if (result.success && result.code) {
+        setGeneratedCode(result.code);
+        setNewName("");
+      }
+    });
   }
 
   async function copyToClipboard(text: string) {
@@ -49,10 +49,10 @@ export function UserList({ users }: { users: User[] }) {
         />
         <button
           onClick={handleGenerate}
-          disabled={loading}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          disabled={isPending || !newName.trim()}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all active:scale-[0.97] hover:bg-blue-700 disabled:opacity-50"
         >
-          Luo
+          {isPending ? "Luodaan..." : "Luo"}
         </button>
       </div>
 
@@ -67,7 +67,7 @@ export function UserList({ users }: { users: User[] }) {
             </code>
             <button
               onClick={() => copyToClipboard(generatedCode)}
-              className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+              className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-all active:scale-[0.97]"
             >
               {copied === generatedCode ? "Kopioitu" : "Kopioi"}
             </button>
@@ -95,7 +95,7 @@ export function UserList({ users }: { users: User[] }) {
             <div className="flex items-center gap-2 shrink-0 ml-2">
               <button
                 onClick={() => copyToClipboard(user.inviteCode)}
-                className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200  "
+                className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 transition-all active:scale-[0.97]"
               >
                 {copied === user.inviteCode ? "Kopioitu" : "Kopioi"}
               </button>

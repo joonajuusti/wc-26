@@ -1,7 +1,5 @@
-import { db } from "@/lib/db";
-import { matches, predictions, teams } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { calculatePoints } from "@/lib/scoring";
+import { getCachedTeamsAndMatches, getUserPredictions } from "@/lib/cached-queries";
 
 const STAGE_LABELS: Record<string, string> = {
   group: "Lohkovaihe",
@@ -20,10 +18,9 @@ export async function UserPredictionsView({
   userId: number;
   isOwnPage: boolean;
 }) {
-  const [allTeams, allMatches, userPredictions] = await Promise.all([
-    db.select().from(teams),
-    db.select().from(matches).orderBy(matches.kickoffUtc),
-    db.select().from(predictions).where(eq(predictions.userId, userId)),
+  const [{ allTeams, allMatches }, userPredictions] = await Promise.all([
+    getCachedTeamsAndMatches(),
+    getUserPredictions(userId),
   ]);
 
   const teamMap = new Map(allTeams.map((t) => [t.id, t]));

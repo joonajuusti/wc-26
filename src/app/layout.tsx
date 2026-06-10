@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Geist } from "next/font/google";
 import { getSessionUser } from "@/lib/auth";
 import { Header } from "@/components/header";
@@ -34,7 +35,9 @@ export default async function RootLayout({
       <body className="w-full overflow-x-hidden bg-zinc-50 font-sans">
         <div className="flex h-dvh flex-col">
           {user && <Header name={user.name} />}
-          <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">{children}</div>
+          <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            <Suspense>{children}</Suspense>
+          </div>
           {user && <BottomNav isAdmin={user.isAdmin} />}
         </div>
       </body>

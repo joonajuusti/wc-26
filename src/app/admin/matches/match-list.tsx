@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { setMatchResult, setMatchTeams, lockStage, unlockStage } from "@/actions/admin";
 
 const STAGE_LABELS: Record<string, string> = {
@@ -45,34 +45,52 @@ export function AdminMatchList({
 }) {
   const stages = [...new Set(matches.map((m) => m.stage))];
   const [filter, setFilter] = useState<string>("all");
+  const [isPending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   const filtered =
     filter === "all" ? matches : matches.filter((m) => m.stage === filter);
 
-  async function handleResult(matchId: number, result: "1" | "X" | "2") {
-    await setMatchResult(matchId, result);
+  function handleResult(matchId: number, result: "1" | "X" | "2") {
+    startTransition(async () => {
+      setPendingAction(`result-${matchId}`);
+      await setMatchResult(matchId, result);
+      setPendingAction(null);
+    });
   }
 
-  async function handleTeam(
+  function handleTeam(
     matchId: number,
     side: "home" | "away",
-    teamId: string | null
+    teamId: string | null,
   ) {
     const match = matches.find((m) => m.id === matchId);
     if (!match) return;
-    if (side === "home") {
-      await setMatchTeams(matchId, teamId, match.awayTeamId);
-    } else {
-      await setMatchTeams(matchId, match.homeTeamId, teamId);
-    }
+    startTransition(async () => {
+      setPendingAction(`team-${matchId}`);
+      if (side === "home") {
+        await setMatchTeams(matchId, teamId, match.awayTeamId);
+      } else {
+        await setMatchTeams(matchId, match.homeTeamId, teamId);
+      }
+      setPendingAction(null);
+    });
   }
 
-  async function handleLock(stage: string) {
-    await lockStage(stage);
+  function handleLock(stage: string) {
+    startTransition(async () => {
+      setPendingAction(`lock-${stage}`);
+      await lockStage(stage);
+      setPendingAction(null);
+    });
   }
 
-  async function handleUnlock(stage: string) {
-    await unlockStage(stage);
+  function handleUnlock(stage: string) {
+    startTransition(async () => {
+      setPendingAction(`unlock-${stage}`);
+      await unlockStage(stage);
+      setPendingAction(null);
+    });
   }
 
   return (
@@ -80,7 +98,7 @@ export function AdminMatchList({
       <div className="mb-4 flex flex-wrap gap-2">
         <button
           onClick={() => setFilter("all")}
-          className={`rounded-md px-3 py-1 text-xs font-medium ${
+          className={`rounded-md px-3 py-1 text-xs font-medium transition-all active:scale-[0.97] ${
             filter === "all"
               ? "bg-blue-600 text-white"
               : "bg-zinc-100 text-zinc-700"
@@ -92,7 +110,7 @@ export function AdminMatchList({
           <button
             key={stage}
             onClick={() => setFilter(stage)}
-            className={`rounded-md px-3 py-1 text-xs font-medium ${
+            className={`rounded-md px-3 py-1 text-xs font-medium transition-all active:scale-[0.97] ${
               filter === stage
                 ? "bg-blue-600 text-white"
                 : "bg-zinc-100 text-zinc-700"
@@ -107,95 +125,105 @@ export function AdminMatchList({
         <div className="mb-4 flex gap-2">
           <button
             onClick={() => handleLock(filter)}
-            className="rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
+            disabled={isPending}
+            className="rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-red-600 disabled:opacity-50"
           >
-            Lukitse {STAGE_LABELS[filter]}
+            {pendingAction === `lock-${filter}` ? "Lukitaan..." : `Lukitse ${STAGE_LABELS[filter]}`}
           </button>
           <button
             onClick={() => handleUnlock(filter)}
-            className="rounded-md bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600"
+            disabled={isPending}
+            className="rounded-md bg-green-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-green-600 disabled:opacity-50"
           >
-            Avaa {STAGE_LABELS[filter]}
+            {pendingAction === `unlock-${filter}` ? "Avataan..." : `Avaa ${STAGE_LABELS[filter]}`}
           </button>
         </div>
       )}
 
       <div className="space-y-3">
-        {filtered.map((match) => (
-          <div
-            key={match.id}
-            className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
-          >
-            <div className="mb-1 text-xs text-zinc-500">
-              P{match.id} &middot; {STAGE_LABELS[match.stage]}
-              {match.locked && (
-                <span className="ml-2 text-red-500 font-medium">LUKITTU</span>
-              )}
-            </div>
+        {filtered.map((match) => {
+          const teamPending = pendingAction === `team-${match.id}`;
+          const resultPending = pendingAction === `result-${match.id}`;
 
-            <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
-              <select
-                value={match.homeTeamId ?? ""}
-                onChange={(e) =>
-                  handleTeam(
-                    match.id,
-                    "home",
-                    e.target.value || null
-                  )
-                }
-                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs "
-              >
-                <option value="">-- {label(match.homeTeamId, teams)} --</option>
-                {teams.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.flagEmoji} {t.name}
-                  </option>
-                ))}
-              </select>
+          return (
+            <div
+              key={match.id}
+              className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
+            >
+              <div className="mb-1 text-xs text-zinc-500">
+                P{match.id} &middot; {STAGE_LABELS[match.stage]}
+                {match.locked && (
+                  <span className="ml-2 text-red-500 font-medium">LUKITTU</span>
+                )}
+              </div>
 
-              <span className="text-zinc-400 shrink-0">vs</span>
-
-              <select
-                value={match.awayTeamId ?? ""}
-                onChange={(e) =>
-                  handleTeam(
-                    match.id,
-                    "away",
-                    e.target.value || null
-                  )
-                }
-                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs "
-              >
-                <option value="">-- {label(match.awayTeamId, teams)} --</option>
-                {teams.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.flagEmoji} {t.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mt-2 flex gap-2">
-              {(["1", "X", "2"] as const).map((option) => (
-                <button
-                  key={option}
-                  onClick={() => handleResult(match.id, option)}
-                  className={`flex-1 rounded py-1.5 text-xs font-medium transition-colors ${
-                    match.result === option
-                      ? "bg-green-500 text-white"
-                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-                  }`}
+              <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
+                <select
+                  value={match.homeTeamId ?? ""}
+                  onChange={(e) =>
+                    handleTeam(
+                      match.id,
+                      "home",
+                      e.target.value || null,
+                    )
+                  }
+                  disabled={teamPending}
+                  className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs disabled:opacity-50"
                 >
-                  {option === "1"
-                    ? short(match.homeTeamId, teams)
-                    : option === "2"
-                      ? short(match.awayTeamId, teams)
-                      : "Tasapeli"}
-                </button>
-              ))}
+                  <option value="">-- {label(match.homeTeamId, teams)} --</option>
+                  {teams.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.flagEmoji} {t.name}
+                    </option>
+                  ))}
+                </select>
+
+                <span className="text-zinc-400 shrink-0">vs</span>
+
+                <select
+                  value={match.awayTeamId ?? ""}
+                  onChange={(e) =>
+                    handleTeam(
+                      match.id,
+                      "away",
+                      e.target.value || null,
+                    )
+                  }
+                  disabled={teamPending}
+                  className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs disabled:opacity-50"
+                >
+                  <option value="">-- {label(match.awayTeamId, teams)} --</option>
+                  {teams.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.flagEmoji} {t.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-2 flex gap-2">
+                {(["1", "X", "2"] as const).map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => handleResult(match.id, option)}
+                    disabled={resultPending}
+                    className={`flex-1 rounded py-1.5 text-xs font-medium transition-all active:scale-[0.97] ${
+                      match.result === option
+                        ? "bg-green-500 text-white"
+                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                    } ${resultPending ? "opacity-50 animate-pulse" : ""}`}
+                  >
+                    {option === "1"
+                      ? short(match.homeTeamId, teams)
+                      : option === "2"
+                        ? short(match.awayTeamId, teams)
+                        : "Tasapeli"}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { predictions, matches } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { refresh } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
   const user = await getSessionUser();
@@ -29,8 +29,8 @@ export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
     .where(
       and(
         eq(predictions.userId, user.id),
-        eq(predictions.matchId, matchId)
-      )
+        eq(predictions.matchId, matchId),
+      ),
     )
     .limit(1);
 
@@ -47,6 +47,7 @@ export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
     });
   }
 
-  refresh();
+  revalidatePath("/predictions");
+  revalidatePath("/omat");
   return { success: true };
 }

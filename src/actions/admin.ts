@@ -2,9 +2,9 @@
 
 import { db } from "@/lib/db";
 import { matches, users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { refresh } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
   const user = await getSessionUser();
@@ -15,7 +15,11 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
     .set({ result, locked: true })
     .where(eq(matches.id, matchId));
 
-  refresh();
+  revalidatePath("/predictions");
+  revalidatePath("/omat");
+  revalidatePath("/leaderboard");
+  revalidatePath("/admin/matches");
+  revalidatePath("/admin");
   return { success: true };
 }
 
@@ -32,7 +36,9 @@ export async function setMatchTeams(
     .set({ homeTeamId, awayTeamId })
     .where(eq(matches.id, matchId));
 
-  refresh();
+  revalidatePath("/predictions");
+  revalidatePath("/omat");
+  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -41,18 +47,25 @@ export async function lockStage(stage: string) {
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
   const stageMatches = await db
-    .select()
+    .select({ id: matches.id })
     .from(matches)
     .where(eq(matches.stage, stage as typeof matches.$inferSelect.stage));
 
-  for (const match of stageMatches) {
+  if (stageMatches.length > 0) {
     await db
       .update(matches)
       .set({ locked: true })
-      .where(eq(matches.id, match.id));
+      .where(
+        inArray(
+          matches.id,
+          stageMatches.map((m) => m.id),
+        ),
+      );
   }
 
-  refresh();
+  revalidatePath("/predictions");
+  revalidatePath("/omat");
+  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -61,18 +74,25 @@ export async function unlockStage(stage: string) {
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
   const stageMatches = await db
-    .select()
+    .select({ id: matches.id })
     .from(matches)
     .where(eq(matches.stage, stage as typeof matches.$inferSelect.stage));
 
-  for (const match of stageMatches) {
+  if (stageMatches.length > 0) {
     await db
       .update(matches)
       .set({ locked: false })
-      .where(eq(matches.id, match.id));
+      .where(
+        inArray(
+          matches.id,
+          stageMatches.map((m) => m.id),
+        ),
+      );
   }
 
-  refresh();
+  revalidatePath("/predictions");
+  revalidatePath("/omat");
+  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -124,6 +144,6 @@ export async function generateInviteCode(name: string) {
     isAdmin: false,
   });
 
-  refresh();
+  revalidatePath("/admin/users");
   return { success: true, code };
 }

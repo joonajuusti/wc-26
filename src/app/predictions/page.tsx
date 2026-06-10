@@ -1,10 +1,6 @@
-import { db } from "@/lib/db";
-import { matches, predictions, teams } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { MatchCard } from "@/components/match-card";
-
-export const dynamic = "force-dynamic";
+import { getCachedTeamsAndMatches, getUserPredictions } from "@/lib/cached-queries";
 
 const STAGE_LABELS: Record<string, string> = {
   group: "Lohkovaihe",
@@ -16,14 +12,15 @@ const STAGE_LABELS: Record<string, string> = {
   final: "Finaali",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function PredictionsPage() {
   const user = await getSessionUser();
   if (!user) return null;
 
-  const [allMatches, allTeams, userPredictions] = await Promise.all([
-    db.select().from(matches).orderBy(matches.kickoffUtc),
-    db.select().from(teams),
-    db.select().from(predictions).where(eq(predictions.userId, user.id)),
+  const [{ allMatches, allTeams }, userPredictions] = await Promise.all([
+    getCachedTeamsAndMatches(),
+    getUserPredictions(user.id),
   ]);
 
   const teamMap = new Map(allTeams.map((t) => [t.id, t]));
