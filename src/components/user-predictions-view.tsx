@@ -54,14 +54,14 @@ export async function UserPredictionsView({
   return (
     <>
       <div className="mb-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
+        <div className="rounded-lg bg-blue-50 p-4 ">
+          <p className="text-sm text-blue-700">
             Pisteet:{" "}
             <span className="font-bold">{totalPoints}</span>
           </p>
         </div>
-        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
+        <div className="rounded-lg bg-blue-50 p-4 ">
+          <p className="text-sm text-blue-700">
             Oikein:{" "}
             <span className="font-bold">
               {correctCount}/{totalWithResult}
@@ -87,24 +87,24 @@ export async function UserPredictionsView({
               key={match.id}
               className={`rounded-lg border p-3 text-sm ${
                 isCorrect
-                  ? "border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-950"
+                  ? "border-green-300 bg-green-50 "
                   : isWrong
-                    ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
-                    : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+                    ? "border-red-200 bg-red-50 "
+                    : "border-zinc-200 bg-white "
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <div className="text-xs text-zinc-500">
                     {STAGE_LABELS[match.stage]}
                   </div>
-                  <div className="truncate font-medium text-zinc-800 dark:text-zinc-200">
+                  <div className="truncate font-medium text-zinc-800">
                     {label(match.homeTeamId)} vs {label(match.awayTeamId)}
                   </div>
                 </div>
                 <div className="text-right">
                   {pred ? (
-                    <span className="font-bold text-zinc-700 dark:text-zinc-300">
+                    <span className="font-bold text-zinc-700">
                       {pred.pick}
                     </span>
                   ) : (

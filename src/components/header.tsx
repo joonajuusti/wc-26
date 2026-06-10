@@ -25,7 +25,7 @@ export function Header({ name }: { name: string }) {
   return (
     <div className="mx-auto w-full max-w-lg shrink-0 px-4 pt-4 pb-2">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-lg font-bold text-zinc-900">
           {title}
         </h1>
         <div className="flex items-center gap-3">

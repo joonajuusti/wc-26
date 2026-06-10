@@ -29,7 +29,7 @@ export default async function RootLayout({
 
   return (
     <html lang="fi" className={`${geistSans.variable} w-full antialiased`}>
-      <body className="h-screen w-full overflow-hidden bg-zinc-50 font-sans dark:bg-black">
+      <body className="h-screen w-full overflow-hidden bg-zinc-50 font-sans">
         <div className="flex h-full flex-col">
           {user && <Header name={user.name} />}
           <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>

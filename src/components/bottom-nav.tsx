@@ -21,7 +21,7 @@ export function BottomNav({
   }
 
   return (
-    <nav className="shrink-0 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <nav className="shrink-0 border-t border-zinc-200 bg-white ">
       <div className="mx-auto flex w-full max-w-lg">
         {links.map((link) => {
           const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
@@ -31,8 +31,8 @@ export function BottomNav({
               href={link.href}
               className={`flex flex-1 flex-col items-center py-2 text-xs transition-colors ${
                 isActive
-                  ? "text-blue-600 dark:text-blue-400"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  ? "text-blue-600"
+                  : "text-zinc-500 hover:text-zinc-700"
               }`}
             >
               <span className="text-lg">{link.emoji}</span>

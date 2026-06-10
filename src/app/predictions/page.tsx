@@ -48,7 +48,7 @@ export default async function PredictionsPage() {
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       {Array.from(groupedByStage.entries()).map(([stage, stageMatches]) => (
         <div key={stage} className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600">
             {STAGE_LABELS[stage] || stage}
           </h2>
           <div className="space-y-8">

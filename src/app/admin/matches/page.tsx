@@ -17,7 +17,7 @@ export default async function AdminMatchesPage() {
       <div className="mb-4">
         <Link
           href="/admin"
-          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+          className="text-sm text-blue-600 hover:underline"
         >
           &larr; Takaisin
         </Link>

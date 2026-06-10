@@ -83,7 +83,7 @@ export function AdminMatchList({
           className={`rounded-md px-3 py-1 text-xs font-medium ${
             filter === "all"
               ? "bg-blue-600 text-white"
-              : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+              : "bg-zinc-100 text-zinc-700"
           }`}
         >
           Kaikki
@@ -95,7 +95,7 @@ export function AdminMatchList({
             className={`rounded-md px-3 py-1 text-xs font-medium ${
               filter === stage
                 ? "bg-blue-600 text-white"
-                : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                : "bg-zinc-100 text-zinc-700"
             }`}
           >
             {STAGE_LABELS[stage]}
@@ -124,7 +124,7 @@ export function AdminMatchList({
         {filtered.map((match) => (
           <div
             key={match.id}
-            className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
           >
             <div className="mb-1 text-xs text-zinc-500">
               P{match.id} &middot; {STAGE_LABELS[match.stage]}
@@ -143,7 +143,7 @@ export function AdminMatchList({
                     e.target.value || null
                   )
                 }
-                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs "
               >
                 <option value="">-- {label(match.homeTeamId, teams)} --</option>
                 {teams.map((t) => (
@@ -164,7 +164,7 @@ export function AdminMatchList({
                     e.target.value || null
                   )
                 }
-                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs "
               >
                 <option value="">-- {label(match.awayTeamId, teams)} --</option>
                 {teams.map((t) => (
@@ -183,7 +183,7 @@ export function AdminMatchList({
                   className={`flex-1 rounded py-1.5 text-xs font-medium transition-colors ${
                     match.result === option
                       ? "bg-green-500 text-white"
-                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                   }`}
                 >
                   {option === "1"

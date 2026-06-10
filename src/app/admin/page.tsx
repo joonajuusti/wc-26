@@ -25,20 +25,20 @@ export default async function AdminPage() {
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <div className="mb-6 grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm ">
+          <div className="text-2xl font-bold text-zinc-900">
             {userCount}
           </div>
           <div className="text-xs text-zinc-500">Pelaajaa</div>
         </div>
-        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm ">
+          <div className="text-2xl font-bold text-zinc-900">
             {resultsCount}/{matchCount}
           </div>
           <div className="text-xs text-zinc-500">Tuloksia syötetty</div>
         </div>
-        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm ">
+          <div className="text-2xl font-bold text-zinc-900">
             {predictionCount}
           </div>
           <div className="text-xs text-zinc-500">Veikkausta</div>
@@ -48,9 +48,9 @@ export default async function AdminPage() {
       <div className="space-y-2">
         <Link
           href="/admin/matches"
-          className="block rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+          className="block rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:bg-zinc-50"
         >
-          <div className="font-medium text-zinc-900 dark:text-zinc-50">
+          <div className="font-medium text-zinc-900">
             Ottelut
           </div>
           <div className="text-sm text-zinc-500">
@@ -60,9 +60,9 @@ export default async function AdminPage() {
 
         <Link
           href="/admin/users"
-          className="block rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+          className="block rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:bg-zinc-50"
         >
-          <div className="font-medium text-zinc-900 dark:text-zinc-50">
+          <div className="font-medium text-zinc-900">
             Pelaajat
           </div>
           <div className="text-sm text-zinc-500">

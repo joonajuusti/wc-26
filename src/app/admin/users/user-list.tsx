@@ -45,7 +45,7 @@ export function UserList({ users }: { users: User[] }) {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Uuden pelaajan nimi"
-          className="flex-1 rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+          className="flex-1 rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm "
         />
         <button
           onClick={handleGenerate}
@@ -57,12 +57,12 @@ export function UserList({ users }: { users: User[] }) {
       </div>
 
       {generatedCode && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950">
-          <p className="mb-2 text-sm font-medium text-green-800 dark:text-green-200">
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 ">
+          <p className="mb-2 text-sm font-medium text-green-800">
             Uusi kutsukoodi luotu
           </p>
           <div className="flex items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 font-mono text-sm dark:bg-zinc-800">
+            <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 font-mono text-sm ">
               {generatedCode}
             </code>
             <button
@@ -79,10 +79,10 @@ export function UserList({ users }: { users: User[] }) {
         {users.map((user) => (
           <div
             key={user.id}
-            className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+            className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
           >
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+              <div className="text-sm font-medium text-zinc-900 ">
                 {user.name}
                 {user.isAdmin && (
                   <span className="ml-2 text-xs text-blue-600">ADMIN</span>
@@ -95,7 +95,7 @@ export function UserList({ users }: { users: User[] }) {
             <div className="flex items-center gap-2 shrink-0 ml-2">
               <button
                 onClick={() => copyToClipboard(user.inviteCode)}
-                className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200  "
               >
                 {copied === user.inviteCode ? "Kopioitu" : "Kopioi"}
               </button>

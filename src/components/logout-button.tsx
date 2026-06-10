@@ -19,7 +19,7 @@ export function LogoutButton() {
     <button
       onClick={handleLogout}
       disabled={loading}
-      className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+      className="text-xs text-zinc-400 hover:text-zinc-600"
     >
       Kirjaudu ulos
     </button>
