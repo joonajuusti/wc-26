@@ -13,6 +13,8 @@ const geistSans = Geist({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#fafafa",
 };
 
 export const metadata: Metadata = {
@@ -29,10 +31,10 @@ export default async function RootLayout({
 
   return (
     <html lang="fi" className={`${geistSans.variable} w-full antialiased`}>
-      <body className="h-screen w-full overflow-hidden bg-zinc-50 font-sans">
+      <body className="h-screen w-full overflow-x-hidden bg-zinc-50 font-sans [&:has(nav)]:pb-[env(safe-area-inset-bottom)]">
         <div className="flex h-full flex-col">
           {user && <Header name={user.name} />}
-          <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>
+          <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">{children}</div>
           {user && <BottomNav isAdmin={user.isAdmin} />}
         </div>
       </body>

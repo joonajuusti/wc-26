@@ -27,10 +27,10 @@ export default async function PredictionsPage() {
   ]);
 
   const teamMap = new Map(allTeams.map((t) => [t.id, t]));
-  function label(teamId: string | null): string {
-    if (!teamId) return "TBD";
+  function team(teamId: string | null) {
+    if (!teamId) return { flag: "🏳️", code: "TBD" };
     const t = teamMap.get(teamId);
-    return t ? `${t.flagEmoji} ${t.name}` : "TBD";
+    return t ? { flag: t.flagEmoji, code: t.id } : { flag: "🏳️", code: "TBD" };
   }
 
   const predictionMap = new Map(
@@ -55,11 +55,13 @@ export default async function PredictionsPage() {
             {stageMatches.map((match) => (
               <MatchCard
                 key={match.id}
-                match={{
-                  id: match.id,
-                  homeLabel: label(match.homeTeamId),
-                  awayLabel: label(match.awayTeamId),
-                  stage: match.stage,
+              match={{
+                id: match.id,
+                homeFlag: team(match.homeTeamId).flag,
+                homeCode: team(match.homeTeamId).code,
+                awayFlag: team(match.awayTeamId).flag,
+                awayCode: team(match.awayTeamId).code,
+                stage: match.stage,
                   kickoffUtc: match.kickoffUtc,
                   locked: match.locked,
                   result: match.result,

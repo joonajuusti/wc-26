@@ -5,8 +5,10 @@ import { savePrediction } from "@/actions/predictions";
 
 type MatchWithPrediction = {
   id: number;
-  homeLabel: string;
-  awayLabel: string;
+  homeFlag: string;
+  homeCode: string;
+  awayFlag: string;
+  awayCode: string;
   stage: string;
   kickoffUtc: Date;
   locked: boolean;
@@ -16,15 +18,23 @@ type MatchWithPrediction = {
 
 type Pick = "1" | "X" | "2";
 
-const formatLabel = (
+const renderLabel = (
   option: Pick,
-  { homeLabel, awayLabel }: MatchWithPrediction,
+  match: MatchWithPrediction,
 ) => {
   if (option === "X") {
     return option;
   }
 
-  return `${option === "1" ? homeLabel : awayLabel}`;
+  const flag = option === "1" ? match.homeFlag : match.awayFlag;
+  const code = option === "1" ? match.homeCode : match.awayCode;
+
+  return (
+    <>
+      <span className="text-lg">{flag}</span>
+      <span className="ml-1">{code}</span>
+    </>
+  );
 };
 
 export function MatchCard({
@@ -66,7 +76,7 @@ export function MatchCard({
           const isWrong = match.result && option !== match.result;
 
           let buttonClass =
-            "flex-1 rounded-md py-4 font-medium transition-colors outline-solid ";
+            "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium transition-colors ";
 
           if (!match.locked) {
             buttonClass += "cursor-pointer ";
@@ -99,7 +109,7 @@ export function MatchCard({
               disabled={match.locked || isPending}
               onClick={() => handlePick(option)}
             >
-              {formatLabel(option, match)}
+              {renderLabel(option, match)}
             </button>
           );
         })}
