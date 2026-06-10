@@ -33,7 +33,9 @@ export default async function PredictionsPage() {
     return t ? `${t.flagEmoji} ${t.name}` : "TBD";
   }
 
-  const predictionMap = new Map(userPredictions.map((p) => [p.matchId, p.pick]));
+  const predictionMap = new Map(
+    userPredictions.map((p) => [p.matchId, p.pick]),
+  );
 
   const groupedByStage = new Map<string, typeof allMatches>();
   for (const match of allMatches) {
@@ -49,7 +51,7 @@ export default async function PredictionsPage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
             {STAGE_LABELS[stage] || stage}
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-8">
             {stageMatches.map((match) => (
               <MatchCard
                 key={match.id}
