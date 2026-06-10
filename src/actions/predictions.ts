@@ -48,6 +48,5 @@ export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
   }
 
   revalidatePath("/predictions");
-  revalidatePath("/omat");
   return { success: true };
 }

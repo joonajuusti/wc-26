@@ -13,7 +13,6 @@ export function BottomNav({
   const links = [
     { href: "/predictions", label: "Veikkaukset", emoji: "\u26BD" },
     { href: "/leaderboard", label: "Tulokset", emoji: "\u{1F3C6}" },
-    { href: "/omat", label: "Omat", emoji: "\u{1F464}" },
   ];
 
   if (isAdmin) {

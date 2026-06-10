@@ -16,7 +16,6 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
     .where(eq(matches.id, matchId));
 
   revalidatePath("/predictions");
-  revalidatePath("/omat");
   revalidatePath("/leaderboard");
   revalidatePath("/admin/matches");
   revalidatePath("/admin");
@@ -37,7 +36,6 @@ export async function setMatchTeams(
     .where(eq(matches.id, matchId));
 
   revalidatePath("/predictions");
-  revalidatePath("/omat");
   revalidatePath("/admin/matches");
   return { success: true };
 }
@@ -64,7 +62,6 @@ export async function lockStage(stage: string) {
   }
 
   revalidatePath("/predictions");
-  revalidatePath("/omat");
   revalidatePath("/admin/matches");
   return { success: true };
 }
@@ -91,7 +88,6 @@ export async function unlockStage(stage: string) {
   }
 
   revalidatePath("/predictions");
-  revalidatePath("/omat");
   revalidatePath("/admin/matches");
   return { success: true };
 }

@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { UserPredictionsView } from "@/components/user-predictions-view";
+import { PredictionsList } from "@/components/predictions-list";
 
 export default async function UserPage(props: {
   params: Promise<{ name: string }>;
@@ -15,9 +15,15 @@ export default async function UserPage(props: {
   const [user] = await db.select().from(users).where(eq(users.name, name)).limit(1);
   if (!user) return notFound();
 
+  const isOwnPage = user.id === currentUser.id;
+
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
-      <UserPredictionsView userId={user.id} isOwnPage={user.id === currentUser.id} />
+      <PredictionsList
+        userId={user.id}
+        readOnly={!isOwnPage}
+        showSummary={isOwnPage}
+      />
     </div>
   );
 }

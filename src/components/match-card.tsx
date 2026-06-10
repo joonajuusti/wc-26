@@ -3,7 +3,7 @@
 import { useOptimistic, useTransition } from "react";
 import { savePrediction } from "@/actions/predictions";
 
-type MatchWithPrediction = {
+export type MatchWithPrediction = {
   id: number;
   homeFlag: string;
   homeCode: string;
@@ -37,16 +37,21 @@ const renderLabel = (option: Pick, match: MatchWithPrediction) => {
 export function MatchCard({
   match,
   stageLabel,
+  readOnly = false,
 }: {
   match: MatchWithPrediction;
   stageLabel: string;
+  readOnly?: boolean;
 }) {
   const [optimisticPrediction, setOptimisticPrediction] = useOptimistic(
     match.prediction,
   );
   const [isPending, startTransition] = useTransition();
 
+  const activePrediction = readOnly ? match.prediction : optimisticPrediction;
+
   function handlePick(pick: Pick) {
+    if (readOnly) return;
     startTransition(async () => {
       setOptimisticPrediction(pick);
       await savePrediction(match.id, pick);
@@ -72,14 +77,14 @@ export function MatchCard({
 
       <div className="mt-3 flex gap-3">
         {(["1", "X", "2"] as const).map((option) => {
-          const isSelected = optimisticPrediction === option;
+          const isSelected = activePrediction === option;
           const hasResult = !!match.result;
           const isCorrect = hasResult && option === match.result;
 
           let buttonClass =
             "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium ";
 
-          if (!match.locked) {
+          if (!match.locked && !readOnly) {
             buttonClass += "cursor-pointer transition-all active:scale-[0.97] ";
           }
 
@@ -106,7 +111,7 @@ export function MatchCard({
             <button
               key={option}
               className={buttonClass}
-              disabled={match.locked || isPending}
+              disabled={match.locked || isPending || readOnly}
               onClick={() => handlePick(option)}
             >
               {renderLabel(option, match)}
