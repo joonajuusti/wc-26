@@ -5,11 +5,15 @@ import { matches, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { refresh } from "next/cache";
+
 export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
-  await db.update(matches).set({ result }).where(eq(matches.id, matchId));
+  await db
+    .update(matches)
+    .set({ result, locked: true })
+    .where(eq(matches.id, matchId));
 
   refresh();
   return { success: true };
@@ -18,7 +22,7 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
 export async function setMatchTeams(
   matchId: number,
   homeTeamId: string | null,
-  awayTeamId: string | null
+  awayTeamId: string | null,
 ) {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
@@ -78,13 +82,16 @@ function slugify(text: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
-  return normal.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pelaaja";
+  return (
+    normal.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pelaaja"
+  );
 }
 
 function inviteSuffix(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let s = "";
-  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < 4; i++)
+    s += chars[Math.floor(Math.random() * chars.length)];
   return s;
 }
 
