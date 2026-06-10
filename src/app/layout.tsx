@@ -31,8 +31,8 @@ export default async function RootLayout({
 
   return (
     <html lang="fi" className={`${geistSans.variable} w-full antialiased`}>
-      <body className="h-screen w-full overflow-x-hidden bg-zinc-50 font-sans [&:has(nav)]:pb-[env(safe-area-inset-bottom)]">
-        <div className="flex h-full flex-col">
+      <body className="w-full overflow-x-hidden bg-zinc-50 font-sans">
+        <div className="flex h-dvh flex-col">
           {user && <Header name={user.name} />}
           <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">{children}</div>
           {user && <BottomNav isAdmin={user.isAdmin} />}
