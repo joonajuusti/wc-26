@@ -73,8 +73,8 @@ export function MatchCard({
       <div className="mt-3 flex gap-3">
         {(["1", "X", "2"] as const).map((option) => {
           const isSelected = optimisticPrediction === option;
-          const isCorrect = match.result && option === match.result;
-          const isWrong = match.result && option !== match.result;
+          const hasResult = !!match.result;
+          const isCorrect = hasResult && option === match.result;
 
           let buttonClass =
             "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium ";
@@ -83,28 +83,27 @@ export function MatchCard({
             buttonClass += "cursor-pointer transition-all active:scale-[0.97] ";
           }
 
-          if (isCorrect) {
-            buttonClass += "outline-green-500 outline-3 ";
-
-            if (isSelected) {
-              buttonClass += "bg-green-500 text-white ";
+          if (hasResult) {
+            if (isCorrect) {
+              buttonClass += "bg-green-50 text-green-700 outline-green-500 outline-3 ";
+            } else if (isSelected) {
+              buttonClass += "bg-red-50 text-red-700 outline-red-400 outline-3 ";
+            } else {
+              buttonClass += "bg-zinc-100 text-zinc-400 outline-zinc-200 ";
             }
           } else if (isSelected) {
-            if (isWrong) {
-              buttonClass += "outline-red-400 outline-3";
-            } else {
-              buttonClass += "outline-blue-600 outline-3";
-            }
+            buttonClass += match.locked
+              ? "bg-blue-50 text-blue-700 outline-blue-600 outline-3 opacity-70 "
+              : "bg-blue-600 text-white outline-blue-600 outline-3 ";
           } else {
-            buttonClass += "bg-zinc-100 text-zinc-700 outline-zinc-300 ";
-          }
-
-          if (match.locked) {
-            buttonClass += " opacity-70";
+            buttonClass += "bg-zinc-100 text-zinc-700 ";
+            if (match.locked) {
+              buttonClass += "opacity-70 ";
+            }
           }
 
           if (!match.locked && isPending && isSelected) {
-            buttonClass += " opacity-60 animate-pulse";
+            buttonClass += "opacity-60 animate-pulse";
           }
 
           return (
