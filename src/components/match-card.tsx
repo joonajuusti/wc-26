@@ -89,8 +89,10 @@ export function MatchCard({
           }
 
           if (hasResult) {
-            if (isCorrect) {
-              buttonClass += "bg-green-50 text-green-700 outline-green-500 outline-3 ";
+            if (isCorrect && isSelected) {
+              buttonClass += "bg-green-100 text-green-800 outline-green-600 outline-3 ";
+            } else if (isCorrect) {
+              buttonClass += "bg-green-50 text-green-600 outline-green-300 outline-2 ";
             } else if (isSelected) {
               buttonClass += "bg-red-50 text-red-700 outline-red-400 outline-3 ";
             } else {
