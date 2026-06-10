@@ -18,10 +18,7 @@ type MatchWithPrediction = {
 
 type Pick = "1" | "X" | "2";
 
-const renderLabel = (
-  option: Pick,
-  match: MatchWithPrediction,
-) => {
+const renderLabel = (option: Pick, match: MatchWithPrediction) => {
   if (option === "X") {
     return option;
   }
@@ -80,10 +77,10 @@ export function MatchCard({
           const isWrong = match.result && option !== match.result;
 
           let buttonClass =
-            "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium transition-all active:scale-[0.97] ";
+            "min-w-0 flex-1 flex items-center justify-center rounded-md py-3 font-medium ";
 
           if (!match.locked) {
-            buttonClass += "cursor-pointer ";
+            buttonClass += "cursor-pointer transition-all active:scale-[0.97] ";
           }
 
           if (isCorrect) {
@@ -106,7 +103,7 @@ export function MatchCard({
             buttonClass += " opacity-70";
           }
 
-          if (isPending && isSelected) {
+          if (!match.locked && isPending && isSelected) {
             buttonClass += " opacity-60 animate-pulse";
           }
 
@@ -122,12 +119,6 @@ export function MatchCard({
           );
         })}
       </div>
-
-      {match.locked && !match.result && (
-        <div className="mt-2 text-center text-xs text-zinc-400">
-          Veikkaus lukittu
-        </div>
-      )}
     </div>
   );
 }
