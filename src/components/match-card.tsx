@@ -72,12 +72,16 @@ export function MatchCard({
   const needsPrediction = !match.locked && !match.result && !match.prediction && !readOnly;
 
   return (
-    <div className={`border-l-3 pl-3 ${needsPrediction ? "border-amber-400" : "border-transparent"}`}>
-      <div className="mb-2 text-xs text-zinc-500 box-border ">
-        {stageLabel} &middot; {dateStr} klo {timeStr} {match.locked && "🔒"}
+    <div>
+      <div className={`mb-1.5 text-xs inline-flex items-center gap-1 rounded px-2 py-1 -ml-2 ${
+        needsPrediction
+          ? "bg-amber-100 text-amber-700"
+          : "text-zinc-500"
+      }`}>
+        {stageLabel} &middot; {dateStr} klo {timeStr} {match.locked && "🔒"}{needsPrediction && "⚠️"}
       </div>
 
-      <div className="mt-3 flex gap-3">
+      <div className="flex gap-3">
         {(["1", "X", "2"] as const).map((option) => {
           const isSelected = activePrediction === option;
           const hasResult = !!match.result;

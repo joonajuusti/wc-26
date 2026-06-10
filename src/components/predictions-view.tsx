@@ -78,7 +78,7 @@ export function PredictionsView({
               onChange={(e) => setOnlyOpen(e.target.checked)}
               className="h-4 w-4 rounded border-zinc-300"
             />
-            Vain avoimet
+            Vain veikattavissa olevat
           </label>
           {unpredicted > 0 && (
             <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
