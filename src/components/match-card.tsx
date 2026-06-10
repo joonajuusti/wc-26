@@ -102,10 +102,6 @@ export function MatchCard({
             }
           }
 
-          if (!match.locked && isPending && isSelected) {
-            buttonClass += "opacity-60 animate-pulse";
-          }
-
           return (
             <button
               key={option}
