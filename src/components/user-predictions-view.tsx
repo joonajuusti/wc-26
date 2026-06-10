@@ -15,11 +15,9 @@ const STAGE_LABELS: Record<string, string> = {
 
 export async function UserPredictionsView({
   userId,
-  userName,
   isOwnPage,
 }: {
   userId: number;
-  userName: string;
   isOwnPage: boolean;
 }) {
   const allTeams = await db.select().from(teams);
@@ -55,13 +53,7 @@ export async function UserPredictionsView({
   const totalWithResult = filteredMatches.filter((m) => m.result !== null).length;
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-24 pt-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          {userName}
-        </h1>
-      </div>
-
+    <>
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
           <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -103,11 +95,11 @@ export async function UserPredictionsView({
               }`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <div className="text-xs text-zinc-500 dark:text-zinc-400">
                     {STAGE_LABELS[match.stage]}
                   </div>
-                  <div className="font-medium text-zinc-800 dark:text-zinc-200">
+                  <div className="truncate font-medium text-zinc-800 dark:text-zinc-200">
                     {label(match.homeTeamId)} vs {label(match.awayTeamId)}
                   </div>
                 </div>
@@ -130,6 +122,6 @@ export async function UserPredictionsView({
           );
         })}
       </div>
-    </div>
+    </>
   );
 }

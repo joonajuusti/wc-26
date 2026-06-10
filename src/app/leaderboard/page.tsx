@@ -2,8 +2,6 @@ import { db } from "@/lib/db";
 import { users, predictions, matches } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { BottomNav } from "@/components/bottom-nav";
-import { LogoutButton } from "@/components/logout-button";
 import { calculatePoints } from "@/lib/scoring";
 import Link from "next/link";
 
@@ -42,17 +40,7 @@ export default async function LeaderboardPage() {
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-24 pt-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Tulostaulu
-        </h1>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500">{currentUser.name}</span>
-          <LogoutButton />
-        </div>
-      </div>
-
+    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <div className="rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
           {ranked.map((user, index) => (
@@ -101,8 +89,6 @@ export default async function LeaderboardPage() {
           ))}
         </div>
       </div>
-
-      <BottomNav isAdmin={currentUser.isAdmin} />
     </div>
   );
 }

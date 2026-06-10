@@ -133,7 +133,7 @@ export function AdminMatchList({
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
               <select
                 value={match.homeTeamId ?? ""}
                 onChange={(e) =>
@@ -143,7 +143,7 @@ export function AdminMatchList({
                     e.target.value || null
                   )
                 }
-                className="flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
               >
                 <option value="">-- {label(match.homeTeamId, teams)} --</option>
                 {teams.map((t) => (
@@ -153,7 +153,7 @@ export function AdminMatchList({
                 ))}
               </select>
 
-              <span className="text-zinc-400">vs</span>
+              <span className="text-zinc-400 shrink-0">vs</span>
 
               <select
                 value={match.awayTeamId ?? ""}
@@ -164,7 +164,7 @@ export function AdminMatchList({
                     e.target.value || null
                   )
                 }
-                className="flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
               >
                 <option value="">-- {label(match.awayTeamId, teams)} --</option>
                 {teams.map((t) => (
@@ -190,7 +190,7 @@ export function AdminMatchList({
                     ? short(match.homeTeamId, teams)
                     : option === "2"
                       ? short(match.awayTeamId, teams)
-                      : "Tasuri"}
+                      : "Tasapeli"}
                 </button>
               ))}
             </div>

@@ -4,7 +4,6 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { UserPredictionsView } from "@/components/user-predictions-view";
-import { BottomNav } from "@/components/bottom-nav";
 
 export default async function UserPage(props: {
   params: Promise<{ name: string }>;
@@ -17,15 +16,8 @@ export default async function UserPage(props: {
   if (!user) return notFound();
 
   return (
-    <>
-      <UserPredictionsView
-        userId={user.id}
-        userName={user.name}
-        isOwnPage={user.id === currentUser.id}
-      />
-      <div className="mx-auto max-w-lg px-4 pb-24">
-        <BottomNav isAdmin={currentUser.isAdmin} />
-      </div>
-    </>
+    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+      <UserPredictionsView userId={user.id} isOwnPage={user.id === currentUser.id} />
+    </div>
   );
 }

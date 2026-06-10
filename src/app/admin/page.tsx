@@ -17,25 +17,21 @@ export default async function AdminPage() {
   ).length;
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-24 pt-4">
-      <h1 className="mb-6 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-        Admin
-      </h1>
-
+    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <div className="mb-6 grid grid-cols-2 gap-3">
-        <div className="rounded-lg bg-white p-4 shadow-sm border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             {userCount}
           </div>
           <div className="text-xs text-zinc-500">Pelaajaa</div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             {resultsCount}/{matchCount}
           </div>
           <div className="text-xs text-zinc-500">Tuloksia syötetty</div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             {predictionCount}
           </div>

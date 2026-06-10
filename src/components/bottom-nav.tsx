@@ -12,7 +12,7 @@ export function BottomNav({
 
   const links = [
     { href: "/predictions", label: "Veikkaukset", emoji: "\u26BD" },
-    { href: "/leaderboard", label: "Tulostaulu", emoji: "\u{1F3C6}" },
+    { href: "/leaderboard", label: "Tulokset", emoji: "\u{1F3C6}" },
     { href: "/omat", label: "Omat", emoji: "\u{1F464}" },
   ];
 
@@ -21,8 +21,8 @@ export function BottomNav({
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="mx-auto flex max-w-lg">
+    <nav className="shrink-0 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="mx-auto flex w-full max-w-lg">
         {links.map((link) => {
           const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
           return (

@@ -12,7 +12,7 @@ export default async function AdminUsersPage() {
   const allUsers = await db.select().from(users).orderBy(users.name);
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-24 pt-4">
+    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <div className="mb-4">
         <Link
           href="/admin"
@@ -21,10 +21,6 @@ export default async function AdminUsersPage() {
           &larr; Takaisin
         </Link>
       </div>
-
-      <h1 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-        Pelaajat
-      </h1>
 
       <UserList users={allUsers} />
     </div>

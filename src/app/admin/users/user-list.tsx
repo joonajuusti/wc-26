@@ -62,7 +62,7 @@ export function UserList({ users }: { users: User[] }) {
             Uusi kutsukoodi luotu
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 rounded bg-white px-2 py-1 font-mono text-sm dark:bg-zinc-800">
+            <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 font-mono text-sm dark:bg-zinc-800">
               {generatedCode}
             </code>
             <button
