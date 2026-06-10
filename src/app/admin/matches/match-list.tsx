@@ -45,11 +45,16 @@ export function AdminMatchList({
 }) {
   const stages = [...new Set(matches.map((m) => m.stage))];
   const [filter, setFilter] = useState<string>("all");
+  const [hideResolved, setHideResolved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<string | null>(null);
 
-  const filtered =
+  let filtered =
     filter === "all" ? matches : matches.filter((m) => m.stage === filter);
+
+  if (hideResolved) {
+    filtered = filtered.filter((m) => !m.result);
+  }
 
   function handleResult(matchId: number, result: "1" | "X" | "2") {
     startTransition(async () => {
@@ -121,23 +126,40 @@ export function AdminMatchList({
         ))}
       </div>
 
-      {filter !== "all" && (
-        <div className="mb-4 flex gap-2">
-          <button
-            onClick={() => handleLock(filter)}
-            disabled={isPending}
-            className="rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-red-600 disabled:opacity-50"
-          >
-            {pendingAction === `lock-${filter}` ? "Lukitaan..." : `Lukitse ${STAGE_LABELS[filter]}`}
-          </button>
-          <button
-            onClick={() => handleUnlock(filter)}
-            disabled={isPending}
-            className="rounded-md bg-green-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-green-600 disabled:opacity-50"
-          >
-            {pendingAction === `unlock-${filter}` ? "Avataan..." : `Avaa ${STAGE_LABELS[filter]}`}
-          </button>
-        </div>
+      <div className="mb-4 flex items-center gap-3">
+        {filter !== "all" && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleLock(filter)}
+              disabled={isPending}
+              className="rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-red-600 disabled:opacity-50"
+            >
+              {pendingAction === `lock-${filter}` ? "Lukitaan..." : `Lukitse ${STAGE_LABELS[filter]}`}
+            </button>
+            <button
+              onClick={() => handleUnlock(filter)}
+              disabled={isPending}
+              className="rounded-md bg-green-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-green-600 disabled:opacity-50"
+            >
+              {pendingAction === `unlock-${filter}` ? "Avataan..." : `Avaa ${STAGE_LABELS[filter]}`}
+            </button>
+          </div>
+        )}
+        <label className="ml-auto flex items-center gap-1.5 text-xs text-zinc-600">
+          <input
+            type="checkbox"
+            checked={hideResolved}
+            onChange={(e) => setHideResolved(e.target.checked)}
+            className="rounded border-zinc-300"
+          />
+          Piilota ratkaistut
+        </label>
+      </div>
+
+      {filtered.length === 0 && (
+        <p className="py-8 text-center text-sm text-zinc-400">
+          Ei otteluita
+        </p>
       )}
 
       <div className="space-y-3">
@@ -154,6 +176,9 @@ export function AdminMatchList({
                 P{match.id} &middot; {STAGE_LABELS[match.stage]}
                 {match.locked && (
                   <span className="ml-2 text-red-500 font-medium">LUKITTU</span>
+                )}
+                {match.result && (
+                  <span className="ml-2 text-green-600 font-medium">Tulos: {match.result}</span>
                 )}
               </div>
 

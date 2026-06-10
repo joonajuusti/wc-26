@@ -8,9 +8,16 @@ type User = {
   name: string;
   inviteCode: string;
   isAdmin: boolean;
+  unlockedPredictionCount: number;
 };
 
-export function UserList({ users }: { users: User[] }) {
+export function UserList({
+  users,
+  unlockedMatchCount,
+}: {
+  users: User[];
+  unlockedMatchCount: number;
+}) {
   const [newName, setNewName] = useState("");
   const [isPending, startTransition] = useTransition();
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
@@ -76,32 +83,47 @@ export function UserList({ users }: { users: User[] }) {
       )}
 
       <div className="space-y-2">
-        {users.map((user) => (
-          <div
-            key={user.id}
-            className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
-          >
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-zinc-900 ">
-                {user.name}
-                {user.isAdmin && (
-                  <span className="ml-2 text-xs text-blue-600">ADMIN</span>
-                )}
+        {users.map((user) => {
+          const complete =
+            unlockedMatchCount === 0 ||
+            user.unlockedPredictionCount >= unlockedMatchCount;
+
+          return (
+            <div
+              key={user.id}
+              className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-zinc-900">
+                    {user.name}
+                  </span>
+                  {user.isAdmin && (
+                    <span className="text-xs text-blue-600">ADMIN</span>
+                  )}
+                  {complete ? (
+                    <span className="text-xs text-green-600">&#10003;</span>
+                  ) : (
+                    <span className="text-xs text-amber-600">
+                      {user.unlockedPredictionCount}/{unlockedMatchCount}
+                    </span>
+                  )}
+                </div>
+                <div className="font-mono text-xs text-zinc-500 truncate">
+                  {user.inviteCode}
+                </div>
               </div>
-              <div className="font-mono text-xs text-zinc-500 truncate">
-                {user.inviteCode}
+              <div className="flex items-center gap-2 shrink-0 ml-2">
+                <button
+                  onClick={() => copyToClipboard(user.inviteCode)}
+                  className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 transition-all active:scale-[0.97]"
+                >
+                  {copied === user.inviteCode ? "Kopioitu" : "Kopioi"}
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0 ml-2">
-              <button
-                onClick={() => copyToClipboard(user.inviteCode)}
-                className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 transition-all active:scale-[0.97]"
-              >
-                {copied === user.inviteCode ? "Kopioitu" : "Kopioi"}
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
