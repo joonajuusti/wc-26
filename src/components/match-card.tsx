@@ -69,8 +69,10 @@ export function MatchCard({
     timeZone: "Europe/Helsinki",
   });
 
+  const needsPrediction = !match.locked && !match.result && !match.prediction && !readOnly;
+
   return (
-    <div>
+    <div className={`border-l-3 pl-3 ${needsPrediction ? "border-amber-400" : "border-transparent"}`}>
       <div className="mb-2 text-xs text-zinc-500 box-border ">
         {stageLabel} &middot; {dateStr} klo {timeStr} {match.locked && "🔒"}
       </div>
