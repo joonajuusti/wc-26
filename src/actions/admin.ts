@@ -92,6 +92,34 @@ export async function unlockStage(stage: string) {
   return { success: true };
 }
 
+export async function lockMatch(matchId: number) {
+  const user = await getSessionUser();
+  if (!user?.isAdmin) return { error: "Ei oikeuksia" };
+
+  await db
+    .update(matches)
+    .set({ locked: true })
+    .where(eq(matches.id, matchId));
+
+  revalidatePath("/predictions");
+  revalidatePath("/admin/matches");
+  return { success: true };
+}
+
+export async function unlockMatch(matchId: number) {
+  const user = await getSessionUser();
+  if (!user?.isAdmin) return { error: "Ei oikeuksia" };
+
+  await db
+    .update(matches)
+    .set({ locked: false })
+    .where(eq(matches.id, matchId));
+
+  revalidatePath("/predictions");
+  revalidatePath("/admin/matches");
+  return { success: true };
+}
+
 function slugify(text: string): string {
   const normal = text
     .normalize("NFD")

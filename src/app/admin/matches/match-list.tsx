@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { setMatchResult, setMatchTeams, lockStage, unlockStage } from "@/actions/admin";
+import { setMatchResult, setMatchTeams, lockStage, unlockStage, lockMatch, unlockMatch } from "@/actions/admin";
 
 const STAGE_LABELS: Record<string, string> = {
   group: "Lohkovaihe",
@@ -98,6 +98,22 @@ export function AdminMatchList({
     });
   }
 
+  function handleLockMatch(matchId: number) {
+    startTransition(async () => {
+      setPendingAction(`lockmatch-${matchId}`);
+      await lockMatch(matchId);
+      setPendingAction(null);
+    });
+  }
+
+  function handleUnlockMatch(matchId: number) {
+    startTransition(async () => {
+      setPendingAction(`unlockmatch-${matchId}`);
+      await unlockMatch(matchId);
+      setPendingAction(null);
+    });
+  }
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-2">
@@ -166,20 +182,44 @@ export function AdminMatchList({
         {filtered.map((match) => {
           const teamPending = pendingAction === `team-${match.id}`;
           const resultPending = pendingAction === `result-${match.id}`;
+          const lockPending =
+            pendingAction === `lockmatch-${match.id}` ||
+            pendingAction === `unlockmatch-${match.id}`;
 
           return (
             <div
               key={match.id}
               className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
             >
-              <div className="mb-1 text-xs text-zinc-500">
-                P{match.id} &middot; {STAGE_LABELS[match.stage]}
+              <div className="mb-1 flex items-center gap-2 text-xs text-zinc-500">
+                <span>
+                  P{match.id} &middot; {STAGE_LABELS[match.stage]}
+                </span>
                 {match.locked && (
-                  <span className="ml-2 text-red-500 font-medium">LUKITTU</span>
+                  <span className="text-red-500 font-medium">LUKITTU</span>
                 )}
                 {match.result && (
-                  <span className="ml-2 text-green-600 font-medium">Tulos: {match.result}</span>
+                  <span className="text-green-600 font-medium">Tulos: {match.result}</span>
                 )}
+                <button
+                  onClick={() =>
+                    match.locked
+                      ? handleUnlockMatch(match.id)
+                      : handleLockMatch(match.id)
+                  }
+                  disabled={isPending}
+                  className={`ml-auto rounded-md px-2 py-0.5 text-xs font-medium text-white transition-all active:scale-[0.97] disabled:opacity-50 ${
+                    match.locked
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-zinc-400 hover:bg-zinc-500"
+                  } ${lockPending ? "opacity-50 animate-pulse" : ""}`}
+                >
+                  {lockPending
+                    ? "..."
+                    : match.locked
+                      ? "Avaa"
+                      : "Lukitse"}
+                </button>
               </div>
 
               <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
