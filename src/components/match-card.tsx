@@ -2,12 +2,11 @@
 
 import { useOptimistic, useTransition } from "react";
 import { savePrediction } from "@/actions/predictions";
+import { Flag } from "@/components/flag";
 
 export type MatchWithPrediction = {
   id: number;
-  homeFlag: string;
   homeCode: string;
-  awayFlag: string;
   awayCode: string;
   stage: string;
   kickoffUtc: Date;
@@ -23,12 +22,12 @@ const renderLabel = (option: Pick, match: MatchWithPrediction) => {
     return option;
   }
 
-  const flag = option === "1" ? match.homeFlag : match.awayFlag;
   const code = option === "1" ? match.homeCode : match.awayCode;
+  const isKnown = code !== "TBD";
 
   return (
     <>
-      <span className="text-xl">{flag}</span>
+      {isKnown && <Flag code={code} />}
       <span className="ml-1">{code}</span>
     </>
   );

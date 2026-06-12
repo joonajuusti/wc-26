@@ -27,7 +27,7 @@ type Match = {
 function label(teamId: string | null, teams: Team[]): string {
   if (!teamId) return "TBD";
   const t = teams.find((t) => t.id === teamId);
-  return t ? `${t.flagEmoji} ${t.name}` : "TBD";
+  return t ? `${t.id} ${t.name}` : "TBD";
 }
 
 function short(teamId: string | null, teams: Team[]): string {
@@ -198,7 +198,7 @@ export function AdminMatchList({
                   <option value="">-- {label(match.homeTeamId, teams)} --</option>
                   {teams.map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.flagEmoji} {t.name}
+                      {t.id} {t.name}
                     </option>
                   ))}
                 </select>
@@ -220,7 +220,7 @@ export function AdminMatchList({
                   <option value="">-- {label(match.awayTeamId, teams)} --</option>
                   {teams.map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.flagEmoji} {t.name}
+                      {t.id} {t.name}
                     </option>
                   ))}
                 </select>
