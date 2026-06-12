@@ -13,6 +13,7 @@ export type MatchWithPrediction = {
   locked: boolean;
   result: string | null;
   prediction: string | null;
+  theirPrediction?: string | null;
 };
 
 type Pick = "1" | "X" | "2";
@@ -117,11 +118,14 @@ export function MatchCard({
           return (
             <button
               key={option}
-              className={buttonClass}
+              className={`${buttonClass} relative`}
               disabled={match.locked || isPending || readOnly}
               onClick={() => handlePick(option)}
             >
               {renderLabel(option, match)}
+              {match.locked && match.theirPrediction === option && (
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-violet-400 ring-1 ring-white" />
+              )}
             </button>
           );
         })}

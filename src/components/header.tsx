@@ -9,9 +9,6 @@ function getTitle(pathname: string): string {
   if (pathname === "/admin") return "Admin";
   if (pathname === "/admin/matches") return "Ottelut";
   if (pathname === "/admin/users") return "Pelaajat";
-  if (pathname.startsWith("/users/")) {
-    return decodeURIComponent(pathname.slice("/users/".length));
-  }
   return "";
 }
 

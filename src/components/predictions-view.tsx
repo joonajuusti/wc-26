@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MatchCard, type MatchWithPrediction } from "@/components/match-card";
 
 const STAGE_LABELS: Record<string, string> = {
@@ -18,15 +19,32 @@ export function PredictionsView({
   readOnly = false,
   showSummary = false,
   correctCount,
+  compareCorrectCount,
   totalWithResult,
+  allUserNames = [],
+  compareName,
 }: {
   matchCards: MatchWithPrediction[];
   readOnly?: boolean;
   showSummary?: boolean;
   correctCount: number;
+  compareCorrectCount?: number;
   totalWithResult: number;
+  allUserNames?: string[];
+  compareName?: string;
 }) {
+  const router = useRouter();
   const [onlyOpen, setOnlyOpen] = useState(false);
+
+  const isComparing = !!compareName;
+
+  function handleCompareChange(name: string) {
+    if (name) {
+      router.push(`/predictions?vertaile=${encodeURIComponent(name)}`);
+    } else {
+      router.push("/predictions");
+    }
+  }
 
   const filtered = onlyOpen ? matchCards.filter((m) => !m.locked) : matchCards;
 
@@ -42,16 +60,59 @@ export function PredictionsView({
 
   return (
     <>
+      {!readOnly && allUserNames.length > 0 && (
+        <div className="mb-4 flex items-center justify-end gap-2">
+          <span
+            className={`h-2 w-2 shrink-0 rounded-full ${
+              isComparing ? "bg-violet-400" : "bg-zinc-300"
+            }`}
+          />
+          <span
+            className={`shrink-0 text-sm ${
+              isComparing ? "text-violet-800" : "text-zinc-500"
+            }`}
+          >
+            Vertaile:
+          </span>
+          <select
+            value={compareName ?? ""}
+            onChange={(e) => handleCompareChange(e.target.value)}
+            className={`w-auto rounded-md border bg-white px-3 py-2.5 text-sm ${
+              isComparing
+                ? "border-violet-300 text-violet-800"
+                : "border-zinc-200 text-zinc-600"
+            }`}
+          >
+            <option value="">Ei vertailua</option>
+            {allUserNames.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {showSummary && totalWithResult > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-blue-50 p-4">
             <p className="text-base text-blue-700">
-              Oikein:{" "}
+              {isComparing ? "Sinä: " : "Oikein: "}
               <span className="font-bold">
                 {correctCount}/{totalWithResult}
               </span>
             </p>
           </div>
+          {isComparing && (
+            <div className="rounded-lg bg-violet-50 p-4">
+              <p className="truncate text-base text-violet-700">
+                {compareName}:{" "}
+                <span className="font-bold">
+                  {compareCorrectCount ?? 0}/{totalWithResult}
+                </span>
+              </p>
+            </div>
+          )}
         </div>
       )}
 
