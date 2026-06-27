@@ -2,6 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { generateInviteCode } from "@/actions/admin";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/form";
+import { CheckIcon, CopyIcon } from "@/components/icons";
 
 type User = {
   id: number;
@@ -47,37 +52,38 @@ export function UserList({
   return (
     <div>
       <div className="mb-4 flex gap-2">
-        <input
+        <Input
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Uuden pelaajan nimi"
-          className="flex-1 rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm "
+          className="flex-1"
         />
-        <button
+        <Button
           onClick={handleGenerate}
           disabled={isPending || !newName.trim()}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all active:scale-[0.97] hover:bg-blue-700 disabled:opacity-50"
         >
           {isPending ? "Luodaan..." : "Luo"}
-        </button>
+        </Button>
       </div>
 
       {generatedCode && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 ">
-          <p className="mb-2 text-sm font-medium text-green-800">
+        <div className="mb-4 rounded-lg border border-success-200 bg-success-50 p-3">
+          <p className="mb-2 text-sm font-medium text-success-800">
             Uusi kutsukoodi luotu
           </p>
           <div className="flex items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 font-mono text-sm ">
+            <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 font-mono text-sm">
               {generatedCode}
             </code>
-            <button
+            <Button
+              variant="success"
+              size="sm"
               onClick={() => copyToClipboard(generatedCode)}
-              className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-all active:scale-[0.97]"
             >
+              <CopyIcon className="h-3.5 w-3.5" />
               {copied === generatedCode ? "Kopioitu" : "Kopioi"}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -89,39 +95,38 @@ export function UserList({
             user.unlockedPredictionCount >= unlockedMatchCount;
 
           return (
-            <div
-              key={user.id}
-              className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
-            >
+            <Card key={user.id} className="flex items-center justify-between p-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-zinc-900">
                     {user.name}
                   </span>
                   {user.isAdmin && (
-                    <span className="text-xs text-blue-600">ADMIN</span>
+                    <Badge variant="primary" size="sm">ADMIN</Badge>
                   )}
                   {complete ? (
-                    <span className="text-xs text-green-600">&#10003;</span>
+                    <CheckIcon className="h-4 w-4 text-success-600" />
                   ) : (
-                    <span className="text-xs text-amber-600">
+                    <span className="text-xs tabular-nums text-warning-700">
                       {user.unlockedPredictionCount}/{unlockedMatchCount}
                     </span>
                   )}
                 </div>
-                <div className="font-mono text-xs text-zinc-500 truncate">
+                <div className="truncate font-mono text-xs text-zinc-500">
                   {user.inviteCode}
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0 ml-2">
-                <button
+              <div className="ml-2 flex shrink-0 items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => copyToClipboard(user.inviteCode)}
-                  className="rounded bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 transition-all active:scale-[0.97]"
                 >
+                  <CopyIcon className="h-3.5 w-3.5" />
                   {copied === user.inviteCode ? "Kopioitu" : "Kopioi"}
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

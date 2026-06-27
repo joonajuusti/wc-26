@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { logout } from "@/actions/auth";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { LogOutIcon } from "@/components/icons";
 
 export function LogoutButton() {
   const [loading, setLoading] = useState(false);
@@ -16,12 +18,14 @@ export function LogoutButton() {
   }
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={handleLogout}
       disabled={loading}
-      className="text-sm text-zinc-400 hover:text-zinc-600"
     >
+      <LogOutIcon className="h-4 w-4" />
       Kirjaudu ulos
-    </button>
+    </Button>
   );
 }

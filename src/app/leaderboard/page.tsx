@@ -8,9 +8,9 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const PEDESTALS = [
-  { rank: 2, numeralColor: "text-zinc-500", roman: "II", accent: "bg-zinc-500", height: "h-15" },
-  { rank: 1, numeralColor: "text-yellow-500", roman: "I", accent: "bg-yellow-500", height: "h-20" },
-  { rank: 3, numeralColor: "text-amber-600", roman: "III", accent: "bg-amber-600", height: "h-12" },
+  { rank: 2, numeralColor: "text-silver", roman: "II", accent: "bg-silver", height: "h-15" },
+  { rank: 1, numeralColor: "text-gold", roman: "I", accent: "bg-gold", height: "h-20" },
+  { rank: 3, numeralColor: "text-bronze", roman: "III", accent: "bg-bronze", height: "h-12" },
 ];
 
 export default async function LeaderboardPage() {
@@ -73,8 +73,8 @@ export default async function LeaderboardPage() {
                 {players.map((u) => (
                   <span
                     key={u.id}
-                    className={`max-w-full truncate text-center text-xs font-medium ${
-                      u.id === currentUser.id ? "text-blue-600" : "text-zinc-700"
+                    className={`max-w-full truncate text-center text-sm font-medium ${
+                      u.id === currentUser.id ? "text-primary-700" : "text-zinc-700"
                     }`}
                   >
                     {u.name}
@@ -110,7 +110,7 @@ export default async function LeaderboardPage() {
               key={user.id}
               href={href}
               className={`flex items-center justify-between px-1 py-4 transition-colors hover:bg-zinc-50 ${
-                isMe ? "bg-blue-50" : ""
+                isMe ? "bg-primary-100" : ""
               }`}
             >
               <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export default async function LeaderboardPage() {
                 </span>
                 <span
                   className={`text-base ${
-                    isMe ? "font-semibold text-blue-600" : "text-zinc-700"
+                    isMe ? "font-semibold text-primary-700" : "text-zinc-700"
                   }`}
                 >
                   {user.name}

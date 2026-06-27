@@ -1,30 +1,37 @@
 import {
   getCachedTeamsAndMatches,
+  getLockedPredictions,
   getUserPredictions,
 } from "@/lib/cached-queries";
 import type { MatchWithPrediction } from "@/components/match-card";
 import { PredictionsView } from "@/components/predictions-view";
+
+const groupByMatchId = <T extends { matchId: number }>(entities: T[]) =>
+  Map.groupBy(entities, (e) => e.matchId);
+
+export type Comparison =
+  | { type: "all" }
+  | { type: "single-user"; user: { name: string; id: number } }
+  | { type: "none" };
 
 export async function PredictionsList({
   userId,
   readOnly = false,
   showSummary = false,
   allUserNames = [],
-  compareUserId,
-  compareName,
+  comparison,
 }: {
   userId: number;
   readOnly?: boolean;
   showSummary?: boolean;
   allUserNames?: string[];
-  compareUserId?: number;
-  compareName?: string;
+  comparison: Comparison;
 }) {
-  const [{ allTeams, allMatches }, userPredictions, comparePredictions] =
+  const [{ allTeams, allMatches }, userPredictions, lockedPredictions] =
     await Promise.all([
       getCachedTeamsAndMatches(),
       getUserPredictions(userId),
-      compareUserId ? getUserPredictions(compareUserId) : Promise.resolve([]),
+      getLockedPredictions(),
     ]);
 
   const teamMap = new Map(allTeams.map((t) => [t.id, t]));
@@ -38,9 +45,7 @@ export async function PredictionsList({
     userPredictions.map((p) => [p.matchId, p.pick]),
   );
 
-  const compareMap = new Map(
-    comparePredictions.map((p) => [p.matchId, p.pick]),
-  );
+  const lockedPredictionsMap = groupByMatchId(lockedPredictions);
 
   const matches = readOnly ? allMatches.filter((m) => m.locked) : allMatches;
 
@@ -48,9 +53,18 @@ export async function PredictionsList({
     (m) => m.result && predictionMap.get(m.id) === m.result,
   ).length;
 
-  const compareCorrectCount = matches.filter(
-    (m) => m.result && compareMap.get(m.id) === m.result,
-  ).length;
+  const compareCorrectCount =
+    comparison.type === "single-user"
+      ? matches.filter(
+          (m) =>
+            m.result &&
+            lockedPredictionsMap
+              .get(m.id)
+              ?.find(
+                (p) => p.pick === m.result && p.userId === comparison.user.id,
+              ),
+        ).length
+      : 0;
 
   const totalWithResult = matches.filter((m) => m.result !== null).length;
 
@@ -63,7 +77,7 @@ export async function PredictionsList({
     locked: match.locked,
     result: match.result,
     prediction: predictionMap.get(match.id) ?? null,
-    theirPrediction: compareMap.get(match.id) ?? null,
+    allPredictions: lockedPredictionsMap.get(match.id) ?? [],
   }));
 
   return (
@@ -75,7 +89,7 @@ export async function PredictionsList({
       compareCorrectCount={compareCorrectCount}
       totalWithResult={totalWithResult}
       allUserNames={allUserNames}
-      compareName={compareName}
+      comparison={comparison}
     />
   );
 }

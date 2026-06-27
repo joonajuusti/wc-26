@@ -1,8 +1,21 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { setMatchResult, setMatchTeams, lockStage, unlockStage, lockMatch, unlockMatch } from "@/actions/admin";
+import {
+  setMatchResult,
+  setMatchTeams,
+  lockStage,
+  unlockStage,
+  lockMatch,
+  unlockMatch,
+} from "@/actions/admin";
 import { STAGE_LABELS } from "@/lib/stages";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Select, Checkbox } from "@/components/ui/form";
+import { LockIcon, UnlockIcon } from "@/components/icons";
+import { cn } from "@/lib/cn";
 
 type Team = { id: string; name: string; flagEmoji: string };
 type Match = {
@@ -108,65 +121,61 @@ export function AdminMatchList({
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-2">
-        <button
+        <Button
+          variant={filter === "all" ? "primary" : "secondary"}
+          size="sm"
           onClick={() => setFilter("all")}
-          className={`rounded-md px-3 py-1 text-xs font-medium transition-all active:scale-[0.97] ${
-            filter === "all"
-              ? "bg-blue-600 text-white"
-              : "bg-zinc-100 text-zinc-700"
-          }`}
         >
           Kaikki
-        </button>
+        </Button>
         {stages.map((stage) => (
-          <button
+          <Button
             key={stage}
+            variant={filter === stage ? "primary" : "secondary"}
+            size="sm"
             onClick={() => setFilter(stage)}
-            className={`rounded-md px-3 py-1 text-xs font-medium transition-all active:scale-[0.97] ${
-              filter === stage
-                ? "bg-blue-600 text-white"
-                : "bg-zinc-100 text-zinc-700"
-            }`}
           >
             {STAGE_LABELS[stage]}
-          </button>
+          </Button>
         ))}
       </div>
 
       <div className="mb-4 flex items-center gap-3">
         {filter !== "all" && (
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="danger"
+              size="sm"
               onClick={() => handleLock(filter)}
               disabled={isPending}
-              className="rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-red-600 disabled:opacity-50"
             >
-              {pendingAction === `lock-${filter}` ? "Lukitaan..." : `Lukitse ${STAGE_LABELS[filter]}`}
-            </button>
-            <button
+              {pendingAction === `lock-${filter}`
+                ? "Lukitaan..."
+                : `Lukitse ${STAGE_LABELS[filter]}`}
+            </Button>
+            <Button
+              variant="success"
+              size="sm"
               onClick={() => handleUnlock(filter)}
               disabled={isPending}
-              className="rounded-md bg-green-500 px-3 py-1.5 text-xs font-medium text-white transition-all active:scale-[0.97] hover:bg-green-600 disabled:opacity-50"
             >
-              {pendingAction === `unlock-${filter}` ? "Avataan..." : `Avaa ${STAGE_LABELS[filter]}`}
-            </button>
+              {pendingAction === `unlock-${filter}`
+                ? "Avataan..."
+                : `Avaa ${STAGE_LABELS[filter]}`}
+            </Button>
           </div>
         )}
-        <label className="ml-auto flex items-center gap-1.5 text-xs text-zinc-600">
-          <input
-            type="checkbox"
+        <label className="ml-auto flex cursor-pointer select-none items-center gap-1.5 text-xs text-zinc-600">
+          <Checkbox
             checked={hideResolved}
             onChange={(e) => setHideResolved(e.target.checked)}
-            className="rounded border-zinc-300"
           />
           Piilota ratkaistut
         </label>
       </div>
 
       {filtered.length === 0 && (
-        <p className="py-8 text-center text-sm text-zinc-400">
-          Ei otteluita
-        </p>
+        <p className="py-8 text-center text-sm text-zinc-400">Ei otteluita</p>
       )}
 
       <div className="space-y-3">
@@ -178,83 +187,79 @@ export function AdminMatchList({
             pendingAction === `unlockmatch-${match.id}`;
 
           return (
-            <div
-              key={match.id}
-              className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm "
-            >
+            <Card key={match.id} className="p-3">
               <div className="mb-1 flex items-center gap-2 text-xs text-zinc-500">
-                <span>
+                <span className="tabular-nums">
                   P{match.id} &middot; {STAGE_LABELS[match.stage]}
                 </span>
-                {match.locked && (
-                  <span className="text-red-500 font-medium">LUKITTU</span>
-                )}
-                {match.result && (
-                  <span className="text-green-600 font-medium">Tulos: {match.result}</span>
-                )}
-                <button
+                {match.locked && <Badge variant="danger" size="sm">LUKITTU</Badge>}
+                <Button
+                  variant={match.locked ? "success" : "secondary"}
+                  size="xs"
+                  className="ml-auto"
                   onClick={() =>
                     match.locked
                       ? handleUnlockMatch(match.id)
                       : handleLockMatch(match.id)
                   }
                   disabled={isPending}
-                  className={`ml-auto rounded-md px-2 py-0.5 text-xs font-medium text-white transition-all active:scale-[0.97] disabled:opacity-50 ${
-                    match.locked
-                      ? "bg-green-500 hover:bg-green-600"
-                      : "bg-zinc-400 hover:bg-zinc-500"
-                  } ${lockPending ? "opacity-50 animate-pulse" : ""}`}
                 >
-                  {lockPending
-                    ? "..."
-                    : match.locked
-                      ? "Avaa"
-                      : "Lukitse"}
-                </button>
+                  {lockPending ? (
+                    "..."
+                  ) : match.locked ? (
+                    <>
+                      <UnlockIcon className="h-3 w-3" />
+                      Avaa
+                    </>
+                  ) : (
+                    <>
+                      <LockIcon className="h-3 w-3" />
+                      Lukitse
+                    </>
+                  )}
+                </Button>
               </div>
 
               <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
-                <select
+                <Select
+                  size="xs"
                   value={match.homeTeamId ?? ""}
                   onChange={(e) =>
-                    handleTeam(
-                      match.id,
-                      "home",
-                      e.target.value || null,
-                    )
+                    handleTeam(match.id, "home", e.target.value || null)
                   }
                   disabled={teamPending}
-                  className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs disabled:opacity-50"
+                  className="min-w-0 flex-1"
                 >
-                  <option value="">-- {label(match.homeTeamId, teams)} --</option>
+                  <option value="">
+                    -- {label(match.homeTeamId, teams)} --
+                  </option>
                   {teams.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.id} {t.name}
                     </option>
                   ))}
-                </select>
+                </Select>
 
-                <span className="text-zinc-400 shrink-0">vs</span>
+                <span className="shrink-0 text-zinc-400">vs</span>
 
-                <select
+                <Select
+                  size="xs"
                   value={match.awayTeamId ?? ""}
                   onChange={(e) =>
-                    handleTeam(
-                      match.id,
-                      "away",
-                      e.target.value || null,
-                    )
+                    handleTeam(match.id, "away", e.target.value || null)
                   }
                   disabled={teamPending}
-                  className="min-w-0 flex-1 rounded border border-zinc-200 bg-white px-2 py-1 text-xs disabled:opacity-50"
+                  className="min-w-0 flex-1"
                 >
-                  <option value="">-- {label(match.awayTeamId, teams)} --</option>
+                  <option value="">
+                    -- {label(match.awayTeamId, teams)} --
+                  </option>
                   {teams.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.id} {t.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               <div className="mt-2 flex gap-2">
@@ -263,11 +268,13 @@ export function AdminMatchList({
                     key={option}
                     onClick={() => handleResult(match.id, option)}
                     disabled={resultPending}
-                    className={`flex-1 rounded py-1.5 text-xs font-medium transition-all active:scale-[0.97] ${
+                    className={cn(
+                      "flex-1 rounded-md py-1.5 text-xs font-medium transition-all active:scale-[0.97] disabled:opacity-50",
                       match.result === option
-                        ? "bg-green-500 text-white"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-                    } ${resultPending ? "opacity-50 animate-pulse" : ""}`}
+                        ? "bg-success-700 text-white"
+                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200",
+                      resultPending && "animate-pulse",
+                    )}
                   >
                     {option === "1"
                       ? short(match.homeTeamId, teams)
@@ -277,7 +284,7 @@ export function AdminMatchList({
                   </button>
                 ))}
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

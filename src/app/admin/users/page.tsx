@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { UserList } from "./user-list";
-import Link from "next/link";
+import { BackLink } from "@/components/back-link";
 
 export default async function AdminUsersPage() {
   const user = await getSessionUser();
@@ -34,12 +34,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <div className="mb-4">
-        <Link
-          href="/admin"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          &larr; Takaisin
-        </Link>
+        <BackLink href="/admin" />
       </div>
 
       <UserList users={usersWithStats} unlockedMatchCount={unlockedCount} />

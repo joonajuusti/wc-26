@@ -3,7 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MatchCard, type MatchWithPrediction } from "@/components/match-card";
+import { Select, Checkbox } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
 import { STAGE_LABELS } from "@/lib/stages";
+import { cn } from "@/lib/cn";
+import { type Comparison } from "@/components/predictions-list";
+
+const formatGuessCount = (correct: number, total: number) => {
+  const percentage = ((correct / total) * 100).toFixed(0);
+
+  return `${correct}/${total} (${percentage}%)`;
+};
+
+const getComparisonTarget = (comp: Comparison) => {
+  switch (comp.type) {
+    case "none":
+      return "";
+    case "all":
+      return "all";
+    case "single-user":
+      return comp.user.name;
+  }
+};
 
 export function PredictionsView({
   matchCards,
@@ -13,7 +34,7 @@ export function PredictionsView({
   compareCorrectCount,
   totalWithResult,
   allUserNames = [],
-  compareName,
+  comparison,
 }: {
   matchCards: MatchWithPrediction[];
   readOnly?: boolean;
@@ -22,16 +43,16 @@ export function PredictionsView({
   compareCorrectCount?: number;
   totalWithResult: number;
   allUserNames?: string[];
-  compareName?: string;
+  comparison: Comparison;
 }) {
   const router = useRouter();
   const [onlyOpen, setOnlyOpen] = useState(false);
 
-  const isComparing = !!compareName;
+  const isComparing = comparison.type === "single-user";
 
   function handleCompareChange(name: string) {
     if (name) {
-      router.push(`/predictions?vertaile=${encodeURIComponent(name)}`);
+      router.push(`/predictions?compare=${encodeURIComponent(name)}`);
     } else {
       router.push("/predictions");
     }
@@ -54,52 +75,51 @@ export function PredictionsView({
       {!readOnly && allUserNames.length > 0 && (
         <div className="mb-4 flex items-center justify-end gap-2">
           <span
-            className={`h-2 w-2 shrink-0 rounded-full ${
-              isComparing ? "bg-violet-400" : "bg-zinc-300"
-            }`}
+            className={cn(
+              "h-2 w-2 shrink-0 rounded-full",
+              isComparing ? "bg-accent-400" : "bg-zinc-300",
+            )}
           />
           <span
-            className={`shrink-0 text-sm ${
-              isComparing ? "text-violet-800" : "text-zinc-500"
-            }`}
+            className={cn(
+              "shrink-0 text-sm",
+              isComparing ? "text-accent-700" : "text-zinc-500",
+            )}
           >
             Vertaile:
           </span>
-          <select
-            value={compareName ?? ""}
+          <Select
+            value={getComparisonTarget(comparison)}
             onChange={(e) => handleCompareChange(e.target.value)}
-            className={`w-auto rounded-md border bg-white px-3 py-2.5 text-sm ${
-              isComparing
-                ? "border-violet-300 text-violet-800"
-                : "border-zinc-200 text-zinc-600"
-            }`}
+            className="w-auto"
           >
             <option value="">Ei vertailua</option>
+            <option value="all">Kaikkien kanssa</option>
             {allUserNames.map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       )}
 
       {showSummary && totalWithResult > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-blue-50 p-4">
-            <p className="text-base text-blue-700">
+          <div className="rounded-lg bg-primary-100 p-4">
+            <p className="text-base text-primary-700">
               {isComparing ? "Sinä: " : "Oikein: "}
-              <span className="font-bold">
-                {correctCount}/{totalWithResult}
+              <span className="font-bold tabular-nums">
+                {formatGuessCount(correctCount, totalWithResult)}
               </span>
             </p>
           </div>
           {isComparing && (
-            <div className="rounded-lg bg-violet-50 p-4">
-              <p className="truncate text-base text-violet-700">
-                {compareName}:{" "}
-                <span className="font-bold">
-                  {compareCorrectCount ?? 0}/{totalWithResult}
+            <div className="rounded-lg bg-accent-100 p-4">
+              <p className="truncate text-base text-accent-700">
+                {comparison.user.name}:{" "}
+                <span className="font-bold tabular-nums">
+                  {formatGuessCount(compareCorrectCount ?? 0, totalWithResult)}
                 </span>
               </p>
             </div>
@@ -115,19 +135,17 @@ export function PredictionsView({
 
       {!readOnly && (
         <div className="mb-4 flex items-center gap-3">
-          <label className="flex items-center gap-2 text-base text-zinc-600 cursor-pointer select-none">
-            <input
-              type="checkbox"
+          <label className="flex cursor-pointer select-none items-center gap-2 text-base text-zinc-600">
+            <Checkbox
               checked={onlyOpen}
               onChange={(e) => setOnlyOpen(e.target.checked)}
-              className="h-5 w-5 rounded border-zinc-300"
             />
             Vain veikattavissa olevat
           </label>
           {unpredicted > 0 && (
-            <span className="ml-auto rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
+            <Badge variant="warning" className="ml-auto">
               {unpredicted} veikkaamatta
-            </span>
+            </Badge>
           )}
         </div>
       )}
@@ -138,7 +156,8 @@ export function PredictionsView({
 
       {Array.from(groupedByStage.entries()).map(([stage, stageMatches]) => (
         <div key={stage} className="mb-6">
-          <h2 className="mb-3 text-base font-semibold uppercase tracking-wide text-zinc-600">
+          <hr className="text-zinc-200"></hr>
+          <h2 className="mt-3 mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
             {STAGE_LABELS[stage] || stage}
           </h2>
           <div className="space-y-8">
@@ -147,6 +166,7 @@ export function PredictionsView({
                 key={match.id}
                 match={match}
                 stageLabel={STAGE_LABELS[match.stage] || match.stage}
+                comparison={comparison}
                 readOnly={readOnly}
               />
             ))}

@@ -3,6 +3,9 @@
 import { useOptimistic, useTransition } from "react";
 import { savePrediction } from "@/actions/predictions";
 import { Flag } from "@/components/flag";
+import { LockIcon, AlertIcon, CheckIcon } from "@/components/icons";
+import { cn } from "@/lib/cn";
+import { type Comparison } from "@/components/predictions-list";
 
 export type MatchWithPrediction = {
   id: number;
@@ -13,7 +16,7 @@ export type MatchWithPrediction = {
   locked: boolean;
   result: string | null;
   prediction: string | null;
-  theirPrediction?: string | null;
+  allPredictions: Array<{ pick: string; userId: number }>;
 };
 
 type Pick = "1" | "X" | "2";
@@ -29,7 +32,7 @@ const renderLabel = (option: Pick, match: MatchWithPrediction) => {
   return (
     <>
       {isKnown && <Flag code={code} />}
-      <span className="ml-1">{code}</span>
+      <span className="ml-1 tabular-nums">{code}</span>
     </>
   );
 };
@@ -37,10 +40,12 @@ const renderLabel = (option: Pick, match: MatchWithPrediction) => {
 export function MatchCard({
   match,
   stageLabel,
+  comparison,
   readOnly = false,
 }: {
   match: MatchWithPrediction;
   stageLabel: string;
+  comparison: Comparison;
   readOnly?: boolean;
 }) {
   const [optimisticPrediction, setOptimisticPrediction] = useOptimistic(
@@ -69,16 +74,28 @@ export function MatchCard({
     timeZone: "Europe/Helsinki",
   });
 
-  const needsPrediction = !match.locked && !match.result && !match.prediction && !readOnly;
+  const needsPrediction =
+    !match.locked && !match.result && !match.prediction && !readOnly;
 
   return (
     <div>
-      <div className={`mb-1.5 text-sm inline-flex items-center gap-1 rounded px-3 py-1.5 -ml-2 ${
-        needsPrediction
-          ? "bg-amber-100 text-amber-700"
-          : "text-zinc-500"
-      }`}>
-        {stageLabel} &middot; {dateStr} klo {timeStr} {match.locked && "🔒"}{needsPrediction && "⚠️"}
+      <div
+        className={cn(
+          "mb-1.5 inline-flex items-center gap-1.5 rounded-md text-sm",
+          needsPrediction
+            ? "bg-warning-100 text-warning-700 px-2 py-1.5 -ml-2 "
+            : "text-zinc-500",
+        )}
+      >
+        <span>
+          {stageLabel} &middot; {dateStr} klo {timeStr}
+        </span>
+        {match.result ? (
+          <CheckIcon className="h-4 w-4 text-success-700" />
+        ) : match.locked ? (
+          <LockIcon className="h-4 w-4" />
+        ) : null}
+        {needsPrediction && <AlertIcon className="h-4 w-4" />}
       </div>
 
       <div className="flex gap-3">
@@ -87,44 +104,78 @@ export function MatchCard({
           const hasResult = !!match.result;
           const isCorrect = hasResult && option === match.result;
 
-          let buttonClass =
-            "min-w-0 flex-1 flex items-center justify-center rounded-md py-4 font-medium ";
+          const interactive = !match.locked && !readOnly;
 
-          if (!match.locked && !readOnly) {
-            buttonClass += "cursor-pointer transition-all active:scale-[0.97] ";
-          }
+          let buttonClass = cn(
+            "relative flex min-w-0 flex-1 items-center justify-center rounded-lg py-4 font-medium",
+            interactive && "cursor-pointer transition-all active:scale-[0.97]",
+          );
 
           if (hasResult) {
             if (isCorrect && isSelected) {
-              buttonClass += "bg-green-100 text-green-800 outline-green-600 outline-3 ";
+              buttonClass = cn(
+                buttonClass,
+                "bg-success-200 text-success-800 ring-2 ring-inset ring-success-500",
+              );
             } else if (isCorrect) {
-              buttonClass += "bg-green-50 text-green-600 outline-green-300 outline-2 ";
+              buttonClass = cn(
+                buttonClass,
+                "bg-success-100 text-success-700 ring-2 ring-inset ring-success-300",
+              );
             } else if (isSelected) {
-              buttonClass += "bg-red-50 text-red-700 outline-red-400 outline-3 ";
+              buttonClass = cn(
+                buttonClass,
+                "bg-danger-100 text-danger-700 ring-2 ring-inset ring-danger-400",
+              );
             } else {
-              buttonClass += "bg-zinc-100 text-zinc-400 outline-zinc-200 ";
+              buttonClass = cn(buttonClass, "bg-zinc-100 text-zinc-500");
             }
           } else if (isSelected) {
-            buttonClass += match.locked
-              ? "bg-blue-50 text-blue-700 outline-blue-600 outline-3 opacity-70 "
-              : "bg-blue-600 text-white outline-blue-600 outline-3 ";
+            buttonClass = cn(
+              buttonClass,
+              match.locked
+                ? "bg-primary-100 text-primary-700 ring-2 ring-inset ring-primary-300 opacity-70"
+                : "bg-primary-600 text-white shadow-sm",
+            );
           } else {
-            buttonClass += "bg-zinc-100 text-zinc-700 ";
-            if (match.locked) {
-              buttonClass += "opacity-70 ";
-            }
+            buttonClass = cn(
+              buttonClass,
+              match.locked
+                ? "bg-zinc-100 text-zinc-700 opacity-70"
+                : "bg-zinc-200 text-zinc-700",
+            );
           }
+
+          const predictionsForOption = match.allPredictions.filter(
+            ({ pick }) => pick === option,
+          );
+
+          const isGuessOfComparedPlayer =
+            comparison.type === "single-user" &&
+            predictionsForOption.find((p) => p.userId === comparison.user.id);
 
           return (
             <button
               key={option}
-              className={`${buttonClass} relative`}
+              className={buttonClass}
               disabled={match.locked || isPending || readOnly}
               onClick={() => handlePick(option)}
             >
               {renderLabel(option, match)}
-              {match.locked && match.theirPrediction === option && (
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-violet-400 ring-1 ring-white" />
+              {comparison.type === "all" && predictionsForOption.length > 0 && (
+                <span
+                  className={cn(
+                    "absolute top-1 right-2",
+                    isGuessOfComparedPlayer
+                      ? "text-accent-700 font-bold"
+                      : "font-light",
+                  )}
+                >
+                  {predictionsForOption.length}
+                </span>
+              )}
+              {isGuessOfComparedPlayer && (
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-violet-400" />
               )}
             </button>
           );

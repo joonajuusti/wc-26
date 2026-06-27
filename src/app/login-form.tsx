@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { login } from "@/actions/auth";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/form";
 
 export function LoginForm() {
   const [error, setError] = useState("");
@@ -26,34 +28,43 @@ export function LoginForm() {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form action={handleSubmit} className="space-y-6">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+            Futistietäjä
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Jalkapallon MM-kisojen veikkauspeli
+          </p>
+        </div>
+      </div>
+
       <div>
         <label
           htmlFor="inviteCode"
-          className="block text-base font-medium text-zinc-700"
+          className="block text-sm font-medium text-zinc-700"
         >
           Kutsukoodi
         </label>
-        <input
+        <Input
           type="text"
           id="inviteCode"
           name="inviteCode"
           required
-          className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-4 py-3 text-base shadow-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 "
+          autoFocus
+          placeholder="Syötä kutsukoodi"
+          className="mt-1.5"
         />
       </div>
 
       {error && (
-        <p className="text-base text-red-600">{error}</p>
+        <p className="text-sm text-danger-600">{error}</p>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-blue-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-      >
+      <Button type="submit" size="lg" disabled={loading}>
         {loading ? "Kirjaudutaan..." : "Kirjaudu sisään"}
-      </button>
+      </Button>
     </form>
   );
 }

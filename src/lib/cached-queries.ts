@@ -18,3 +18,16 @@ export const getCachedTeamsAndMatches = unstable_cache(
 export async function getUserPredictions(userId: number) {
   return db.select().from(predictions).where(eq(predictions.userId, userId));
 }
+
+export async function getLockedPredictions() {
+  return await db
+    .select({
+      id: predictions.id,
+      userId: predictions.userId,
+      matchId: predictions.matchId,
+      pick: predictions.pick,
+    })
+    .from(predictions)
+    .innerJoin(matches, eq(predictions.matchId, matches.id))
+    .where(eq(matches.locked, true));
+}

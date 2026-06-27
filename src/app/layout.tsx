@@ -21,6 +21,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Futistietäjä",
   description: "Jalkapallon MM-kisojen 2026 veikkauspeli",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default async function RootLayout({

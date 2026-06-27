@@ -1,30 +1,42 @@
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { PredictionsList } from "@/components/predictions-list";
+import { Comparison, PredictionsList } from "@/components/predictions-list";
 
 export const dynamic = "force-dynamic";
 
+const resolveComparison = (
+  compareQuery: string | undefined,
+  allUsers: {
+    name: string;
+    id: number;
+  }[],
+): Comparison => {
+  if (!compareQuery) return { type: "none" };
+
+  if (compareQuery === "all") return { type: "all" };
+
+  const comparedUser = allUsers.find((u) => u.name === compareQuery);
+
+  if (!comparedUser) return { type: "none" };
+
+  return { type: "single-user", user: comparedUser };
+};
+
 export default async function PredictionsPage(props: {
-  searchParams: Promise<{ vertaile?: string }>;
+  searchParams: Promise<{ compare?: string }>;
 }) {
-  const { vertaile } = await props.searchParams;
+  const { compare } = await props.searchParams;
   const user = await getSessionUser();
   if (!user) return null;
 
-  const [allUsers, compareRows] = await Promise.all([
+  const [allUsers] = await Promise.all([
     db.select().from(users).orderBy(users.name),
-    vertaile && vertaile !== user.name
-      ? db.select().from(users).where(eq(users.name, vertaile)).limit(1)
-      : Promise.resolve([]),
   ]);
 
   const allUserNames = allUsers
     .filter((u) => u.id !== user.id)
     .map((u) => u.name);
-
-  const compareUser = compareRows[0];
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
@@ -32,8 +44,7 @@ export default async function PredictionsPage(props: {
         userId={user.id}
         showSummary
         allUserNames={allUserNames}
-        compareUserId={compareUser?.id}
-        compareName={compareUser?.name}
+        comparison={resolveComparison(compare, allUsers)}
       />
     </div>
   );
