@@ -59,9 +59,12 @@ with no recovery path. Redirect to `/` with a "session expired" message instead.
 
 ## UI (visual)
 
-### 5. Login screen branding / heading `ship-now`
+### 5. Login screen branding / heading `ship-now` `done`
 The login screen is a bare input with no title or logo. Add an app title + `<h1>` for
 context and a less barren first impression.
+
+**Resolved:** the login form now has an app title (`Futistietäjä`), an `<h1>`, and a
+subtitle describing the game.
 
 ### 6. Notch safety on header `ship-now` `done`
 `header.tsx` has no `env(safe-area-inset-top)` padding; on notched devices the title can
@@ -71,6 +74,11 @@ sit under the status bar. Add top safe-area padding (the bottom nav already does
 Rank medals (gold/silver/bronze), the "is me" highlight, correct/incorrect result states,
 and active filter buttons all rely on color alone. Add icons/text redundancy so
 colorblind users (common) can read the state.
+
+**Partially resolved:** the match-card "correct + selected" state now shows a checkmark
+overlay (lucide `Check`) independent of color. The remaining color-only states (medals,
+"is me" row highlight, active filter chips) are lower-stakes — each has redundant context
+(adjacent text, layout position) — but are not yet fully addressed.
 
 ### 8. DRY `STAGE_LABELS` `ship-now` `done`
 The Finnish stage labels are duplicated in `predictions-view.tsx` and `match-list.tsx`.
@@ -215,7 +223,7 @@ it's a narrow phone-width strip with dead space on both sides. Add a real respon
 layout: wider multi-column grids on larger screens (e.g. predictions as 2–3 columns of
 match cards, leaderboard + compare side-by-side, admin tables with room to breathe).
 
-### 27. Color & contrast pass `ship-now`
+### 27. Color & contrast pass `ship-now` `done`
 Two related issues:
 - **Palette cohesion**: the current colors (zinc neutrals + ad-hoc blue/green/red/violet
   accents) don't feel like a deliberate palette. Define a small, cohesive color system and
@@ -223,6 +231,13 @@ Two related issues:
 - **Low contrast**: several interactive elements have low contrast against the background
   (e.g. the 1/X/2 prediction buttons). Bump button/background contrast to meet WCAG AA, and
   add `cursor-pointer` to all clickable elements so hover affordance is clear on desktop.
+
+**Resolved:** six semantic color families (primary/success/danger/warning/accent + medal
+colors) are defined as Tailwind v4 `@theme` tokens in `globals.css` and used everywhere via
+semantic utilities (`bg-primary-600` etc.). Ad-hoc palette utilities (`bg-blue-600` etc.)
+are fully eliminated. Button contrast was fixed (success/danger use 700+ shades for white
+text). Match-card result states use 100–200-shade fills with 300–500 rings so the four
+post-result states are visually distinct. `cursor-pointer` is set globally in unlayered CSS.
 
 ### 28. Zoom accessibility `ship-now`
 Some users browse with their mobile device zoomed in. Verify the layout holds at 200% zoom
@@ -312,11 +327,15 @@ Treat every dependency as a long-term maintenance liability, not just a today co
 This is an ongoing principle, not a one-time refactor — bake it into how new deps are
 evaluated whenever a feature is built.
 
-### 33. Custom favicon & app identity `ship-now`
+### 33. Custom favicon & app identity `ship-now` `done`
 The favicon is still the default Next.js one. Replace it with a custom icon that matches the
 app's identity (ties into #27's cohesive visual pass). Small, but it's part of making the
 app feel finished and owned rather than a bootstrapped template — and it persists across
 every device/tournament reuse.
+
+**Resolved:** the default Next.js favicon was deleted; a custom abstract SVG (`public/icon.svg`
+— a clipped circle with wavy bands on a primary-blue rounded square) is the sole favicon,
+wired via `metadata.icons` in `layout.tsx`.
 
 ---
 
@@ -328,12 +347,20 @@ every device/tournament reuse.
 > toggles, and badges into a "power user" UI. Prefer progressive disclosure (details on
 > tap) over chrome-on-every-screen.
 
-### 34. Component / design-system unification `ship-now`
+### 34. Component / design-system unification `ship-now` `done`
 Buttons and controls are inconsistent across the app — match buttons, admin buttons, and
 the login button all differ in shape, size, padding, and treatment. Define a small set of
 shared primitives (buttons, inputs, cards, badges) and apply them everywhere. Makes the UI
 look deliberate rather than assembled piecemeal, and keeps it consistent as features are
 added over the 10-year horizon. Pairs with #27 (color system).
+
+**Resolved:** shared primitives live in `src/components/ui/` — `Button` (5 variants × 4
+sizes), `Card`, `Badge` (6 variants × 2 sizes), `Input`, `Select` (2 sizes with a custom
+chevron), `Checkbox`. All are applied across login, admin, and predictions surfaces. The
+two remaining raw `<button>` elements (match-card pick buttons, admin result buttons) are
+deliberate: their complex data-driven state (5+ visual variants) can't map to Button's
+variant system, and without `tailwind-merge` className overrides on the primitive would be
+unreliable. A dependency-free `cn()` helper handles class composition.
 
 ### 35. Subtle polish animations `ship-now`
 Not flashy effects — small, tasteful motion that makes the app feel alive and responsive:
@@ -387,7 +414,7 @@ Two related improvements to the leaderboard:
 - Note: this deferred the "prize money / form" density concern — pedestals hold only names
   so #23 (pot) and #42 (form) can fold into the flat list rows without podium rework.
 
-### 38. Replace emojis with a proper icon system `ship-now`
+### 38. Replace emojis with a proper icon system `ship-now` `done`
 The app leans on emoji as icons throughout: ⚽🏆🔧 in the bottom nav, 🔒 on locked matches,
 ⚠️ on unpredicted warnings, ✓ for completion marks, and 🔥 was proposed for streaks (#18).
 Emoji render inconsistently across platforms and read as "quick prototype" rather than a
@@ -397,18 +424,36 @@ Replace all emoji-as-icons with a consistent set of inline SVG icons (no emoji d
 renders identically everywhere). Pairs with #33 (custom favicon) to form one unified visual
 identity, and with #34 (design-system) so icons share weight/style with the components.
 
-### 39. Typography scale + tabular figures `ship-now`
+**Resolved:** all emoji-as-icons are gone. `lucide-react` provides 10 icons (ListChecks,
+Podium, Settings, LockKeyhole, LockKeyholeOpen, ClockAlert, Check, ArrowLeft, Copy, LogOut)
+re-exported through `src/components/icons.tsx` so call sites import from one module. The
+icon set was chosen for semantic fit: ListChecks for predictions, Podium for the
+leaderboard, ClockAlert for "deadline approaching" (unpredicted warnings).
+
+### 39. Typography scale + tabular figures `ship-now` `done`
 The app uses Geist Sans at default sizes with no considered type scale. Define heading/body
 sizes and weights deliberately, and use **tabular figures** (monospaced numerals) for ranks
 and scores so the leaderboard numbers align vertically column-wise. Subtle, but a hallmark
 of "designed" rather than default.
 
-### 40. Consistent focus styles `ship-now`
+**Resolved:** `tabular-nums` is applied to all numeric values (ranks, scores, prediction
+counts, match IDs, team codes) for consistent column alignment. Text sizes were adjusted
+for readability — user-facing text (nav labels, podium names, badges) bumped to 14px
+minimum; admin-only text stays at 12px where compactness matters. Heading/body sizing is
+handled inline with deliberate `text-sm`/`text-base`/`text-xl`/`text-2xl` choices rather
+than a formal scale token (sufficient at this app's size).
+
+### 40. Consistent focus styles `ship-now` `done`
 Only the login submit button has a real `focus:ring` today. The nav links, match buttons,
 admin buttons, selects, and checkboxes rely on browser defaults or nothing. Define one
 unified `focus-visible` style and apply it across the app — both a polish win (consistent,
 intentional) and a real usability/accessibility improvement (keyboard users can see where
 they are).
+
+**Resolved:** a single global `:focus-visible` rule in `globals.css` applies a 2px
+primary-color outline with 2px offset to every focusable element. Mouse clicks are excluded
+(`:focus:not(:focus-visible)` suppresses the outline) so there's no visual noise on click.
+The old login-only `focus:ring` was removed in favor of the global rule.
 
 ---
 
