@@ -41,9 +41,14 @@ with no error shown. Surface action errors to the user and always reset pending 
 `match-card.tsx` sets an optimistic pick but never reverts it if `savePrediction` fails
 (e.g. a lock-race at kickoff). Revert the optimistic value and show a message on failure.
 
-### 3. Leaderboard tie-breaking
+### 3. Leaderboard tie-breaking `done`
 Equal-point users currently get arbitrary order with duplicated ranks. Break ties
 deterministically (e.g. most correct picks, then name) or display "=" ranks.
+
+**Resolved** (with #37): went with the "=" display route. Competition ranking
+(`1, 1, 3, 4, ...`) is computed on the leaderboard; tied ranks show "=" (ditto
+style — first occurrence carries the number, subsequent show just "="). Within-tie
+ordering is deterministic by name (the query already orders by `users.name`).
 
 ### 4. Invalid-session redirect
 A tampered/expired session cookie renders a blank screen (pages do `if (!user) return null`)
@@ -356,7 +361,7 @@ without study:
 
 Keeps the single predictions view intact; the cards just become more informative.
 
-### 37. Leaderboard podium + tie display `ship-now`
+### 37. Leaderboard podium + tie display `ship-now` `done`
 Two related improvements to the leaderboard:
 - **Visual podium for top 3** — render the top 3 as a small podium/medal treatment, then
   list 4th-onward below as the current flat list. Makes the top feel earned without turning
@@ -365,6 +370,22 @@ Two related improvements to the leaderboard:
   (e.g. two players on 5pts show as rank 3 and rank 4). Tie-breaking (#3) addresses the
   ordering; pair it with a visual "=" so genuine ties read as ties on the podium and the
   list.
+
+**Implemented** (design evolved significantly from the spec above):
+- Three **fixed** pedestals are always rendered (2-1-3 layout: rank II left, rank I
+  center-tall, rank III right-short). Pedestals are static chrome — identical appearance
+  regardless of player data; only the names populating each slot vary.
+- Each pedestal carries its medal color as a top accent bar + roman numeral (I/II/III);
+  no tinted fills or borders (plain white cards with `shadow-sm`).
+- Player names float **above** the pedestal step; points are shown only in the flat list
+  below (not on the podium).
+- The full leaderboard (all players, including those on pedestals) renders below as the
+  authoritative flat list with competition ranks and "=" ditto display.
+- Ties at the top: multiple tied players stack as names on their rank's pedestal; empty
+  pedestals (a rank consumed by a tie) render with just the numeral. The staircase
+  height always maps to rank, not player count.
+- Note: this deferred the "prize money / form" density concern — pedestals hold only names
+  so #23 (pot) and #42 (form) can fold into the flat list rows without podium rework.
 
 ### 38. Replace emojis with a proper icon system `ship-now`
 The app leans on emoji as icons throughout: ⚽🏆🔧 in the bottom nav, 🔒 on locked matches,
