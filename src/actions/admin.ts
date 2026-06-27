@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { matches, users } from "@/lib/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { revalidatePath, updateTag } from "next/cache";
 
 export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
   const user = await getSessionUser();
@@ -15,11 +14,6 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
     .set({ result, locked: true })
     .where(eq(matches.id, matchId));
 
-  revalidatePath("/predictions");
-  updateTag("teams-and-matches");
-  updateTag("leaderboard");
-  revalidatePath("/admin/matches");
-  revalidatePath("/admin");
   return { success: true };
 }
 
@@ -36,9 +30,6 @@ export async function setMatchTeams(
     .set({ homeTeamId, awayTeamId })
     .where(eq(matches.id, matchId));
 
-  updateTag("teams-and-matches");
-  revalidatePath("/predictions");
-  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -63,9 +54,6 @@ export async function lockStage(stage: string) {
       );
   }
 
-  updateTag("teams-and-matches");
-  revalidatePath("/predictions");
-  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -90,9 +78,6 @@ export async function unlockStage(stage: string) {
       );
   }
 
-  updateTag("teams-and-matches");
-  revalidatePath("/predictions");
-  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -105,9 +90,6 @@ export async function lockMatch(matchId: number) {
     .set({ locked: true })
     .where(eq(matches.id, matchId));
 
-  updateTag("teams-and-matches");
-  revalidatePath("/predictions");
-  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -120,9 +102,6 @@ export async function unlockMatch(matchId: number) {
     .set({ locked: false })
     .where(eq(matches.id, matchId));
 
-  updateTag("teams-and-matches");
-  revalidatePath("/predictions");
-  revalidatePath("/admin/matches");
   return { success: true };
 }
 
@@ -174,6 +153,5 @@ export async function generateInviteCode(name: string) {
     isAdmin: false,
   });
 
-  revalidatePath("/admin/users");
   return { success: true, code };
 }

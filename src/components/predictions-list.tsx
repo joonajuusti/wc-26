@@ -1,13 +1,10 @@
 import {
-  getCachedTeamsAndMatches,
+  getTeamsAndMatches,
   getLockedPredictions,
   getUserPredictions,
-} from "@/lib/cached-queries";
+} from "@/lib/queries";
 import type { MatchWithPrediction } from "@/components/match-card";
 import { PredictionsView } from "@/components/predictions-view";
-
-const groupByMatchId = <T extends { matchId: number }>(entities: T[]) =>
-  Map.groupBy(entities, (e) => e.matchId);
 
 export type Comparison =
   | { type: "all" }
@@ -29,7 +26,7 @@ export async function PredictionsList({
 }) {
   const [{ allTeams, allMatches }, userPredictions, lockedPredictions] =
     await Promise.all([
-      getCachedTeamsAndMatches(),
+      getTeamsAndMatches(),
       getUserPredictions(userId),
       getLockedPredictions(),
     ]);
@@ -45,8 +42,6 @@ export async function PredictionsList({
     userPredictions.map((p) => [p.matchId, p.pick]),
   );
 
-  const lockedPredictionsMap = groupByMatchId(lockedPredictions);
-
   const matches = readOnly ? allMatches.filter((m) => m.locked) : allMatches;
 
   const correctCount = matches.filter(
@@ -58,7 +53,7 @@ export async function PredictionsList({
       ? matches.filter(
           (m) =>
             m.result &&
-            lockedPredictionsMap
+            lockedPredictions
               .get(m.id)
               ?.find(
                 (p) => p.pick === m.result && p.userId === comparison.user.id,
@@ -77,7 +72,7 @@ export async function PredictionsList({
     locked: match.locked,
     result: match.result,
     prediction: predictionMap.get(match.id) ?? null,
-    allPredictions: lockedPredictionsMap.get(match.id) ?? [],
+    allPredictions: lockedPredictions.get(match.id) ?? [],
   }));
 
   return (

@@ -1,29 +1,61 @@
 import { getSessionUser } from "@/lib/auth";
-import { calculatePoints } from "@/lib/scoring";
-import { getCachedLeaderboardData } from "@/lib/cached-queries";
+import { getUsers, getLockedPredictions } from "@/lib/queries";
+import { getFormWindow, computeRecentForm } from "@/lib/form";
+import { FormStrip } from "@/components/form-strip";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
-
 const PEDESTALS = [
-  { rank: 2, numeralColor: "text-silver", roman: "II", accent: "bg-silver", height: "h-15" },
-  { rank: 1, numeralColor: "text-gold", roman: "I", accent: "bg-gold", height: "h-20" },
-  { rank: 3, numeralColor: "text-bronze", roman: "III", accent: "bg-bronze", height: "h-12" },
+  {
+    rank: 2,
+    numeralColor: "text-silver",
+    roman: "II",
+    accent: "bg-silver",
+    height: "h-15",
+  },
+  {
+    rank: 1,
+    numeralColor: "text-gold",
+    roman: "I",
+    accent: "bg-gold",
+    height: "h-20",
+  },
+  {
+    rank: 3,
+    numeralColor: "text-bronze",
+    roman: "III",
+    accent: "bg-bronze",
+    height: "h-12",
+  },
 ];
 
 export default async function LeaderboardPage() {
   const currentUser = await getSessionUser();
   if (!currentUser) return null;
 
-  const { allUsers, allPredictions } = await getCachedLeaderboardData();
+  const [allUsers, lockedByMatch] = await Promise.all([
+    getUsers(),
+    getLockedPredictions(),
+  ]);
 
   const pointsByUser = new Map<number, number>();
-  for (const p of allPredictions) {
-    pointsByUser.set(
-      p.userId,
-      (pointsByUser.get(p.userId) ?? 0) + calculatePoints(p.pick, p.result),
-    );
+  for (const preds of lockedByMatch.values()) {
+    const result = preds[0].result;
+    if (!result) continue;
+    for (const p of preds) {
+      if (p.pick === result) {
+        pointsByUser.set(p.userId, (pointsByUser.get(p.userId) ?? 0) + 1);
+      }
+    }
   }
+
+  const picksByMatch = new Map<number, Map<number, string>>();
+  for (const [matchId, preds] of lockedByMatch) {
+    const inner = new Map<number, string>();
+    for (const p of preds) inner.set(p.userId, p.pick);
+    picksByMatch.set(matchId, inner);
+  }
+
+  const windowMatches = getFormWindow(lockedByMatch);
 
   const ranked = allUsers
     .map((u) => ({
@@ -51,7 +83,7 @@ export default async function LeaderboardPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="ft-fade-in mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <div className="mb-6 grid grid-cols-3 items-end px-1">
         {PEDESTALS.map((p) => {
           const players = ranked.filter((u) => u.rank === p.rank);
@@ -62,7 +94,9 @@ export default async function LeaderboardPage() {
                   <span
                     key={u.id}
                     className={`max-w-full truncate text-center text-sm font-medium ${
-                      u.id === currentUser.id ? "text-primary-700" : "text-zinc-700"
+                      u.id === currentUser.id
+                        ? "text-primary-700"
+                        : "text-zinc-700"
                     }`}
                   >
                     {u.name}
@@ -88,7 +122,8 @@ export default async function LeaderboardPage() {
         {ranked.map((user, index) => {
           const isMe = user.id === currentUser.id;
           const isShared = (rankCounts.get(user.rank) ?? 0) > 1;
-          const isFirstOfRank = index === 0 || ranked[index - 1].rank !== user.rank;
+          const isFirstOfRank =
+            index === 0 || ranked[index - 1].rank !== user.rank;
           const href = isMe
             ? "/predictions"
             : `/predictions?vertaile=${encodeURIComponent(user.name)}`;
@@ -97,27 +132,36 @@ export default async function LeaderboardPage() {
             <Link
               key={user.id}
               href={href}
-              className={`flex items-center justify-between px-1 py-4 transition-colors hover:bg-zinc-50 ${
+              className={`flex items-center justify-between gap-2 px-1 py-4 transition-colors hover:bg-zinc-50 ${
                 isMe ? "bg-primary-100" : ""
               }`}
             >
-              <div className="flex items-center gap-3">
-                <span
-                  className="w-8 text-center text-base font-bold tabular-nums text-zinc-400"
-                >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="w-8 shrink-0 text-center text-base font-bold tabular-nums text-zinc-400">
                   {isShared && !isFirstOfRank ? "=" : user.rank}
                 </span>
                 <span
-                  className={`text-base ${
+                  className={`min-w-0 truncate text-base ${
                     isMe ? "font-semibold text-primary-700" : "text-zinc-700"
                   }`}
                 >
                   {user.name}
                 </span>
               </div>
-              <span className="font-bold tabular-nums text-zinc-900">
-                {user.totalPoints} p
-              </span>
+              <div className="flex shrink-0 items-center gap-3">
+                {windowMatches.length > 0 && (
+                  <FormStrip
+                    marks={computeRecentForm(
+                      user.id,
+                      windowMatches,
+                      picksByMatch,
+                    )}
+                  />
+                )}
+                <span className="font-bold tabular-nums text-zinc-900">
+                  {user.totalPoints} p
+                </span>
+              </div>
             </Link>
           );
         })}

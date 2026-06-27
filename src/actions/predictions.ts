@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { predictions, matches } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
 
 export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
   const user = await getSessionUser();
@@ -47,6 +46,5 @@ export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
     });
   }
 
-  revalidatePath("/predictions");
   return { success: true };
 }

@@ -373,6 +373,16 @@ Not flashy effects — small, tasteful motion that makes the app feel alive and 
 Guided by the principle above: motion should reinforce state changes, never demand
 attention or clutter.
 
+**Partially resolved:** a namespaced `ft-fade-in` keyframe in `globals.css` (with a
+`prefers-reduced-motion` opt-out) gives a gentle 180ms fade+rise on the predictions and
+leaderboard page roots, so navigating between the two views feels native rather than a hard
+skeleton flash. The "color settle on optimistic confirm" is already covered by the existing
+`transition-all` on the pick buttons (selection animates in as the optimistic value applies).
+Deferred: a discrete confirm-*pulse* (a toggled CSS class doesn't reliably replay across
+rapid successive picks without element remounting, so it was deliberately omitted rather
+than shipped fragile) and the result-lands-in-your-favor celebratory cue (needs
+result-change detection plumbing; low ROI vs. risk). Both remain open but are polish-only.
+
 ### 36. Match-card status at a glance
 Right now a card shows kickoff time + your pick + (if finished) a result outline you have to
 interpret ("did I win?"). With #31 (scores) landing, make each card communicate its state
@@ -471,7 +481,7 @@ kept external so the app stays clean and disposable between tournaments.
 Pairs with #24 (share card) as the other end-of-tournament output — one for the group chat
 (visual share), one for the admin's records (data).
 
-### 42. Recent form indicator
+### 42. Recent form indicator `ship-now` `done`
 Show each player's recent performance rather than just a streak count. A streak is a single
 number ("3 in a row"); recent form shows a *trend* — e.g. last 5 matches as ✓/✗/– (correct /
 wrong / not yet predicted): `✓✓✗✓✓` tells you someone is 4/5 and on form right now.
@@ -485,3 +495,15 @@ wrong / not yet predicted): `✓✓✗✓✓` tells you someone is 4/5 and on fo
 Respects the premium-feel principle: a small row of dots/marks, not a busy widget. Note:
 this is the preferred take on "performance signal" — #18 (streaks) can be dropped in favor
 of this if keeping both feels redundant.
+
+**Resolved:** each flat-list leaderboard row carries a compact form strip showing the
+player's last 5 resolved picks (oldest → newest), right-padded with "–" until 5 matches
+are done. Computed in `src/lib/form.ts` (`getFormWindow`, `computeRecentForm`,
+`FORM_WINDOW = 5`) from `getLockedPredictions` — the same uncached query the predictions
+page already uses, so no extra DB hit. `getCachedLeaderboardData` was deleted along with
+all `unstable_cache` wrappers and `updateTag` calls (caching was unjustified at this scale
+per the Perf section). The strip lives in `src/components/form-strip.tsx` and renders as
+lucide `Check` / `X` / `Minus` icons (success/danger/zinc). Distinct *shapes*, not color
+alone, keep it readable for colorblind users (advances #7) and emoji-free (#38). Podium
+rows stay name-only (per #37); the strip folds into the flat list. Row layout is zoom-safe
+(name truncates, the form+points cluster is `shrink-0`) — a step on #28.

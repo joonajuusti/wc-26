@@ -22,3 +22,10 @@ not be mutated or pointed at from local development.
 - `npm run seed:local` — seed the local DB
 
 `npm run db:generate` is safe — it only writes migration files and touches no database.
+
+# Code style
+
+NEVER add comments to code — not `//`, not `/* */`, not JSDoc `/** */`. Code must be
+self-documenting; if a name or structure needs explaining, rename or restructure it
+instead of commenting. This applies to every file: source, styles, and scripts. Existing
+comments (if any) are left alone unless explicitly told otherwise.

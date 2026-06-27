@@ -10,6 +10,7 @@ import {
   Copy,
   LogOut,
   X,
+  Minus,
 } from "lucide-react";
 
 export const PredictionsIcon = ListChecks;
@@ -23,3 +24,4 @@ export const ArrowLeftIcon = ArrowLeft;
 export const CopyIcon = Copy;
 export const LogOutIcon = LogOut;
 export const XIcon = X;
+export const MinusIcon = Minus;

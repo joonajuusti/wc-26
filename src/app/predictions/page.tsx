@@ -3,8 +3,6 @@ import { users } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth";
 import { Comparison, PredictionsList } from "@/components/predictions-list";
 
-export const dynamic = "force-dynamic";
-
 const resolveComparison = (
   compareQuery: string | undefined,
   allUsers: {
@@ -39,7 +37,7 @@ export default async function PredictionsPage(props: {
     .map((u) => u.name);
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="ft-fade-in mx-auto w-full max-w-lg px-4 pb-4 pt-4">
       <PredictionsList
         userId={user.id}
         showSummary
