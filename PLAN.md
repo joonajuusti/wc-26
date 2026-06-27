@@ -404,3 +404,18 @@ kept external so the app stays clean and disposable between tournaments.
 
 Pairs with #24 (share card) as the other end-of-tournament output — one for the group chat
 (visual share), one for the admin's records (data).
+
+### 42. Recent form indicator
+Show each player's recent performance rather than just a streak count. A streak is a single
+number ("3 in a row"); recent form shows a *trend* — e.g. last 5 matches as ✓/✗/– (correct /
+wrong / not yet predicted): `✓✓✗✓✓` tells you someone is 4/5 and on form right now.
+
+- **Where:** a compact form strip on the leaderboard row and/or the compare view, computed
+  from the most recent resolved matches.
+- **Why over #18 (streaks):** a streak resets to zero on a single miss and hides
+  everything before it; form captures how a player is actually doing across recent games,
+  regardless of whether the streak broke. More informative, same data.
+
+Respects the premium-feel principle: a small row of dots/marks, not a busy widget. Note:
+this is the preferred take on "performance signal" — #18 (streaks) can be dropped in favor
+of this if keeping both feels redundant.
