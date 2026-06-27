@@ -1,0 +1,1 @@
+CREATE INDEX `match_idx` ON `predictions` (`match_id`);

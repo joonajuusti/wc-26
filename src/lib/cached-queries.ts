@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
-import { matches, teams, predictions } from "@/lib/db/schema";
+import { matches, teams, predictions, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export const getCachedTeamsAndMatches = unstable_cache(
@@ -12,7 +12,26 @@ export const getCachedTeamsAndMatches = unstable_cache(
     return { allMatches, allTeams };
   },
   ["teams-and-matches"],
-  { revalidate: 60 },
+  { tags: ["teams-and-matches"] },
+);
+
+export const getCachedLeaderboardData = unstable_cache(
+  async () => {
+    const [allUsers, allPredictions] = await Promise.all([
+      db.select().from(users).orderBy(users.name),
+      db
+        .select({
+          userId: predictions.userId,
+          pick: predictions.pick,
+          result: matches.result,
+        })
+        .from(predictions)
+        .innerJoin(matches, eq(predictions.matchId, matches.id)),
+    ]);
+    return { allUsers, allPredictions };
+  },
+  ["leaderboard"],
+  { tags: ["leaderboard"] },
 );
 
 export async function getUserPredictions(userId: number) {

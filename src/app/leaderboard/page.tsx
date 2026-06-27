@@ -1,8 +1,6 @@
-import { db } from "@/lib/db";
-import { users, predictions, matches } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
 import { calculatePoints } from "@/lib/scoring";
+import { getCachedLeaderboardData } from "@/lib/cached-queries";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -17,17 +15,7 @@ export default async function LeaderboardPage() {
   const currentUser = await getSessionUser();
   if (!currentUser) return null;
 
-  const [allUsers, allPredictions] = await Promise.all([
-    db.select().from(users).orderBy(users.name),
-    db
-      .select({
-        userId: predictions.userId,
-        pick: predictions.pick,
-        result: matches.result,
-      })
-      .from(predictions)
-      .innerJoin(matches, eq(predictions.matchId, matches.id)),
-  ]);
+  const { allUsers, allPredictions } = await getCachedLeaderboardData();
 
   const pointsByUser = new Map<number, number>();
   for (const p of allPredictions) {

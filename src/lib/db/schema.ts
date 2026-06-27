@@ -3,6 +3,7 @@ import {
   sqliteTable,
   text,
   uniqueIndex,
+  index,
 } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
@@ -53,5 +54,8 @@ export const predictions = sqliteTable(
       .references(() => matches.id),
     pick: text("pick", { enum: ["1", "X", "2"] }).notNull(),
   },
-  (table) => [uniqueIndex("user_match_idx").on(table.userId, table.matchId)]
+  (table) => [
+    uniqueIndex("user_match_idx").on(table.userId, table.matchId),
+    index("match_idx").on(table.matchId),
+  ]
 );
