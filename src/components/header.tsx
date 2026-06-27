@@ -19,7 +19,7 @@ export function Header({ name }: { name: string }) {
   if (!title) return null;
 
   return (
-    <div className="mx-auto w-full max-w-lg shrink-0 px-4 pt-4 pb-2">
+    <div className="mx-auto w-full max-w-lg shrink-0 px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-2">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-zinc-900">
           {title}

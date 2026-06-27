@@ -3,16 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MatchCard, type MatchWithPrediction } from "@/components/match-card";
-
-const STAGE_LABELS: Record<string, string> = {
-  group: "Lohkovaihe",
-  r32: "Kahdeksannesvälierät",
-  r16: "Neljännesvälierät",
-  qf: "Puolivälierät",
-  sf: "Välierät",
-  third: "Pronssiottelu",
-  final: "Finaali",
-};
+import { STAGE_LABELS } from "@/lib/stages";
 
 export function PredictionsView({
   matchCards,

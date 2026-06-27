@@ -2,16 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { setMatchResult, setMatchTeams, lockStage, unlockStage, lockMatch, unlockMatch } from "@/actions/admin";
-
-const STAGE_LABELS: Record<string, string> = {
-  group: "Lohkovaihe",
-  r32: "Kahdeksannesvälierät",
-  r16: "Neljännesvälierät",
-  qf: "Puolivälierät",
-  sf: "Välierät",
-  third: "Pronssiottelu",
-  final: "Finaali",
-};
+import { STAGE_LABELS } from "@/lib/stages";
 
 type Team = { id: string; name: string; flagEmoji: string };
 type Match = {
