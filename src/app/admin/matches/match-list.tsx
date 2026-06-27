@@ -49,7 +49,7 @@ export function AdminMatchList({
 }) {
   const stages = [...new Set(matches.map((m) => m.stage))];
   const [filter, setFilter] = useState<string>("all");
-  const [hideResolved, setHideResolved] = useState(false);
+  const [hideResolved, setHideResolved] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<string | null>(null);
 
@@ -192,7 +192,11 @@ export function AdminMatchList({
                 <span className="tabular-nums">
                   P{match.id} &middot; {STAGE_LABELS[match.stage]}
                 </span>
-                {match.locked && <Badge variant="danger" size="sm">LUKITTU</Badge>}
+                {match.locked && (
+                  <Badge variant="danger" size="sm">
+                    LUKITTU
+                  </Badge>
+                )}
                 <Button
                   variant={match.locked ? "success" : "secondary"}
                   size="xs"
