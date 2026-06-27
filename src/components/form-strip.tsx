@@ -2,9 +2,12 @@ import { CheckIcon, XIcon, MinusIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
 import type { FormMark } from "@/lib/form";
 
-const MARK_STYLE: Record<FormMark, { Icon: typeof CheckIcon; className: string }> = {
+const MARK_STYLE: Record<
+  FormMark,
+  { Icon: typeof CheckIcon; className: string }
+> = {
   correct: { Icon: CheckIcon, className: "text-success-600" },
-  wrong: { Icon: XIcon, className: "text-danger-400" },
+  wrong: { Icon: XIcon, className: "text-danger-700" },
   pending: { Icon: MinusIcon, className: "text-zinc-300" },
 };
 
