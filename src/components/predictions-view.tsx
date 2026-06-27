@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MatchCard, type MatchWithPrediction } from "@/components/match-card";
 import { Select, Checkbox } from "@/components/ui/form";
@@ -48,14 +48,22 @@ export function PredictionsView({
   const router = useRouter();
   const [onlyOpen, setOnlyOpen] = useState(false);
 
+  const [optimisticTarget, setOptimisticTarget] = useOptimistic(
+    getComparisonTarget(comparison),
+  );
+  const [, startTransition] = useTransition();
+
   const isComparing = comparison.type === "single-user";
 
   function handleCompareChange(name: string) {
-    if (name) {
-      router.push(`/predictions?compare=${encodeURIComponent(name)}`);
-    } else {
-      router.push("/predictions");
-    }
+    startTransition(() => {
+      setOptimisticTarget(name);
+      if (name) {
+        router.push(`/predictions?compare=${encodeURIComponent(name)}`);
+      } else {
+        router.push("/predictions");
+      }
+    });
   }
 
   const filtered = onlyOpen ? matchCards.filter((m) => !m.locked) : matchCards;
@@ -89,7 +97,7 @@ export function PredictionsView({
             Vertaile:
           </span>
           <Select
-            value={getComparisonTarget(comparison)}
+            value={optimisticTarget}
             onChange={(e) => handleCompareChange(e.target.value)}
             className="w-auto"
           >
