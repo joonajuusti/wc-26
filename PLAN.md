@@ -10,7 +10,7 @@ it's low-effort to run each tournament, and it stays low-effort to resurrect for
 **Horizon: 10+ years.** The goal is to reuse this system for each FIFA World Cup and UEFA
 Euro (every ~2 years, 5+ tournaments), and possibly other events. Dependencies and external
 coupling are evaluated against "will this still work in 2034?" — not just "does it work
-today." This is why self-containment (#15–#16, #29, #32) matters more than it would for a
+today." This is why self-containment (#15, #29, #32) matters more than it would for a
 throwaway app.
 
 **Design principle — two views, premium feel.** The app has just two user-facing views
@@ -65,12 +65,6 @@ below.
 Turso coupling is thin (4 import/config lines; schema is already pure `sqliteTable`).
 Abstract the db-client init so swapping to plain SQLite (`better-sqlite3` / `node:sqlite`)
 is a 4-line change and nothing more. Keeps Turso as the default but makes the swap trivial.
-
-### 16. Bundle flag images locally
-
-Flags load from `flagcdn.com` at runtime — the app's one external dependency, which breaks
-if the CDN is down/blocked. Ship the flag images in-repo (`public/flags/`) so the app is
-fully self-contained.
 
 ---
 
@@ -141,13 +135,6 @@ that fits the friends-game spirit.
 
 ## Visual polish
 
-### 26. Responsive desktop layout `ship-now`
-
-The app is mobile-first and caps everything at `max-w-lg` centered on screen — on desktop
-it's a narrow phone-width strip with dead space on both sides. Add a real responsive
-layout: wider multi-column grids on larger screens (e.g. predictions as 2–3 columns of
-match cards, leaderboard + compare side-by-side, admin tables with room to breathe).
-
 ### 28. Zoom accessibility `ship-now`
 
 Some users browse with their mobile device zoomed in. Verify the layout holds at 200% zoom
@@ -172,7 +159,7 @@ Querying static data from the DB is pointless overhead.
 
 Net effect: eliminates the `teams` table reads, the FK joins, and one of the two cached
 queries in `getCachedTeamsAndMatches`. The static catalog also doubles as the natural home
-for the flag data (#16), collapsing three sources (seed + `flags.ts` + DB) into one code
+for the flag data (now in `public/flags/`), collapsing three sources (seed + `flags.ts` + DB) into one code
 constant. Less data round-tripped, fewer moving parts — not for scale, just for not doing
 pointless work.
 
@@ -236,7 +223,7 @@ Treat every dependency as a long-term maintenance liability, not just a today co
   `react`, `react-dom`, `@libsql/client`, `drizzle-orm`) — that's good. The dev-time
   conveniences (`tailwindcss`, `drizzle-kit`, `tsx`, `eslint`, `typescript`) carry more
   churn risk; evaluate whether each earns its keep over the horizon.
-- **Self-containment (#15, #16, #29) compounds here:** the more the app does with code
+- **Self-containment (#15, #29) compounds here:** the more the app does with code
   constants and a swappable local DB rather than external services/libs, the less there is to
   break over a decade.
 
@@ -257,15 +244,6 @@ evaluated whenever a feature is built.
 
 ## New features (continued)
 
-### 41. Export final standings for historical records `ship-now`
+---
 
-At tournament end, let the admin export the final standings (per-player points, rank, picks)
-to a CSV or similar file — purely for off-app historical record-keeping.
-
-**Key constraint:** the app itself must remain **wipeable at any time** when no tournament is
-in progress. History does _not_ live in the app — the export is the record, the DB can be
-nuked afterwards. So this is a one-way export (no import, no in-app archive), deliberately
-kept external so the app stays clean and disposable between tournaments.
-
-Pairs with #24 (share card) as the other end-of-tournament output — one for the group chat
-(visual share), one for the admin's records (data).
+## Visual polish (continued)

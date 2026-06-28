@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-4">
       <div className="rounded-lg border border-zinc-200 bg-white shadow-sm">
         <div className="divide-y divide-zinc-200">
           {[1, 2, 3, 4, 5].map((i) => (

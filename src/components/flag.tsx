@@ -18,9 +18,9 @@ export function Flag({
   alt?: string;
 }) {
   return (
-    // Plain <img> over next/image: these are tiny (~1KB) pre-optimized PNGs
-    // served from a dedicated flag CDN, so next/image's fetch-and-reencode
-    // pipeline would add config overhead with no benefit.
+    // Plain <img> over next/image: flags are small bundled assets (SVG for
+    // simple flags, w160 PNG for complex ones) in public/flags/, so
+    // next/image's fetch-and-reencode pipeline adds overhead with no benefit.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={flagUrl(code)}

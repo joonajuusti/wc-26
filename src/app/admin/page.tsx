@@ -7,7 +7,7 @@ export default async function AdminPage() {
   if (!user?.isAdmin) redirect("/predictions");
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-4">
       <div className="space-y-2">
         <Link
           href="/admin/matches"
@@ -32,6 +32,19 @@ export default async function AdminPage() {
             Hallitse kutsukoodeja, tarkista veikkausten tila
           </div>
         </Link>
+
+        <a
+          href="/admin/export"
+          download
+          className="block rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:bg-zinc-50"
+        >
+          <div className="font-medium text-zinc-900">
+            Lataa lopputulokset
+          </div>
+          <div className="text-sm text-zinc-500">
+            Vie standings CSV-tiedostona
+          </div>
+        </a>
       </div>
     </div>
   );

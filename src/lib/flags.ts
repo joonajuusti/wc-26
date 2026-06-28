@@ -1,10 +1,11 @@
-// Static map of team id -> flagcdn slug.
+// Static map of team id -> ISO 3166 flag slug.
 // Most slugs are the lowercased ISO 3166-1 alpha-2 code; England and
 // Scotland use ISO 3166-2 subdivision slugs ("gb-eng", "gb-sct").
 //
 // Windows (and Chrome on Windows) do not render regional-indicator flag
-// emoji, so we serve flag images from flagcdn instead of relying on the
-// emoji font. Kept as a static map so we never touch the database.
+// emoji, so we serve flag images bundled in public/flags/ instead of
+// relying on the emoji font. Kept as a static map so we never touch the
+// database.
 export const FLAG_SLUG: Record<string, string> = {
   MEX: "mx",
   RSA: "za",
@@ -60,8 +61,16 @@ export function flagSlug(code: string): string | null {
   return FLAG_SLUG[code.toUpperCase()] ?? null;
 }
 
-// w40 = 40px wide PNG. Small enough for in-button display, crisp on hi-dpi.
+// Complex flags (coats of arms, calligraphy) render poorly as SVG at the
+// ~20px display size — too much fine detail in too few pixels. These ship
+// as pre-rasterized w160 PNGs instead: smaller files and cleaner at small
+// sizes, still crisp at 3x retina. Everything else is SVG (infinitely
+// scalable, tiny files for simple geometric flags).
+const PNG_FLAGS = new Set(["EC", "ES", "MX", "HT", "HR", "SA", "PY", "EG", "PT"]);
+
 export function flagUrl(code: string): string {
-  const slug = flagSlug(code);
-  return `https://flagcdn.com/w40/${slug ?? code.toLowerCase()}.png`;
+  const upper = code.toUpperCase();
+  const slug = flagSlug(upper);
+  const ext = slug && PNG_FLAGS.has(slug.toUpperCase()) ? "png" : "svg";
+  return `/flags/${slug ?? code.toLowerCase()}.${ext}`;
 }

@@ -23,7 +23,7 @@ export function BottomNav({
 
   return (
     <nav className="shrink-0 border-t border-zinc-200 bg-zinc-50 pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex w-full max-w-lg">
+      <div className="mx-auto flex w-full max-w-2xl">
         {links.map((link) => {
           const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
           return (

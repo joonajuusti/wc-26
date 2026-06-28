@@ -178,7 +178,7 @@ export function AdminMatchList({
         <p className="py-8 text-center text-sm text-zinc-400">Ei otteluita</p>
       )}
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {filtered.map((match) => {
           const teamPending = pendingAction === `team-${match.id}`;
           const resultPending = pendingAction === `result-${match.id}`;

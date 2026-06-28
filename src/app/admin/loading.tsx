@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-4">
       <div className="space-y-2">
         {[1, 2].map((i) => (
           <div

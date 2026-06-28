@@ -13,7 +13,7 @@ export default async function AdminMatchesPage() {
   const allTeams = await db.select().from(teams).orderBy(teams.name);
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="mx-auto w-full max-w-2xl px-4 pb-4 pt-4">
       <div className="mb-4">
         <BackLink href="/admin" />
       </div>

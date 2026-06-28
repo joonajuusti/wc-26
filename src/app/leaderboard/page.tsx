@@ -1,5 +1,6 @@
 import { getSessionUser } from "@/lib/auth";
 import { getUsers, getLockedPredictions } from "@/lib/queries";
+import { computeStandings } from "@/lib/scoring";
 import { getFormWindow, computeRecentForm } from "@/lib/form";
 import { FormStrip } from "@/components/form-strip";
 import Link from "next/link";
@@ -37,17 +38,6 @@ export default async function LeaderboardPage() {
     getLockedPredictions(),
   ]);
 
-  const pointsByUser = new Map<number, number>();
-  for (const preds of lockedByMatch.values()) {
-    const result = preds[0].result;
-    if (!result) continue;
-    for (const p of preds) {
-      if (p.pick === result) {
-        pointsByUser.set(p.userId, (pointsByUser.get(p.userId) ?? 0) + 1);
-      }
-    }
-  }
-
   const picksByMatch = new Map<number, Map<number, string>>();
   for (const [matchId, preds] of lockedByMatch) {
     const inner = new Map<number, string>();
@@ -57,25 +47,7 @@ export default async function LeaderboardPage() {
 
   const windowMatches = getFormWindow(lockedByMatch);
 
-  const ranked = allUsers
-    .map((u) => ({
-      ...u,
-      totalPoints: pointsByUser.get(u.id) ?? 0,
-      rank: 0,
-    }))
-    .sort((a, b) => b.totalPoints - a.totalPoints);
-
-  let currentRank = 0;
-  let prevPoints: number | null = null;
-  let position = 0;
-  for (const u of ranked) {
-    position++;
-    if (prevPoints === null || u.totalPoints !== prevPoints) {
-      currentRank = position;
-    }
-    u.rank = currentRank;
-    prevPoints = u.totalPoints;
-  }
+  const ranked = computeStandings(allUsers, lockedByMatch);
 
   const rankCounts = new Map<number, number>();
   for (const u of ranked) {
@@ -83,7 +55,7 @@ export default async function LeaderboardPage() {
   }
 
   return (
-    <div className="ft-fade-in mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="ft-fade-in mx-auto w-full max-w-3xl px-4 pb-4 pt-4">
       <div className="mb-6 grid grid-cols-3 items-end px-1">
         {PEDESTALS.map((p) => {
           const players = ranked.filter((u) => u.rank === p.rank);
@@ -159,7 +131,7 @@ export default async function LeaderboardPage() {
                   />
                 )}
                 <span className="font-bold tabular-nums text-zinc-900">
-                  {user.totalPoints} p
+                  {user.points} p
                 </span>
               </div>
             </Link>

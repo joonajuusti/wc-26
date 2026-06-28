@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-4 pt-4">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-4">
       <div className="mb-4 h-10 animate-pulse rounded-md bg-zinc-200" />
       {[1, 2, 3, 4].map((i) => (
         <div
