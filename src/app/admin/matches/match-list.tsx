@@ -203,7 +203,7 @@ export function AdminMatchList({
                   </Badge>
                 )}
                 <Button
-                  variant={match.locked ? "success" : "secondary"}
+                  variant={match.locked ? "success" : "danger"}
                   size="xs"
                   className="ml-auto"
                   onClick={() =>
