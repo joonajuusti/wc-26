@@ -115,21 +115,25 @@ export function PredictionsView({
       {showSummary && totalWithResult > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-primary-100 p-4">
-            <p className="text-base text-primary-700">
-              {isComparing ? "Sinä: " : "Oikein: "}
-              <span className="font-bold tabular-nums">
+            <div className="flex flex-wrap items-baseline gap-x-1">
+              <span className="whitespace-nowrap text-base text-primary-700">
+                {isComparing ? "Sinä:" : "Oikein:"}
+              </span>
+              <span className="min-w-0 font-bold tabular-nums text-base text-primary-700 truncate">
                 {formatGuessCount(correctCount, totalWithResult)}
               </span>
-            </p>
+            </div>
           </div>
           {isComparing && (
             <div className="rounded-lg bg-accent-100 p-4">
-              <p className="truncate text-base text-accent-700">
-                {comparison.user.name}:{" "}
-                <span className="font-bold tabular-nums">
+              <div className="flex flex-wrap items-baseline gap-x-1">
+                <span className="min-w-0 truncate whitespace-nowrap text-base text-accent-700">
+                  {comparison.user.name}:
+                </span>
+                <span className="min-w-0 font-bold tabular-nums text-base text-accent-700 truncate">
                   {formatGuessCount(compareCorrectCount ?? 0, totalWithResult)}
                 </span>
-              </p>
+              </div>
             </div>
           )}
         </div>
@@ -143,15 +147,16 @@ export function PredictionsView({
 
       {!readOnly && (
         <div className="mb-4 flex items-center gap-3">
-          <label className="flex cursor-pointer select-none items-center gap-2 text-base text-zinc-600">
+          <label className="flex cursor-pointer select-none items-start gap-2 text-base text-zinc-600">
             <Checkbox
               checked={onlyOpen}
               onChange={(e) => setOnlyOpen(e.target.checked)}
+              className="mt-0.5 shrink-0"
             />
             Vain veikattavissa olevat
           </label>
           {unpredicted > 0 && (
-            <Badge variant="warning" className="ml-auto">
+            <Badge variant="warning" className="ml-auto shrink-0 self-start whitespace-nowrap">
               {unpredicted} veikkaamatta
             </Badge>
           )}

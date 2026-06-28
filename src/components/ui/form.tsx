@@ -53,7 +53,7 @@ export function Checkbox({
     <input
       type="checkbox"
       className={cn(
-        "h-5 w-5 shrink-0 rounded border-zinc-300 accent-primary-600",
+        "h-5 w-5 shrink-0 cursor-pointer rounded border-zinc-300 accent-primary-600",
         className,
       )}
       {...props}

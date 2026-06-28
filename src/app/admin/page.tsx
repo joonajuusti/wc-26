@@ -42,7 +42,7 @@ export default async function AdminPage() {
             Lataa lopputulokset
           </div>
           <div className="text-sm text-zinc-500">
-            Vie standings CSV-tiedostona
+            Vie tulokset CSV-tiedostona
           </div>
         </a>
       </div>
