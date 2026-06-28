@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { matches, users } from "@/lib/db/schema";
 import { eq, inArray } from "drizzle-orm";
@@ -13,6 +14,10 @@ export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
     .update(matches)
     .set({ result, locked: true })
     .where(eq(matches.id, matchId));
+
+  revalidatePath("/admin/matches");
+  revalidatePath("/leaderboard");
+  revalidatePath("/predictions");
 
   return { success: true };
 }
@@ -29,6 +34,9 @@ export async function setMatchTeams(
     .update(matches)
     .set({ homeTeamId, awayTeamId })
     .where(eq(matches.id, matchId));
+
+  revalidatePath("/admin/matches");
+  revalidatePath("/predictions");
 
   return { success: true };
 }
@@ -54,6 +62,9 @@ export async function lockStage(stage: string) {
       );
   }
 
+  revalidatePath("/admin/matches");
+  revalidatePath("/predictions");
+
   return { success: true };
 }
 
@@ -78,6 +89,9 @@ export async function unlockStage(stage: string) {
       );
   }
 
+  revalidatePath("/admin/matches");
+  revalidatePath("/predictions");
+
   return { success: true };
 }
 
@@ -90,6 +104,9 @@ export async function lockMatch(matchId: number) {
     .set({ locked: true })
     .where(eq(matches.id, matchId));
 
+  revalidatePath("/admin/matches");
+  revalidatePath("/predictions");
+
   return { success: true };
 }
 
@@ -101,6 +118,9 @@ export async function unlockMatch(matchId: number) {
     .update(matches)
     .set({ locked: false })
     .where(eq(matches.id, matchId));
+
+  revalidatePath("/admin/matches");
+  revalidatePath("/predictions");
 
   return { success: true };
 }
