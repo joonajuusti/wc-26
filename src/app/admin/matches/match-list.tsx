@@ -194,7 +194,12 @@ export function AdminMatchList({
                 </span>
                 {match.locked && (
                   <Badge variant="danger" size="sm">
-                    LUKITTU
+                    Lukittu
+                  </Badge>
+                )}
+                {(!match.awayTeamId || !match.homeTeamId) && (
+                  <Badge variant="warning" size="sm">
+                    Puutteellinen
                   </Badge>
                 )}
                 <Button
