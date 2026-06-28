@@ -10,7 +10,7 @@ it's low-effort to run each tournament, and it stays low-effort to resurrect for
 **Horizon: 10+ years.** The goal is to reuse this system for each FIFA World Cup and UEFA
 Euro (every ~2 years, 5+ tournaments), and possibly other events. Dependencies and external
 coupling are evaluated against "will this still work in 2034?" — not just "does it work
-today." This is why self-containment (#14–#16, #29, #32) matters more than it would for a
+today." This is why self-containment (#15–#16, #29, #32) matters more than it would for a
 throwaway app.
 
 **Design principle — two views, premium feel.** The app has just two user-facing views
@@ -26,28 +26,6 @@ non-behavioral refactors) with no schema, game-logic, or flow changes, so they w
 disrupt an in-progress tournament.
 
 **Legend:** `ship-now` = purely visual / safe to cherry-pick to the live tournament now. `done` = completed.
-
----
-
-## UX
-
-### 1. Error feedback on actions
-
-`savePrediction` and the admin actions ignore their return values, and `pendingAction`
-state never resets if the action throws — so buttons can stick in "loading..." forever
-with no error shown. Surface action errors to the user and always reset pending state
-(in a `finally`).
-
-### 2. Roll back optimistic prediction on failure
-
-`match-card.tsx` sets an optimistic pick but never reverts it if `savePrediction` fails
-(e.g. a lock-race at kickoff). Revert the optimistic value and show a message on failure.
-
-### 4. Invalid-session redirect
-
-A tampered/expired session cookie renders a blank screen (pages do `if (!user) return null`)
-with no recovery path. Redirect to `/` with a "session expired" message instead.
-(Realistic trigger: rotating `ADMIN_INVITE_CODE`, which is the HMAC session secret today.)
 
 ---
 
@@ -81,12 +59,6 @@ below.
 ---
 
 ## External-system coupling
-
-### 14. `output: 'standalone'`
-
-Add `output: 'standalone'` to `next.config.ts` (currently empty). One line, zero cost,
-makes the app Dockerizable / runnable on any VPS or Raspberry Pi via `next start` — the
-real optionality for "what if Vercel isn't available."
 
 ### 15. Clean DB seam (SQLite-swappable)
 
@@ -264,7 +236,7 @@ Treat every dependency as a long-term maintenance liability, not just a today co
   `react`, `react-dom`, `@libsql/client`, `drizzle-orm`) — that's good. The dev-time
   conveniences (`tailwindcss`, `drizzle-kit`, `tsx`, `eslint`, `typescript`) carry more
   churn risk; evaluate whether each earns its keep over the horizon.
-- **Self-containment (#14, #15, #16, #29) compounds here:** the more the app does with code
+- **Self-containment (#15, #16, #29) compounds here:** the more the app does with code
   constants and a swappable local DB rather than external services/libs, the less there is to
   break over a decade.
 
