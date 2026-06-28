@@ -126,7 +126,7 @@ export default async function LeaderboardPage() {
             index === 0 || ranked[index - 1].rank !== user.rank;
           const href = isMe
             ? "/predictions"
-            : `/predictions?vertaile=${encodeURIComponent(user.name)}`;
+            : `/predictions?compare=${encodeURIComponent(user.name)}`;
 
           return (
             <Link
