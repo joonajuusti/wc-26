@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { predictions, matches } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -45,6 +46,8 @@ export async function savePrediction(matchId: number, pick: "1" | "X" | "2") {
       pick,
     });
   }
+
+  revalidatePath("/predictions");
 
   return { success: true };
 }
