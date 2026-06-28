@@ -41,12 +41,10 @@ export function MatchCard({
   match,
   stageLabel,
   comparison,
-  readOnly = false,
 }: {
   match: MatchWithPrediction;
   stageLabel: string;
   comparison: Comparison;
-  readOnly?: boolean;
 }) {
   const [optimisticPrediction, setOptimisticPrediction] = useOptimistic(
     match.prediction,
@@ -54,10 +52,9 @@ export function MatchCard({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const activePrediction = readOnly ? match.prediction : optimisticPrediction;
+  const activePrediction = optimisticPrediction;
 
   function handlePick(pick: Pick) {
-    if (readOnly) return;
     startTransition(async () => {
       setOptimisticPrediction(pick);
       setError(null);
@@ -82,7 +79,7 @@ export function MatchCard({
   });
 
   const needsPrediction =
-    !match.locked && !match.result && !match.prediction && !readOnly;
+    !match.locked && !match.result && !match.prediction;
 
   return (
     <div>
@@ -111,7 +108,7 @@ export function MatchCard({
           const hasResult = !!match.result;
           const isCorrect = hasResult && option === match.result;
 
-          const interactive = !match.locked && !readOnly;
+          const interactive = !match.locked;
 
           let buttonClass = cn(
             "relative flex min-w-0 flex-1 items-center justify-center rounded-lg py-4 font-medium",
@@ -165,7 +162,7 @@ export function MatchCard({
             <button
               key={option}
               className={buttonClass}
-              disabled={match.locked || isPending || readOnly}
+              disabled={match.locked || isPending}
               onClick={() => handlePick(option)}
             >
               {renderLabel(option, match)}

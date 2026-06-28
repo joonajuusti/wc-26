@@ -13,13 +13,11 @@ export type Comparison =
 
 export async function PredictionsList({
   userId,
-  readOnly = false,
   showSummary = false,
   allUserNames = [],
   comparison,
 }: {
   userId: number;
-  readOnly?: boolean;
   showSummary?: boolean;
   allUserNames?: string[];
   comparison: Comparison;
@@ -42,7 +40,7 @@ export async function PredictionsList({
     userPredictions.map((p) => [p.matchId, p.pick]),
   );
 
-  const matches = readOnly ? allMatches.filter((m) => m.locked) : allMatches;
+  const matches = allMatches;
 
   const correctCount = matches.filter(
     (m) => m.result && predictionMap.get(m.id) === m.result,
@@ -78,7 +76,6 @@ export async function PredictionsList({
   return (
     <PredictionsView
       matchCards={matchCards}
-      readOnly={readOnly}
       showSummary={showSummary}
       correctCount={correctCount}
       compareCorrectCount={compareCorrectCount}

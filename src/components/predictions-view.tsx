@@ -28,7 +28,6 @@ const getComparisonTarget = (comp: Comparison) => {
 
 export function PredictionsView({
   matchCards,
-  readOnly = false,
   showSummary = false,
   correctCount,
   compareCorrectCount,
@@ -37,7 +36,6 @@ export function PredictionsView({
   comparison,
 }: {
   matchCards: MatchWithPrediction[];
-  readOnly?: boolean;
   showSummary?: boolean;
   correctCount: number;
   compareCorrectCount?: number;
@@ -80,7 +78,7 @@ export function PredictionsView({
 
   return (
     <>
-      {!readOnly && allUserNames.length > 0 && (
+      {allUserNames.length > 0 && (
         <div className="mb-4 flex items-center justify-end gap-2">
           <span
             className={cn(
@@ -139,29 +137,21 @@ export function PredictionsView({
         </div>
       )}
 
-      {readOnly && (
-        <p className="mb-4 text-sm text-zinc-400">
-          Vain lukitut ottelut näkyvissä
-        </p>
-      )}
-
-      {!readOnly && (
-        <div className="mb-4 flex items-center gap-3">
-          <label className="flex cursor-pointer select-none items-start gap-2 text-base text-zinc-600">
-            <Checkbox
-              checked={onlyOpen}
-              onChange={(e) => setOnlyOpen(e.target.checked)}
-              className="mt-0.5 shrink-0"
-            />
-            Vain veikattavissa olevat
-          </label>
-          {unpredicted > 0 && (
-            <Badge variant="warning" className="ml-auto shrink-0 self-start whitespace-nowrap">
-              {unpredicted} veikkaamatta
-            </Badge>
-          )}
-        </div>
-      )}
+      <div className="mb-4 flex items-center gap-3">
+        <label className="flex cursor-pointer select-none items-start gap-2 text-base text-zinc-600">
+          <Checkbox
+            checked={onlyOpen}
+            onChange={(e) => setOnlyOpen(e.target.checked)}
+            className="mt-0.5 shrink-0"
+          />
+          Vain veikattavissa olevat
+        </label>
+        {unpredicted > 0 && (
+          <Badge variant="warning" className="ml-auto shrink-0 self-start whitespace-nowrap">
+            {unpredicted} veikkaamatta
+          </Badge>
+        )}
+      </div>
 
       {filtered.length === 0 && (
         <p className="py-8 text-center text-base text-zinc-400">Ei otteluita</p>
@@ -180,7 +170,6 @@ export function PredictionsView({
                 match={match}
                 stageLabel={STAGE_LABELS[match.stage] || match.stage}
                 comparison={comparison}
-                readOnly={readOnly}
               />
             ))}
           </div>
