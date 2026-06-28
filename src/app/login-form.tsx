@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 
-export function LoginForm() {
+export function LoginForm({
+  sessionExpired = false,
+}: {
+  sessionExpired?: boolean;
+}) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -40,6 +44,12 @@ export function LoginForm() {
         </div>
       </div>
 
+      {sessionExpired && (
+        <p className="rounded-md bg-zinc-100 px-3 py-2 text-center text-sm text-zinc-600">
+          Kirjautumisesi on vanhentunut. Kirjaudu sisään uudelleen.
+        </p>
+      )}
+
       <div>
         <label
           htmlFor="inviteCode"
@@ -58,9 +68,7 @@ export function LoginForm() {
         />
       </div>
 
-      {error && (
-        <p className="text-sm text-danger-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-danger-600">{error}</p>}
 
       <Button type="submit" size="lg" disabled={loading}>
         {loading ? "Kirjaudutaan..." : "Kirjaudu sisään"}

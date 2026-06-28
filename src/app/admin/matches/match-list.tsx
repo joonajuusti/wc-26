@@ -52,6 +52,7 @@ export function AdminMatchList({
   const [hideResolved, setHideResolved] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   let filtered =
     filter === "all" ? matches : matches.filter((m) => m.stage === filter);
@@ -60,12 +61,26 @@ export function AdminMatchList({
     filtered = filtered.filter((m) => !m.result);
   }
 
-  function handleResult(matchId: number, result: "1" | "X" | "2") {
+  function run(
+    key: string,
+    action: () => Promise<{ error?: string; success?: boolean } | null>,
+  ) {
     startTransition(async () => {
-      setPendingAction(`result-${matchId}`);
-      await setMatchResult(matchId, result);
-      setPendingAction(null);
+      setPendingAction(key);
+      setError(null);
+      try {
+        const res = await action();
+        if (res?.error) setError(res.error);
+      } catch {
+        setError("Jotain meni pieleen");
+      } finally {
+        setPendingAction(null);
+      }
     });
+  }
+
+  function handleResult(matchId: number, result: "1" | "X" | "2") {
+    run(`result-${matchId}`, () => setMatchResult(matchId, result));
   }
 
   function handleTeam(
@@ -75,51 +90,36 @@ export function AdminMatchList({
   ) {
     const match = matches.find((m) => m.id === matchId);
     if (!match) return;
-    startTransition(async () => {
-      setPendingAction(`team-${matchId}`);
-      if (side === "home") {
-        await setMatchTeams(matchId, teamId, match.awayTeamId);
-      } else {
-        await setMatchTeams(matchId, match.homeTeamId, teamId);
-      }
-      setPendingAction(null);
-    });
+    run(`team-${matchId}`, () =>
+      side === "home"
+        ? setMatchTeams(matchId, teamId, match.awayTeamId)
+        : setMatchTeams(matchId, match.homeTeamId, teamId),
+    );
   }
 
   function handleLock(stage: string) {
-    startTransition(async () => {
-      setPendingAction(`lock-${stage}`);
-      await lockStage(stage);
-      setPendingAction(null);
-    });
+    run(`lock-${stage}`, () => lockStage(stage));
   }
 
   function handleUnlock(stage: string) {
-    startTransition(async () => {
-      setPendingAction(`unlock-${stage}`);
-      await unlockStage(stage);
-      setPendingAction(null);
-    });
+    run(`unlock-${stage}`, () => unlockStage(stage));
   }
 
   function handleLockMatch(matchId: number) {
-    startTransition(async () => {
-      setPendingAction(`lockmatch-${matchId}`);
-      await lockMatch(matchId);
-      setPendingAction(null);
-    });
+    run(`lockmatch-${matchId}`, () => lockMatch(matchId));
   }
 
   function handleUnlockMatch(matchId: number) {
-    startTransition(async () => {
-      setPendingAction(`unlockmatch-${matchId}`);
-      await unlockMatch(matchId);
-      setPendingAction(null);
-    });
+    run(`unlockmatch-${matchId}`, () => unlockMatch(matchId));
   }
 
   return (
     <div>
+      {error && (
+        <p className="mb-3 rounded-md bg-danger-100 px-3 py-2 text-sm text-danger-700">
+          {error}
+        </p>
+      )}
       <div className="mb-4 flex flex-wrap gap-2">
         <Button
           variant={filter === "all" ? "primary" : "secondary"}

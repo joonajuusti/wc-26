@@ -1,6 +1,6 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { savePrediction } from "@/actions/predictions";
 import { Flag } from "@/components/flag";
 import { LockIcon, AlertIcon, CheckIcon } from "@/components/icons";
@@ -52,6 +52,7 @@ export function MatchCard({
     match.prediction,
   );
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const activePrediction = readOnly ? match.prediction : optimisticPrediction;
 
@@ -59,7 +60,13 @@ export function MatchCard({
     if (readOnly) return;
     startTransition(async () => {
       setOptimisticPrediction(pick);
-      await savePrediction(match.id, pick);
+      setError(null);
+      try {
+        const res = await savePrediction(match.id, pick);
+        if (res && "error" in res && res.error) setError(res.error);
+      } catch {
+        setError("Tallennus epäonnistui, yritä uudelleen");
+      }
     });
   }
 
@@ -181,6 +188,13 @@ export function MatchCard({
           );
         })}
       </div>
+
+      {error && (
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-danger-600">
+          <AlertIcon className="h-3.5 w-3.5" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }
