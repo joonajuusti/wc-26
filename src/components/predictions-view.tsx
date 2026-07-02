@@ -93,6 +93,9 @@ export function PredictionsView({
 
   const upcomingRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const selfContentRef = useRef<HTMLDivElement>(null);
+  const compareContentRef = useRef<HTMLDivElement>(null);
+  const [forceWrap, setForceWrap] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
     const target = upcomingRef.current;
@@ -103,6 +106,18 @@ export function PredictionsView({
     }
     target.scrollIntoView({ block: "start" });
   }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!isComparing) {
+      setForceWrap(false);
+      return;
+    }
+    const a = selfContentRef.current;
+    const b = compareContentRef.current;
+    if (a && b && a.offsetHeight !== b.offsetHeight) {
+      setForceWrap(true);
+    }
+  }, [isComparing]);
 
   return (
     <>
@@ -139,10 +154,10 @@ export function PredictionsView({
       )}
 
       {showSummary && totalWithResult > 0 && (
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-primary-100 p-4">
-            <div className="flex flex-wrap items-baseline gap-x-1">
-              <span className="whitespace-nowrap text-base text-primary-700">
+        <div className={cn("mb-4 grid gap-3", isComparing ? "grid-cols-2" : "grid-cols-1")}>
+          <div className="rounded-lg bg-primary-100 px-2 py-3">
+            <div ref={selfContentRef} className="flex flex-wrap items-baseline gap-x-1">
+              <span className={cn("whitespace-nowrap text-base text-primary-700", forceWrap && "w-full")}>
                 {isComparing ? "Sinä:" : "Oikein:"}
               </span>
               <span className="min-w-0 font-bold tabular-nums text-base text-primary-700 truncate">
@@ -151,9 +166,9 @@ export function PredictionsView({
             </div>
           </div>
           {isComparing && (
-            <div className="rounded-lg bg-accent-100 p-4">
-              <div className="flex flex-wrap items-baseline gap-x-1">
-                <span className="min-w-0 truncate whitespace-nowrap text-base text-accent-700">
+            <div className="rounded-lg bg-accent-100 px-2 py-3">
+              <div ref={compareContentRef} className="flex flex-wrap items-baseline gap-x-1">
+                <span className={cn("min-w-0 truncate whitespace-nowrap text-base text-accent-700", forceWrap && "w-full")}>
                   {comparison.user.name}:
                 </span>
                 <span className="min-w-0 font-bold tabular-nums text-base text-accent-700 truncate">
