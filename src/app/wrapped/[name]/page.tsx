@@ -61,5 +61,5 @@ export default async function WrappedPage(props: {
       .where(eq(users.id, target.id));
   }
 
-  return <WrappedView name={target.name} stats={stats} />;
+  return <WrappedView stats={stats} />;
 }

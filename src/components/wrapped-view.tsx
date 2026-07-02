@@ -3,6 +3,7 @@ import { messages as M } from "@/lib/messages";
 import { t } from "@/lib/format";
 import { Fragment } from "react/jsx-runtime";
 import { cn } from "@/lib/cn";
+import { ChevronDown } from "lucide-react";
 
 function CardShell({
   children,
@@ -10,8 +11,6 @@ function CardShell({
 }: {
   children: React.ReactNode;
   className: string;
-  name: string;
-  rank: number;
 }) {
   return (
     <section
@@ -174,7 +173,7 @@ function RankGraph({
         textAnchor="middle"
         className="fill-white/30 text-[11px]"
       >
-        {`Pudotuspelit ->`}
+        {`${M.wrapped.trajectory.knockoutLabel} ->`}
       </text>
 
       {n > 1 && <path d={areaPath} fill="url(#rankArea)" />}
@@ -192,13 +191,7 @@ function RankGraph({
   );
 }
 
-export function WrappedView({
-  name,
-  stats,
-}: {
-  name: string;
-  stats: WrappedStats;
-}) {
+export function WrappedView({ stats }: { stats: WrappedStats }) {
   const {
     rank,
     playerCount,
@@ -217,36 +210,31 @@ export function WrappedView({
 
   return (
     <div className="flex min-h-0 flex-1 snap-y snap-mandatory flex-col overflow-y-auto overflow-x-hidden bg-zinc-950">
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-primary-700 to-zinc-950 text-white"
-      >
+      <CardShell className="relative bg-linear-to-b from-primary-700 to-zinc-950 text-white">
         <Eyebrow>{M.wrapped.hook.eyebrow}</Eyebrow>
         <p className="text-lg text-white/70">{M.wrapped.hook.title}</p>
         <BigStat value={`${rank}`} suffix={` / ${playerCount}`} />
+        <div className="absolute inset-x-0 bottom-6 flex flex-col items-center gap-1 text-white/50">
+          <span className="text-xs font-medium uppercase tracking-[0.2em]">
+            {M.wrapped.hook.swipe}
+          </span>
+          <ChevronDown className="animate-bounce" size={20} />
+        </div>
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-zinc-950 to-success-700 text-white"
-      >
-        <Eyebrow>{"Veikkausten jakauma"}</Eyebrow>
+      <CardShell className="bg-linear-to-b from-zinc-950 to-success-700 text-white">
+        <Eyebrow>{M.wrapped.distribution.eyebrow}</Eyebrow>
         <div className="flex flex-row w-full justify-evenly">
           <BigStat value={`${pickDistribution["1"]}`} suffix=" / 1" small />
           <BigStat value={`${pickDistribution["X"]}`} suffix=" / X" small />
           <BigStat value={`${pickDistribution["2"]}`} suffix=" / 2" small />
         </div>
         <p className="text-base text-white/70">
-          Veikkauksesi jakaantuivat eri vaihtoehdoille näin.
+          {M.wrapped.distribution.detail}
         </p>
       </CardShell>
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-success-700 to-zinc-950 text-white"
-      >
+
+      <CardShell className="bg-linear-to-b from-success-700 to-zinc-950 text-white">
         <Eyebrow>{M.wrapped.accuracy.eyebrow}</Eyebrow>
         <BigStat value={`${accuracy.pct}`} suffix="%" />
         <p className="text-base text-white/70">
@@ -261,17 +249,8 @@ export function WrappedView({
         </p>
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-zinc-950 to-accent-700 text-white"
-      >
-        <Eyebrow> {M.wrapped.draws.eyebrow}</Eyebrow>
-        {/* <p className="max-w-[16rem] text-base text-white/70">
-          {draws.pct > 50
-            ? M.wrapped.draws.intro.good
-            : M.wrapped.draws.intro.bad}
-        </p> */}
+      <CardShell className="bg-linear-to-b from-zinc-950 to-accent-700 text-white">
+        <Eyebrow>{M.wrapped.draws.eyebrow}</Eyebrow>
         <BigStat
           value={`${draws.yourCorrect}`}
           suffix={`/${draws.tournamentCount}`}
@@ -294,11 +273,7 @@ export function WrappedView({
         )}
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-accent-700 to-zinc-950 text-white"
-      >
+      <CardShell className="bg-linear-to-b from-accent-700 to-zinc-950 text-white">
         <Eyebrow>{M.wrapped.unanimous.eyebrow}</Eyebrow>
         <BigStat value={`${unanimous.count}`} />
         <p className="max-w-[16rem] text-base text-white/70">
@@ -313,11 +288,7 @@ export function WrappedView({
         )}
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-zinc-950 to-danger-700 text-white"
-      >
+      <CardShell className="bg-linear-to-b from-zinc-950 to-danger-700 text-white">
         <Eyebrow>{M.wrapped.nobodyCorrect.eyebrow}</Eyebrow>
         {nobodyCorrect.matches.length === 0 ? (
           <p className="max-w-[16rem] text-base text-white/70">
@@ -353,11 +324,7 @@ export function WrappedView({
         )}
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-danger-700 to-zinc-950  text-white"
-      >
+      <CardShell className="bg-linear-to-b from-danger-700 to-zinc-950  text-white">
         <Eyebrow>{M.wrapped.loneWolf.eyebrow}</Eyebrow>
         <BigStat value={`${loneWolf.correctMatches.length}`} />
         <p className="max-w-[16rem] text-base text-white/70">
@@ -395,11 +362,7 @@ export function WrappedView({
         </div>
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-zinc-950 to-warning-600 text-white"
-      >
+      <CardShell className="bg-linear-to-b from-zinc-950 to-warning-600 text-white">
         <Eyebrow>{M.wrapped.twinNemesis.eyebrow}</Eyebrow>
         {twin ? (
           <div className="flex flex-col items-center gap-1">
@@ -425,11 +388,7 @@ export function WrappedView({
         )}
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-warning-600 to-zinc-950 text-white"
-      >
+      <CardShell className="bg-linear-to-b from-warning-600 to-zinc-950 text-white">
         <Eyebrow>{M.wrapped.trajectory.eyebrow}</Eyebrow>
         <RankGraph
           history={rankTrajectory.history}
@@ -444,24 +403,12 @@ export function WrappedView({
             {M.wrapped.trajectory.lowest} {rankTrajectory.lowest}.
           </span>
         </div>
-        {/* <p className="max-w-[16rem] text-base text-white/70">
-          {M.wrapped.trajectory.comment[rankTrajectory.label]}
-        </p> */}
       </CardShell>
 
-      <CardShell
-        name={name}
-        rank={rank}
-        className="bg-linear-to-b from-zinc-950 to-primary-700 text-white"
-      >
-        <Eyebrow>Loppukaneetti</Eyebrow>
-        <BigStat value="Kiitos pelaamisesta!" small></BigStat>
-        {/* <p className="max-w-[16rem] text-base text-white/70">
-          {M.wrapped.trajectory.comment[rankTrajectory.label]}
-        </p> */}
-        <p className="text-base text-white/70">
-          Onneksi UEFA Euro 28 onkin jo ihan kulman takana... 👀
-        </p>
+      <CardShell className="bg-linear-to-b from-zinc-950 to-primary-700 text-white">
+        <Eyebrow>{M.wrapped.outro.eyebrow}</Eyebrow>
+        <BigStat value={M.wrapped.outro.thanks} small />
+        <p className="text-base text-white/70">{M.wrapped.outro.tease}</p>
       </CardShell>
     </div>
   );

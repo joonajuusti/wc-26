@@ -1,13 +1,13 @@
 export const messages = {
   wrapped: {
-    footer: {
-      rank: "{rank}. sija",
-      brand: "WC26",
-    },
     hook: {
       eyebrow: "MM-kisat 2026",
       title: "Lopullinen sijoituksesi",
-      points: "{n, plural, one {# piste} other {# pistettä}}",
+      swipe: "Vieritä alas",
+    },
+    distribution: {
+      eyebrow: "Veikkausten jakauma",
+      detail: "Veikkauksesi jakaantuivat eri vaihtoehdoille näin.",
     },
     accuracy: {
       eyebrow: "Osumatarkkuus",
@@ -17,19 +17,9 @@ export const messages = {
     },
     draws: {
       eyebrow: "Tasapelien tietäjä",
-      intro: {
-        bad: "Tasapelit ovat tunnetusti vaikeita — parempi onni ensi kerralla.",
-        good: "Tasapelit ovat tunnetusti vaikeita — mutta ei sinulle.",
-      },
       detail:
         "Turnauksessa pelattiin {tournamentCount} tasapeliä — osuit niihin {pct}%:n tarkkuudella.",
       leader: "Eniten oikeita tasapelejä: {name} ({count}/{total})",
-    },
-    decisive: {
-      eyebrow: "Ratkaisulliset ottelut",
-      intro: "Kun ottelussa oli voittaja, tiesit sen.",
-      detail: "{correct}/{total} oikein.",
-      leader: "Eniten: {name} ({count})",
     },
     unanimous: {
       eyebrow: "Great minds think alike",
@@ -60,37 +50,12 @@ export const messages = {
       eyebrow: "Sijoituksesi turnauksen edetessä",
       peak: "Parhaimmillaan",
       lowest: "Huonoimmillaan",
-      peakMatch: "Nousit kärkeen ottelun {home}–{away} jälkeen.",
-      comment: {
-        rollercoaster: "Aikamoista vuoristorataa 🎢",
-        climber: "Nousujohteinen suoritus 📈",
-        faller: "Aloitit vahvasti, mutta loppua kohden hyytyi 📉",
-        steady: "Veikkasit tasaisen vahvasti läpi turnauksen 💪🏻",
-      },
+      knockoutLabel: "Pudotuspelit",
     },
-    clutch: {
-      eyebrow: "Jakauma",
-      group: "Lohkovaihe",
-      knockout: "Pudotuspelit",
-      label: {
-        neutral: "Veikkasit tasaisen vahvasti läpi turnauksen 💪🏻",
-        choker:
-          "Aloitit vahvasti, mutta pudotuspelit koituivat kohtaloksesi 📉",
-        clutch: "Nousujohteista suorittamista 📈",
-      },
-    },
-    poster: {
-      eyebrow: "WC26 · Yhteenveto",
-      rank: "sija",
-      points: "pistettä",
-      accuracy: "osumat",
-      superlative: {
-        loneWolf:
-          "{n, plural, one {Yksin ainoa oikeassa # kerran.} other {Yksin ainoa oikeassa # kertaa.}}",
-        nobodyCorrect:
-          "{n, plural, one {# ottelu, jossa kukaan ei osunut.} other {# ottelua, joissa kukaan ei osunut.}}",
-        even: "Tasainen suoritus läpi turnauksen.",
-      },
+    outro: {
+      eyebrow: "Loppukaneetti",
+      thanks: "Kiitos pelaamisesta!",
+      tease: "Onneksi UEFA Euro 28 onkin jo ihan kulman takana... 👀",
     },
   },
 } as const;
