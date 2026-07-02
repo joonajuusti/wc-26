@@ -66,11 +66,76 @@ export function flagSlug(code: string): string | null {
 // as pre-rasterized w160 PNGs instead: smaller files and cleaner at small
 // sizes, still crisp at 3x retina. Everything else is SVG (infinitely
 // scalable, tiny files for simple geometric flags).
-const PNG_FLAGS = new Set(["EC", "ES", "MX", "HT", "HR", "SA", "PY", "EG", "PT"]);
+const PNG_FLAGS = new Set([
+  "EC",
+  "ES",
+  "MX",
+  "HT",
+  "HR",
+  "SA",
+  "PY",
+  "EG",
+  "PT",
+]);
 
 export function flagUrl(code: string): string {
   const upper = code.toUpperCase();
   const slug = flagSlug(upper);
   const ext = slug && PNG_FLAGS.has(slug.toUpperCase()) ? "png" : "svg";
   return `/flags/${slug ?? code.toLowerCase()}.${ext}`;
+}
+
+export const FLAG_FOCUS: Record<string, number> = {
+  ALG: 50,
+  ARG: 50,
+  AUS: 45,
+  AUT: 50,
+  BEL: 50,
+  BIH: 50,
+  BRA: 50,
+  CAN: 50,
+  CIV: 50,
+  COD: 0,
+  COL: 50,
+  CPV: 50,
+  CRO: 50,
+  CUW: 0,
+  CZE: 50,
+  ECU: 50,
+  EGY: 50,
+  ENG: 50,
+  ESP: 35,
+  FRA: 50,
+  GER: 50,
+  GHA: 50,
+  HAI: 50,
+  IRN: 50,
+  IRQ: 50,
+  JOR: 50,
+  JPN: 50,
+  KOR: 50,
+  KSA: 50,
+  MAR: 50,
+  MEX: 50,
+  NED: 50,
+  NOR: 42,
+  NZL: 45,
+  PAN: 50,
+  PAR: 50,
+  POR: 30,
+  QAT: 35,
+  RSA: 50,
+  SCO: 50,
+  SEN: 50,
+  SUI: 50,
+  SWE: 42,
+  TUN: 50,
+  TUR: 25,
+  URU: 0,
+  USA: 18,
+  UZB: 50,
+};
+
+export function flagFocus(code: string): number {
+  return FLAG_FOCUS[code.toUpperCase()] ?? 50;
 }

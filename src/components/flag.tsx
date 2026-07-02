@@ -1,4 +1,4 @@
-import { flagUrl } from "@/lib/flags";
+import { flagFocus, flagUrl } from "@/lib/flags";
 
 // Renders a country flag as an <img> instead of an emoji character.
 //
@@ -18,20 +18,21 @@ export function Flag({
   alt?: string;
 }) {
   return (
-    // Plain <img> over next/image: flags are small bundled assets (SVG for
-    // simple flags, w160 PNG for complex ones) in public/flags/, so
-    // next/image's fetch-and-reencode pipeline adds overhead with no benefit.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={flagUrl(code)}
-      alt={alt ?? code}
-      title={alt ?? code}
-      loading="lazy"
-      // Real flags have varying native aspect ratios (square, 3:2, 4:7, ...).
-      // Use a fixed bounding box with object-contain so the footprint stays
-      // consistent (buttons line up) while each flag preserves its true
-      // proportions — no cropping. Non-fitting flags letterbox within the box.
-      className={`inline-block h-5 w-7 shrink-0 object-contain align-middle ${className}`}
-    />
+    <span
+      className={`inline-flex h-5 w-5 shrink-0 overflow-hidden rounded-full align-middle ring-1 ring-black/15 ${className}`}
+    >
+      {/* Plain <img> over next/image: flags are small bundled assets (SVG for
+          simple flags, w160 PNG for complex ones) in public/flags/, so
+          next/image's fetch-and-reencode pipeline adds overhead with no benefit. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={flagUrl(code)}
+        alt={alt ?? code}
+        title={alt ?? code}
+        loading="lazy"
+        className="h-full w-full object-cover"
+        style={{ objectPosition: `${flagFocus(code)}% 50%` }}
+      />
+    </span>
   );
 }

@@ -4,6 +4,7 @@ import { t } from "@/lib/format";
 import { Fragment } from "react/jsx-runtime";
 import { cn } from "@/lib/cn";
 import { ChevronDown } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 function CardShell({
   children,
@@ -196,6 +197,8 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
     rank,
     playerCount,
     accuracy,
+    streaks,
+    bestGroup,
     draws,
     unanimous,
     nobodyCorrect,
@@ -249,6 +252,52 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
         </p>
       </CardShell>
 
+      <CardShell className="bg-linear-to-b from-zinc-950 to-danger-700 text-white">
+        <Eyebrow>{M.wrapped.streaks.eyebrow}</Eyebrow>
+        <div className="flex w-full flex-row justify-evenly">
+          <div className="flex flex-col items-center gap-1">
+            <BigStat
+              value={`${streaks.longestCorrect}`}
+              small
+              suffix={` ${M.wrapped.streaks.correct}`}
+            />
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <BigStat
+              value={
+                streaks.longestIncorrect === 0
+                  ? "–"
+                  : `${streaks.longestIncorrect}`
+              }
+              small
+              suffix={` ${M.wrapped.streaks.incorrect}`}
+            />
+          </div>
+        </div>
+      </CardShell>
+
+      <CardShell className="bg-linear-to-b from-danger-700 to-zinc-950 text-white">
+        <Eyebrow>{M.wrapped.bestGroup.eyebrow}</Eyebrow>
+        <BigStat
+          value={`${bestGroup?.correct ?? 0}`}
+          suffix={`/${bestGroup?.total ?? 0}`}
+        />
+        {bestGroup && (
+          <p className="text-base text-white/70">
+            {t(M.wrapped.bestGroup.detail).format({
+              letter: bestGroup.letter,
+              correct: bestGroup.correct,
+              total: bestGroup.total,
+            })}
+          </p>
+        )}
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {bestGroup?.teamIds.map((id) => (
+            <Flag key={id} code={id} className="h-10 w-10" />
+          ))}
+        </div>
+      </CardShell>
+
       <CardShell className="bg-linear-to-b from-zinc-950 to-accent-700 text-white">
         <Eyebrow>{M.wrapped.draws.eyebrow}</Eyebrow>
         <BigStat
@@ -288,7 +337,7 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
         )}
       </CardShell>
 
-      <CardShell className="bg-linear-to-b from-zinc-950 to-danger-700 text-white">
+      <CardShell className="bg-linear-to-b from-zinc-950 to-teal-600 text-white">
         <Eyebrow>{M.wrapped.nobodyCorrect.eyebrow}</Eyebrow>
         {nobodyCorrect.matches.length === 0 ? (
           <p className="max-w-[16rem] text-base text-white/70">
@@ -324,7 +373,7 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
         )}
       </CardShell>
 
-      <CardShell className="bg-linear-to-b from-danger-700 to-zinc-950  text-white">
+      <CardShell className="bg-linear-to-b from-teal-600 to-zinc-950  text-white">
         <Eyebrow>{M.wrapped.loneWolf.eyebrow}</Eyebrow>
         <BigStat value={`${loneWolf.correctMatches.length}`} />
         <p className="max-w-[16rem] text-base text-white/70">
@@ -395,14 +444,6 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
           playerCount={playerCount}
           groupStageMatchCount={groupStageMatchCount}
         />
-        <div className="flex items-center justify-center gap-6 text-sm">
-          <span className="text-white/70">
-            {M.wrapped.trajectory.peak} {rankTrajectory.peak}.
-          </span>
-          <span className="text-white/70">
-            {M.wrapped.trajectory.lowest} {rankTrajectory.lowest}.
-          </span>
-        </div>
       </CardShell>
 
       <CardShell className="bg-linear-to-b from-zinc-950 to-primary-700 text-white">

@@ -15,6 +15,15 @@ export const messages = {
       betterStrategy:
         'Jos olisit veikannut kaikkiin otteluihin tulokseksi "{pick}", olisit saanut {correctCount} pistettä ja sijoittunut sijalle {potentialRank}.',
     },
+    streaks: {
+      eyebrow: "Pisimmät veikkausputkesi",
+      correct: "oikein ",
+      incorrect: "väärin",
+    },
+    bestGroup: {
+      eyebrow: "Paras lohkosi",
+      detail: "Veikkasit parhaiten {letter}-lohkon ottelut.",
+    },
     draws: {
       eyebrow: "Tasapelien tietäjä",
       detail:
@@ -48,8 +57,6 @@ export const messages = {
     },
     trajectory: {
       eyebrow: "Sijoituksesi turnauksen edetessä",
-      peak: "Parhaimmillaan",
-      lowest: "Huonoimmillaan",
       knockoutLabel: "Pudotuspelit",
     },
     outro: {

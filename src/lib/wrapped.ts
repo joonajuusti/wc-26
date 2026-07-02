@@ -8,6 +8,7 @@ export type ResolvedMatch = {
   result: string;
   homeCode: string;
   awayCode: string;
+  groupLetter: string | null;
   kickoffUtc: Date;
   picks: Map<number, string>;
 };
@@ -20,6 +21,13 @@ export type WrappedStats = {
   groupStageMatchCount: number;
   pickDistribution: Record<string, number>;
   accuracy: { correct: number; total: number; pct: number };
+  streaks: { longestCorrect: number; longestIncorrect: number };
+  bestGroup: {
+    letter: string;
+    teamIds: string[];
+    correct: number;
+    total: number;
+  } | null;
   oneGuessStrat: {
     potentialRank: number;
     pick: string;
@@ -39,7 +47,7 @@ export type WrappedStats = {
   };
   twin: { name: string; agreement: number } | null;
   nemesis: { name: string; agreement: number } | null;
-  rankTrajectory: { history: number[]; peak: number; lowest: number };
+  rankTrajectory: { history: number[] };
 };
 
 function pct(n: number, d: number): number {
@@ -88,11 +96,10 @@ export function buildResolvedMatches(
     homeTeamId: string | null;
     awayTeamId: string | null;
   }[],
-  teams: { id: string }[],
+  teams: { id: string; groupLetter: string | null }[],
   lockedByMatch: Map<number, LockedPrediction[]>,
 ): ResolvedMatch[] {
-  const teamSet = new Set(teams.map((t) => t.id));
-  const code = (id: string | null) => (id && teamSet.has(id) ? id : "?");
+  const teamMap = new Map(teams.map((t) => [t.id, t]));
   const matchMeta = new Map(matches.map((m) => [m.id, m]));
 
   const resolved: ResolvedMatch[] = [];
@@ -100,14 +107,18 @@ export function buildResolvedMatches(
     const result = preds[0]?.result;
     if (!result) continue;
     const meta = matchMeta.get(matchId);
+    const stage = meta?.stage ?? "group";
+    const home = meta?.homeTeamId ? teamMap.get(meta.homeTeamId) : undefined;
+    const away = meta?.awayTeamId ? teamMap.get(meta.awayTeamId) : undefined;
     const picks = new Map<number, string>();
     for (const p of preds) picks.set(p.userId, p.pick);
     resolved.push({
       matchId,
-      stage: meta?.stage ?? "group",
+      stage,
       result,
-      homeCode: code(meta?.homeTeamId ?? null),
-      awayCode: code(meta?.awayTeamId ?? null),
+      homeCode: home?.id ?? "?",
+      awayCode: away?.id ?? "?",
+      groupLetter: stage === "group" ? (home?.groupLetter ?? null) : null,
       kickoffUtc: preds[0].kickoffUtc,
       picks,
     });
@@ -137,6 +148,14 @@ export function computeWrappedStats(
   let groupStageMatchCount = 0;
   let unanimousCount = 0;
   let unanimousCorrect = 0;
+  let curCorrect = 0;
+  let curIncorrect = 0;
+  let maxCorrect = 0;
+  let maxIncorrect = 0;
+
+  const groupCorrectByLetter = new Map<string, number>();
+  const groupTotalByLetter = new Map<string, number>();
+  const groupFlagsByLetter = new Map<string, Set<string>>();
 
   const nobodyCorrectMatches: MatchRef[] = [];
   const loneWolfMatches: MatchRef[] = [];
@@ -183,11 +202,42 @@ export function computeWrappedStats(
       }
     }
 
+    if (m.groupLetter) {
+      const letter = m.groupLetter;
+      const teams = groupFlagsByLetter.get(letter) ?? new Set<string>();
+      teams.add(m.homeCode);
+      teams.add(m.awayCode);
+      groupFlagsByLetter.set(letter, teams);
+    }
+
     const targetPick = m.picks.get(targetUserId);
     if (targetPick !== undefined) {
       targetPicksTotal++;
       pickDist[targetPick]++;
-      if (targetPick === m.result) targetCorrect++;
+      if (targetPick === m.result) {
+        targetCorrect++;
+        curCorrect++;
+        curIncorrect = 0;
+        if (curCorrect > maxCorrect) maxCorrect = curCorrect;
+      } else {
+        curIncorrect++;
+        curCorrect = 0;
+        if (curIncorrect > maxIncorrect) maxIncorrect = curIncorrect;
+      }
+
+      if (m.groupLetter) {
+        const letter = m.groupLetter;
+        groupTotalByLetter.set(
+          letter,
+          (groupTotalByLetter.get(letter) ?? 0) + 1,
+        );
+        if (targetPick === m.result) {
+          groupCorrectByLetter.set(
+            letter,
+            (groupCorrectByLetter.get(letter) ?? 0) + 1,
+          );
+        }
+      }
 
       for (const [uid, pick] of m.picks) {
         if (uid === targetUserId) continue;
@@ -228,8 +278,6 @@ export function computeWrappedStats(
     : null;
 
   const runningPoints = new Map<number, number>();
-  let peak: number | null = null;
-  let lowest: number | null = null;
   const history: number[] = [];
   for (const m of resolved) {
     for (const [uid, pick] of m.picks) {
@@ -239,11 +287,31 @@ export function computeWrappedStats(
     const r = rankMap(runningPoints, users).get(targetUserId);
     if (r === undefined) continue;
     history.push(r);
-    if (peak === null || r < peak) peak = r;
-    if (lowest === null || r > lowest) lowest = r;
   }
 
   const targetDrawCorrect = drawCorrectByUser.get(targetUserId) ?? 0;
+
+  let bestGroup: {
+    letter: string;
+    teamIds: string[];
+    correct: number;
+    total: number;
+  } | null = null;
+  for (const [letter, total] of groupTotalByLetter) {
+    const correct = groupCorrectByLetter.get(letter) ?? 0;
+    if (
+      !bestGroup ||
+      correct > bestGroup.correct ||
+      (correct === bestGroup.correct && letter < bestGroup.letter)
+    ) {
+      bestGroup = {
+        letter,
+        teamIds: [...(groupFlagsByLetter.get(letter) ?? new Set())],
+        correct,
+        total,
+      };
+    }
+  }
 
   return {
     playerCount: users.length,
@@ -255,6 +323,11 @@ export function computeWrappedStats(
       total: targetPicksTotal,
       pct: pct(targetCorrect, targetPicksTotal),
     },
+    streaks: {
+      longestCorrect: maxCorrect,
+      longestIncorrect: maxIncorrect,
+    },
+    bestGroup,
     oneGuessStrat,
     draws: {
       yourCorrect: targetDrawCorrect,
@@ -272,8 +345,6 @@ export function computeWrappedStats(
     nemesis,
     rankTrajectory: {
       history,
-      peak: peak ?? rank,
-      lowest: lowest ?? rank,
     },
   };
 }

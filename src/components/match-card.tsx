@@ -29,9 +29,21 @@ const renderLabel = (option: Pick, match: MatchWithPrediction) => {
   const code = option === "1" ? match.homeCode : match.awayCode;
   const isKnown = code !== "TBD";
 
+  const codeEl = <span className="tabular-nums">{code}</span>;
+  const flagEl = isKnown ? <Flag code={code} /> : null;
+
+  if (option === "1") {
+    return (
+      <>
+        {codeEl}
+        {flagEl && <Flag code={code} className="ml-1" />}
+      </>
+    );
+  }
+
   return (
     <>
-      {isKnown && <Flag code={code} />}
+      {flagEl}
       <span className="ml-1 tabular-nums">{code}</span>
     </>
   );
