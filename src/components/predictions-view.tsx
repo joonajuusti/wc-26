@@ -93,11 +93,13 @@ export function PredictionsView({
 
   const upcomingRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const didMount = useRef(false);
   const selfContentRef = useRef<HTMLDivElement>(null);
   const compareContentRef = useRef<HTMLDivElement>(null);
   const [forceWrap, setForceWrap] = useState(false);
 
-  useIsomorphicLayoutEffect(() => {
+  function scrollToUpcoming() {
     const target = upcomingRef.current;
     if (!target) return;
     const sticky = stickyRef.current;
@@ -105,7 +107,23 @@ export function PredictionsView({
       target.style.scrollMarginTop = `${sticky.offsetHeight}px`;
     }
     target.scrollIntoView({ block: "start" });
+  }
+
+  useIsomorphicLayoutEffect(() => {
+    scrollToUpcoming();
   }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+    if (onlyOpen) {
+      topRef.current?.scrollIntoView({ block: "start" });
+    } else {
+      scrollToUpcoming();
+    }
+  }, [onlyOpen]);
 
   useIsomorphicLayoutEffect(() => {
     if (!isComparing) {
@@ -121,6 +139,7 @@ export function PredictionsView({
 
   return (
     <>
+      <div ref={topRef} />
       {allUserNames.length > 0 && (
         <div className="mb-4 flex items-center justify-end gap-2">
           <span
