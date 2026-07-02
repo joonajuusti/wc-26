@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useOptimistic, useTransition } from "react";
+import {
+  useState,
+  useOptimistic,
+  useTransition,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { useRouter } from "next/navigation";
 import { MatchCard, type MatchWithPrediction } from "@/components/match-card";
 import { Select, Checkbox } from "@/components/ui/form";
@@ -8,6 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { STAGE_LABELS } from "@/lib/stages";
 import { cn } from "@/lib/cn";
 import { type Comparison } from "@/components/predictions-list";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const formatGuessCount = (correct: number, total: number) => {
   const percentage = ((correct / total) * 100).toFixed(0);
@@ -76,6 +86,24 @@ export function PredictionsView({
     groupedByStage.get(m.stage)!.push(m);
   }
 
+  const now = new Date();
+  const upcomingId = filtered.find(
+    (m) => new Date(m.kickoffUtc) >= now,
+  )?.id;
+
+  const upcomingRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    const target = upcomingRef.current;
+    if (!target) return;
+    const sticky = stickyRef.current;
+    if (sticky) {
+      target.style.scrollMarginTop = `${sticky.offsetHeight}px`;
+    }
+    target.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <>
       {allUserNames.length > 0 && (
@@ -137,7 +165,7 @@ export function PredictionsView({
         </div>
       )}
 
-      <div className="mb-4 flex items-center gap-3">
+      <div ref={stickyRef} className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-3 bg-zinc-50 px-4 pb-2 pt-3">
         <label className="flex cursor-pointer select-none items-start gap-2 text-base text-zinc-600">
           <Checkbox
             checked={onlyOpen}
@@ -164,14 +192,24 @@ export function PredictionsView({
             {STAGE_LABELS[stage] || stage}
           </h2>
           <div className="space-y-8">
-            {stageMatches.map((match) => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                stageLabel={STAGE_LABELS[match.stage] || match.stage}
-                comparison={comparison}
-              />
-            ))}
+            {stageMatches.map((match) =>
+              match.id === upcomingId ? (
+                <div key={match.id} ref={upcomingRef}>
+                  <MatchCard
+                    match={match}
+                    stageLabel={STAGE_LABELS[match.stage] || match.stage}
+                    comparison={comparison}
+                  />
+                </div>
+              ) : (
+                <MatchCard
+                  key={match.id}
+                  match={match}
+                  stageLabel={STAGE_LABELS[match.stage] || match.stage}
+                  comparison={comparison}
+                />
+              ),
+            )}
           </div>
         </div>
       ))}
