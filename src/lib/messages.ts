@@ -26,8 +26,7 @@ export const messages = {
     },
     draws: {
       eyebrow: "Tasapelien tietäjä",
-      detail:
-        "Turnauksessa pelattiin {tournamentCount} tasapeliä — osuit niihin {pct}%:n tarkkuudella.",
+      detail: "Tasapelit ovat usein vaikeimpia ennustaa.",
       leader: "Eniten oikeita tasapelejä: {name} ({count}/{total})",
     },
     unanimous: {
@@ -41,12 +40,12 @@ export const messages = {
       empty:
         "Tälle porukalle mikään ottelu ei ollut liian vaikea — jokaisen ottelun veikkasi joku oikein.",
       detail:
-        "{count, plural, one {# ottelu, jota kukaan ei veikannut oikein:} other {# ottelua, joita kukaan ei veikannut oikein:}}",
+        "{count, plural, one {Kukaan ei veikannut tätä ottelua oikein.} other {Kukaan ei veikannut näitä otteluita oikein.}}",
     },
     loneWolf: {
       eyebrow: "Parempi kuin muut",
       zero: "Et ollut kertaakaan yksin oikeassa — menit turvallisesti muiden mukana.",
-      some: "Olit {count} ottelussa ainoa oikein veikannut.",
+      some: "Näin monessa ottelussa olit ainoa oikein veikannut.",
       leader: "Eniten ainoita oikeita veikkauksia: {name} ({count})",
     },
     twinNemesis: {

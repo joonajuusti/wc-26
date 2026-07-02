@@ -305,12 +305,7 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
           suffix={`/${draws.tournamentCount}`}
         />
 
-        <p className="text-base text-white/70">
-          {t(M.wrapped.draws.detail).format({
-            tournamentCount: draws.tournamentCount,
-            pct: draws.pct,
-          })}
-        </p>
+        <p className="text-base text-white/70">{M.wrapped.draws.detail}</p>
         {draws.leader && (
           <p className="text-sm text-white/50">
             {t(M.wrapped.draws.leader).format({
@@ -379,9 +374,7 @@ export function WrappedView({ stats }: { stats: WrappedStats }) {
         <p className="max-w-[16rem] text-base text-white/70">
           {loneWolf.correctMatches.length === 0
             ? M.wrapped.loneWolf.zero
-            : t(M.wrapped.loneWolf.some).format({
-                count: loneWolf.correctMatches.length,
-              })}
+            : M.wrapped.loneWolf.some}
         </p>
         {loneWolf.leader && (
           <p className="text-sm text-white/50">
