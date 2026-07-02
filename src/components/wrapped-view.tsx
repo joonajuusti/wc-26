@@ -73,7 +73,7 @@ function RankGraph({
   groupStageMatchCount: number;
 }) {
   const W = 300;
-  const H = 200;
+  const H = 240;
   const padLeft = 28;
   const padRight = 16;
   const padTop = 20;
@@ -103,7 +103,7 @@ function RankGraph({
   const ranks = Array.from(new Array(playerCount));
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-[300px]">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
       <defs>
         <linearGradient id="rankArea" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(255,255,255,0.18)" />
@@ -139,7 +139,7 @@ function RankGraph({
         const rank = i + 1;
 
         const isEmphasized =
-          rank % 4 === 0 || rank === 1 || rank === playerCount;
+          rank % 3 === 0 || rank === 1 || rank === playerCount;
 
         return (
           <Fragment key={rank}>
@@ -150,10 +150,9 @@ function RankGraph({
               y2={py(rank)}
               stroke={
                 isEmphasized
-                  ? "rgba(255,255,255,0.12)"
-                  : "rgba(255,255,255,0.06)"
+                  ? "rgba(255,255,255,0.18)"
+                  : "rgba(255,255,255,0.08)"
               }
-              strokeDasharray={isEmphasized ? "" : "1 3"}
               key={rank}
             />
             {isEmphasized ? (
@@ -161,7 +160,7 @@ function RankGraph({
                 x={padLeft - 6}
                 y={py(rank) + 3}
                 textAnchor="end"
-                className="fill-white/30 text-[10px]"
+                className="fill-white/30 text-[12px]"
               >
                 {rank}
               </text>
@@ -171,9 +170,9 @@ function RankGraph({
       })}
       <text
         x={px(groupStageMatchCount)}
-        y={H - 15}
+        y={H - 12}
         textAnchor="middle"
-        className="fill-white/30 text-[9px]"
+        className="fill-white/30 text-[11px]"
       >
         {`Pudotuspelit ->`}
       </text>
@@ -287,7 +286,7 @@ export function WrappedView({
         {draws.leader && (
           <p className="text-sm text-white/50">
             {t(M.wrapped.draws.leader).format({
-              name: draws.leader.name,
+              name: draws.leader.names.join(", "),
               count: draws.leader.count,
               total: draws.tournamentCount,
             })}
@@ -371,7 +370,7 @@ export function WrappedView({
         {loneWolf.leader && (
           <p className="text-sm text-white/50">
             {t(M.wrapped.loneWolf.leader).format({
-              name: loneWolf.leader.name,
+              name: loneWolf.leader.names.join(", "),
               count: loneWolf.leader.count,
             })}
           </p>

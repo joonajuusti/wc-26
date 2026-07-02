@@ -29,20 +29,20 @@ export type WrappedStats = {
     yourCorrect: number;
     tournamentCount: number;
     pct: number;
-    leader: { name: string; count: number } | null;
+    leader: { names: string[]; count: number } | null;
   };
   decisive: {
     yourCorrect: number;
     tournamentCount: number;
     pct: number;
-    leader: { name: string; count: number } | null;
+    leader: { names: string[]; count: number } | null;
   };
   unanimous: { count: number; correct: number };
   nobodyCorrect: {
     matches: { homeCode: string; awayCode: string; result: string }[];
   };
   loneWolf: {
-    leader: { name: string; count: number } | null;
+    leader: { names: string[]; count: number } | null;
     correctMatches: { homeCode: string; awayCode: string; result: string }[];
   };
   twin: { name: string; agreement: number } | null;
@@ -91,13 +91,18 @@ function rankMap(
 function correctLeader(
   matches: ResolvedMatch[],
   users: { id: number; name: string }[],
-): { name: string; count: number } | null {
-  let best = { name: "", count: 0 };
-  for (const u of users) {
-    const count = matches.filter((m) => m.picks.get(u.id) === m.result).length;
-    if (count > best.count) best = { name: u.name, count };
-  }
-  return best.count === 0 ? null : best;
+): { names: string[]; count: number } | null {
+  let bestCount = 0;
+  const counts = users.map((u) => ({
+    name: u.name,
+    count: matches.filter((m) => m.picks.get(u.id) === m.result).length,
+  }));
+  for (const c of counts) if (c.count > bestCount) bestCount = c.count;
+  if (bestCount === 0) return null;
+  return {
+    names: counts.filter((c) => c.count === bestCount).map((c) => c.name),
+    count: bestCount,
+  };
 }
 
 export function buildResolvedMatches(
@@ -150,7 +155,8 @@ function toOneGuessStrat(
   let potentialRank = pointsById.entries.length;
 
   for (const entry of sortedPoints) {
-    if (correctCount > entry[1]) {
+    console.log(entry);
+    if (correctCount >= entry[1]) {
       potentialRank = ranksById.get(entry[0]) ?? potentialRank;
     }
   }
@@ -235,17 +241,22 @@ export function computeWrappedStats(
   });
 
   const loneWolfLeader = (() => {
-    let best = { name: "", count: 0 };
-    for (const u of users) {
-      const count = resolved.filter((m) => {
+    let bestCount = 0;
+    const counts = users.map((u) => ({
+      name: u.name,
+      count: resolved.filter((m) => {
         const correct = [...m.picks.entries()].filter(
           ([, pick]) => pick === m.result,
         );
         return correct.length === 1 && correct[0][0] === u.id;
-      }).length;
-      if (count > best.count) best = { name: u.name, count };
-    }
-    return best.count === 0 ? null : best;
+      }).length,
+    }));
+    for (const c of counts) if (c.count > bestCount) bestCount = c.count;
+    if (bestCount === 0) return null;
+    return {
+      names: counts.filter((c) => c.count === bestCount).map((c) => c.name),
+      count: bestCount,
+    };
   })();
 
   const others = users.filter((u) => u.id !== targetUserId);
