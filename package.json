@@ -13,7 +13,11 @@
     "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
     "dev:local": "DB_URL=file:local.db npm run db:setup && DB_URL=file:local.db npm run dev",
     "migrate:local": "DB_URL=file:local.db npm run db:migrate",
-    "seed:local": "DB_URL=file:local.db npm run db:seed"
+    "seed:local": "DB_URL=file:local.db npm run db:seed",
+    "seed:test:initial": "DB_URL=file:local.db tsx scripts/seed-test.ts --mode=initial",
+    "seed:test:progress": "DB_URL=file:local.db tsx scripts/seed-test.ts --mode=progress",
+    "seed:test:finished": "DB_URL=file:local.db tsx scripts/seed-test.ts --mode=finished",
+    "seed:test:random": "DB_URL=file:local.db tsx scripts/seed-test.ts --mode=random"
   },
   "dependencies": {
     "@libsql/client": "^0.17.3",

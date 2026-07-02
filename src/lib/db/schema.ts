@@ -11,6 +11,9 @@ export const users = sqliteTable("users", {
   name: text("name").notNull().unique(),
   inviteCode: text("invite_code").notNull().unique(),
   isAdmin: integer("is_admin", { mode: "boolean" }).notNull().default(false),
+  hasSeenResultsSummary: integer("has_seen_results_summary", {
+    mode: "boolean",
+  }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),

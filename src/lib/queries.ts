@@ -44,3 +44,8 @@ export async function getLockedPredictions(): Promise<
     .where(eq(matches.locked, true));
   return groupByMatchId(rows);
 }
+
+export async function isTournamentOver(): Promise<boolean> {
+  const rows = await db.select({ result: matches.result }).from(matches);
+  return rows.length > 0 && rows.every((r) => r.result !== null);
+}

@@ -1,8 +1,9 @@
 import { getSessionUser } from "@/lib/auth";
-import { getUsers, getLockedPredictions } from "@/lib/queries";
+import { getUsers, getLockedPredictions, isTournamentOver } from "@/lib/queries";
 import { computeStandings } from "@/lib/scoring";
 import { getFormWindow, computeRecentForm } from "@/lib/form";
 import { FormStrip } from "@/components/form-strip";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 const PEDESTALS = [
@@ -31,12 +32,18 @@ const PEDESTALS = [
 
 export default async function LeaderboardPage() {
   const currentUser = await getSessionUser();
-  if (!currentUser) return null;
+  if (!currentUser) redirect("/");
 
   const [allUsers, lockedByMatch] = await Promise.all([
     getUsers(),
     getLockedPredictions(),
   ]);
+
+  const tournamentOver = await isTournamentOver();
+  const me = allUsers.find((u) => u.id === currentUser.id);
+  if (tournamentOver && me && !me.hasSeenResultsSummary) {
+    redirect(`/wrapped/${encodeURIComponent(me.name)}`);
+  }
 
   const picksByMatch = new Map<number, Map<number, string>>();
   for (const [matchId, preds] of lockedByMatch) {
@@ -96,29 +103,39 @@ export default async function LeaderboardPage() {
           const isShared = (rankCounts.get(user.rank) ?? 0) > 1;
           const isFirstOfRank =
             index === 0 || ranked[index - 1].rank !== user.rank;
+          const ownWrappedHref = `/wrapped/${encodeURIComponent(user.name)}`;
           const href = isMe
-            ? "/predictions"
+            ? tournamentOver
+              ? ownWrappedHref
+              : "/predictions"
             : `/predictions?compare=${encodeURIComponent(user.name)}`;
 
           return (
             <Link
               key={user.id}
               href={href}
-              className={`flex items-center justify-between gap-2 px-1 py-4 transition-colors hover:bg-zinc-50 ${
-                isMe ? "bg-primary-100" : ""
+              className={`flex items-center justify-between gap-2 px-1 py-4 ${
+                isMe ? "bg-primary-100" : "transition-colors hover:bg-zinc-50"
               }`}
             >
               <div className="flex min-w-0 items-center gap-3">
                 <span className="w-8 shrink-0 text-center text-base font-bold tabular-nums text-zinc-400">
                   {isShared && !isFirstOfRank ? "=" : user.rank}
                 </span>
-                <span
-                  className={`min-w-0 truncate text-base ${
-                    isMe ? "font-semibold text-primary-700" : "text-zinc-700"
-                  }`}
-                >
-                  {user.name}
-                </span>
+                <div className="flex min-w-0 flex-col">
+                  <span
+                    className={`min-w-0 truncate text-base ${
+                      isMe ? "font-semibold text-primary-700" : "text-zinc-700"
+                    }`}
+                  >
+                    {user.name}
+                  </span>
+                  {isMe && tournamentOver && (
+                    <span className="text-xs font-medium text-primary-600">
+                      Näytä yhteenveto →
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 {windowMatches.length > 0 && (

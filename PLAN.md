@@ -125,12 +125,6 @@ handling itself stays external (cash/transfer), but the app surfaces the math:
 - **Configurable payout split**: define the split in config (e.g. 60/30/10 for top 3,
   winner-takes-all, etc.).
 
-### 24. End-of-tournament share card
-
-At tournament end, generate a shareable "my season" summary card: final rank, best streak
-(from #18), biggest upset call, pot result (from #23). Lightweight bragging-rights output
-that fits the friends-game spirit.
-
 ---
 
 ## Visual polish

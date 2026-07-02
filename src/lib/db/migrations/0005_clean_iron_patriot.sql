@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `has_seen_results_summary` integer DEFAULT false NOT NULL;

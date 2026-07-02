@@ -20,7 +20,7 @@ const client = createClient(
 
 const db = drizzle(client);
 
-function flagEmoji(cc: string): string {
+export function flagEmoji(cc: string): string {
   return String.fromCodePoint(
     ...cc
       .toUpperCase()
@@ -29,12 +29,12 @@ function flagEmoji(cc: string): string {
   );
 }
 
-const SCOTLAND_FLAG =
+export const SCOTLAND_FLAG =
   "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}";
-const ENGLAND_FLAG =
+export const ENGLAND_FLAG =
   "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}";
 
-const WC2026_TEAMS: { id: string; name: string; flag: string; group: string }[] = [
+export const WC2026_TEAMS: { id: string; name: string; flag: string; group: string }[] = [
   { id: "MEX", name: "Meksiko", flag: flagEmoji("MX"), group: "A" },
   { id: "RSA", name: "Etelä-Afrikka", flag: flagEmoji("ZA"), group: "A" },
   { id: "KOR", name: "Etelä-Korea", flag: flagEmoji("KR"), group: "A" },
@@ -90,7 +90,7 @@ const WC2026_TEAMS: { id: string; name: string; flag: string; group: string }[] 
   { id: "PAN", name: "Panama", flag: flagEmoji("PA"), group: "L" },
 ];
 
-const GROUP_MATCHES: { home: string; away: string; kickoffUtc: string }[] = [
+export const GROUP_MATCHES: { home: string; away: string; kickoffUtc: string }[] = [
   { home: "Meksiko", away: "Etelä-Afrikka", kickoffUtc: "2026-06-11T19:00:00Z" },
   { home: "Etelä-Korea", away: "Tshekki", kickoffUtc: "2026-06-12T02:00:00Z" },
   { home: "Kanada", away: "Bosnia-Hertsegovina", kickoffUtc: "2026-06-12T19:00:00Z" },
@@ -165,7 +165,7 @@ const GROUP_MATCHES: { home: string; away: string; kickoffUtc: string }[] = [
   { home: "Jordania", away: "Argentiina", kickoffUtc: "2026-06-28T02:00:00Z" },
 ];
 
-const R32_KICKOFFS = [
+export const R32_KICKOFFS = [
   "2026-06-28T19:00:00Z",
   "2026-06-29T17:00:00Z",
   "2026-06-29T20:30:00Z",
@@ -184,7 +184,7 @@ const R32_KICKOFFS = [
   "2026-07-04T01:30:00Z",
 ];
 
-const R16_KICKOFFS = [
+export const R16_KICKOFFS = [
   "2026-07-04T17:00:00Z",
   "2026-07-04T21:00:00Z",
   "2026-07-05T20:00:00Z",
@@ -195,19 +195,19 @@ const R16_KICKOFFS = [
   "2026-07-07T20:00:00Z",
 ];
 
-const QF_KICKOFFS = [
+export const QF_KICKOFFS = [
   "2026-07-09T20:00:00Z",
   "2026-07-10T19:00:00Z",
   "2026-07-11T21:00:00Z",
   "2026-07-12T01:00:00Z",
 ];
 
-const SF_KICKOFFS = [
+export const SF_KICKOFFS = [
   "2026-07-14T19:00:00Z",
   "2026-07-15T19:00:00Z",
 ];
 
-function generateKoMatches(startId: number) {
+export function generateKoMatches(startId: number) {
   const koMatches: (typeof matches.$inferInsert)[] = [];
   let id = startId;
 
@@ -297,7 +297,10 @@ async function seed() {
   console.log("Seed complete!");
 }
 
-seed().catch((err) => {
-  console.error("Seed failed:", err);
-  process.exit(1);
-});
+const isMain = process.argv[1]?.endsWith("scripts/seed.ts");
+if (isMain) {
+  seed().catch((err) => {
+    console.error("Seed failed:", err);
+    process.exit(1);
+  });
+}

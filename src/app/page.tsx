@@ -1,6 +1,7 @@
 import { getSessionUser } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 import { redirect, RedirectType } from "next/navigation";
+import { isTournamentOver } from "@/lib/queries";
 
 export default async function LoginPage(props: {
   searchParams: Promise<{ expired?: string }>;
@@ -9,7 +10,8 @@ export default async function LoginPage(props: {
   const user = await getSessionUser();
 
   if (!!user) {
-    redirect("/predictions", RedirectType.replace);
+    const over = await isTournamentOver();
+    redirect(over ? "/leaderboard" : "/predictions", RedirectType.replace);
   }
 
   return (
