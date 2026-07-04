@@ -69,9 +69,11 @@ export function PredictionsView({
     startTransition(() => {
       setOptimisticTarget(name);
       if (name) {
-        router.push(`/predictions?compare=${encodeURIComponent(name)}`);
+        router.push(`/predictions?compare=${encodeURIComponent(name)}`, {
+          scroll: false,
+        });
       } else {
-        router.push("/predictions");
+        router.push("/predictions", { scroll: false });
       }
     });
   }
