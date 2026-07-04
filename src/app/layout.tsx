@@ -37,8 +37,8 @@ export default async function RootLayout({
     <html lang="fi" className={`${geistSans.variable} w-full antialiased`}>
       <body className="w-full overflow-x-hidden bg-zinc-50 font-sans">
         <div className="flex h-dvh flex-col">
-          {user && <Header name={user.name} />}
           <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            {user && <Header name={user.name} />}
             <Suspense>{children}</Suspense>
           </div>
           {user && <BottomNav isAdmin={user.isAdmin} />}

@@ -37,7 +37,7 @@ export default async function PredictionsPage(props: {
     .map((u) => u.name);
 
   return (
-    <div className="ft-fade-in mx-auto w-full max-w-2xl px-4 pb-4 pt-4">
+    <div className="ft-fade-in mx-auto w-full max-w-2xl px-4 pb-4">
       <PredictionsList
         userId={user.id}
         showSummary

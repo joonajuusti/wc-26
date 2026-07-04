@@ -11,6 +11,7 @@ import {
   LogOut,
   X,
   Minus,
+  ChevronDown,
 } from "lucide-react";
 
 export const PredictionsIcon = ListChecks;
@@ -25,3 +26,4 @@ export const CopyIcon = Copy;
 export const LogOutIcon = LogOut;
 export const XIcon = X;
 export const MinusIcon = Minus;
+export const ChevronDownIcon = ChevronDown;

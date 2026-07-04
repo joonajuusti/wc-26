@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { STAGE_LABELS } from "@/lib/stages";
 import { cn } from "@/lib/cn";
 import { type Comparison } from "@/components/predictions-list";
+import { ChevronDownIcon } from "@/components/icons";
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -55,6 +56,7 @@ export function PredictionsView({
 }) {
   const router = useRouter();
   const [onlyOpen, setOnlyOpen] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   const [optimisticTarget, setOptimisticTarget] = useOptimistic(
     getComparisonTarget(comparison),
@@ -140,79 +142,92 @@ export function PredictionsView({
   return (
     <>
       <div ref={topRef} />
-      {allUserNames.length > 0 && (
-        <div className="mb-4 flex items-center justify-end gap-2">
-          <span
-            className={cn(
-              "h-2 w-2 shrink-0 rounded-full",
-              isComparing ? "bg-accent-400" : "bg-zinc-300",
-            )}
-          />
-          <span
-            className={cn(
-              "shrink-0 text-sm",
-              isComparing ? "text-accent-700" : "text-zinc-500",
-            )}
-          >
-            Vertaile:
-          </span>
-          <Select
-            value={optimisticTarget}
-            onChange={(e) => handleCompareChange(e.target.value)}
-            className="w-auto"
-          >
-            <option value="">Ei vertailua</option>
-            <option value="all">Kaikkien kanssa</option>
-            {allUserNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </Select>
-        </div>
-      )}
+      <div ref={stickyRef} className="sticky top-0 z-10 -mx-4 mb-4 bg-zinc-50 px-4 pb-3 pt-3">
+        {allUserNames.length > 0 && (
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => setShowComparison((v) => !v)}
+              className="flex w-full items-center justify-end gap-1.5 text-sm text-zinc-500"
+            >
+              <span
+                className={cn(
+                  "h-2 w-2 shrink-0 rounded-full",
+                  isComparing ? "bg-accent-400" : "bg-zinc-300",
+                )}
+              />
+              {showComparison ? "Piilota vertailu" : "Näytä vertailu"}
+              <ChevronDownIcon
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-transform",
+                  showComparison && "rotate-180",
+                )}
+              />
+            </button>
+            {showComparison && (
+              <div className="mt-3 space-y-3">
+                <div className="flex items-center justify-end gap-2">
+                  <Select
+                    value={optimisticTarget}
+                    onChange={(e) => handleCompareChange(e.target.value)}
+                    className="w-auto"
+                  >
+                    <option value="">Ei vertailua</option>
+                    <option value="all">Kaikkien kanssa</option>
+                    {allUserNames.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
 
-      {showSummary && totalWithResult > 0 && (
-        <div className={cn("mb-4 grid gap-3", isComparing ? "grid-cols-2" : "grid-cols-1")}>
-          <div className="rounded-lg bg-primary-100 px-2 py-3">
-            <div ref={selfContentRef} className="flex flex-wrap items-baseline gap-x-1">
-              <span className={cn("whitespace-nowrap text-base text-primary-700", forceWrap && "w-full")}>
-                {isComparing ? "Sinä:" : "Oikein:"}
-              </span>
-              <span className="min-w-0 font-bold tabular-nums text-base text-primary-700 truncate">
-                {formatGuessCount(correctCount, totalWithResult)}
-              </span>
-            </div>
-          </div>
-          {isComparing && (
-            <div className="rounded-lg bg-accent-100 px-2 py-3">
-              <div ref={compareContentRef} className="flex flex-wrap items-baseline gap-x-1">
-                <span className={cn("min-w-0 truncate whitespace-nowrap text-base text-accent-700", forceWrap && "w-full")}>
-                  {comparison.user.name}:
-                </span>
-                <span className="min-w-0 font-bold tabular-nums text-base text-accent-700 truncate">
-                  {formatGuessCount(compareCorrectCount ?? 0, totalWithResult)}
-                </span>
+                {showSummary && totalWithResult > 0 && (
+                  <div className={cn("grid gap-3", isComparing ? "grid-cols-2" : "grid-cols-1")}>
+                    <div className="rounded-lg bg-primary-100 px-2 py-3">
+                      <div ref={selfContentRef} className="flex flex-wrap items-baseline gap-x-1">
+                        <span className={cn("whitespace-nowrap text-sm text-primary-700", forceWrap && "w-full")}>
+                          {isComparing ? "Sinä:" : "Oikein:"}
+                        </span>
+                        <span className="min-w-0 font-bold tabular-nums text-sm text-primary-700 truncate">
+                          {formatGuessCount(correctCount, totalWithResult)}
+                        </span>
+                      </div>
+                    </div>
+                    {isComparing && (
+                      <div className="rounded-lg bg-accent-100 px-2 py-3">
+                        <div ref={compareContentRef} className="flex flex-wrap items-baseline gap-x-1">
+                          <span className={cn("min-w-0 truncate whitespace-nowrap text-sm text-accent-700", forceWrap && "w-full")}>
+                            {comparison.user.name}:
+                          </span>
+                          <span className="min-w-0 font-bold tabular-nums text-sm text-accent-700 truncate">
+                            {formatGuessCount(compareCorrectCount ?? 0, totalWithResult)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <label className="flex cursor-pointer select-none items-start gap-2 text-base text-zinc-600">
+            <Checkbox
+              checked={onlyOpen}
+              onChange={(e) => setOnlyOpen(e.target.checked)}
+              className="mt-0.5 shrink-0"
+            />
+            Vain veikattavissa olevat
+          </label>
+          {unpredicted > 0 && (
+            <Badge variant="warning" className="ml-auto shrink-0 self-start whitespace-nowrap">
+              {unpredicted} veikkaamatta
+            </Badge>
           )}
         </div>
-      )}
-
-      <div ref={stickyRef} className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-3 bg-zinc-50 px-4 pb-2 pt-3">
-        <label className="flex cursor-pointer select-none items-start gap-2 text-base text-zinc-600">
-          <Checkbox
-            checked={onlyOpen}
-            onChange={(e) => setOnlyOpen(e.target.checked)}
-            className="mt-0.5 shrink-0"
-          />
-          Vain veikattavissa olevat
-        </label>
-        {unpredicted > 0 && (
-          <Badge variant="warning" className="ml-auto shrink-0 self-start whitespace-nowrap">
-            {unpredicted} veikkaamatta
-          </Badge>
-        )}
       </div>
 
       {filtered.length === 0 && (
