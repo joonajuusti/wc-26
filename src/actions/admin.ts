@@ -2,18 +2,46 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { matches, users } from "@/lib/db/schema";
+import { matches, teams, users } from "@/lib/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import { getSessionUser } from "@/lib/auth";
+import { resolveBracketUpdates } from "@/lib/bracket";
 
 export async function setMatchResult(matchId: number, result: "1" | "X" | "2") {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
-  await db
+  const [updated] = await db
     .update(matches)
     .set({ result, locked: true })
-    .where(eq(matches.id, matchId));
+    .where(eq(matches.id, matchId))
+    .returning();
+
+  if (updated) {
+    let allMatches: (typeof matches.$inferSelect)[] = [];
+    let teamGroups = new Map<string, string>();
+
+    if (updated.stage === "group") {
+      const [allTeams, groupRows] = await Promise.all([
+        db.select().from(teams),
+        db.select().from(matches).where(eq(matches.stage, "group")),
+      ]);
+      teamGroups = new Map(
+        allTeams
+          .filter((t) => t.groupLetter)
+          .map((t) => [t.id, t.groupLetter!]),
+      );
+      allMatches = groupRows;
+    }
+
+    for (const u of resolveBracketUpdates(updated, allMatches, teamGroups)) {
+      console.log(u);
+
+      const patch =
+        u.side === "home" ? { homeTeamId: u.teamId } : { awayTeamId: u.teamId };
+      await db.update(matches).set(patch).where(eq(matches.id, u.matchId));
+    }
+  }
 
   revalidatePath("/admin/matches");
   revalidatePath("/leaderboard");
@@ -99,10 +127,7 @@ export async function lockMatch(matchId: number) {
   const user = await getSessionUser();
   if (!user?.isAdmin) return { error: "Ei oikeuksia" };
 
-  await db
-    .update(matches)
-    .set({ locked: true })
-    .where(eq(matches.id, matchId));
+  await db.update(matches).set({ locked: true }).where(eq(matches.id, matchId));
 
   revalidatePath("/admin/matches");
   revalidatePath("/predictions");
